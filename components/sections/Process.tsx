@@ -23,6 +23,16 @@ function IconTile({ name }: { name: string }) {
   );
 }
 
+function StepTop({ n, title }: { n: string; title: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <IconTile name={title} />
+      <span aria-hidden="true" className="accent text-[28px] leading-none">{n}</span>
+    </div>
+  );
+}
+
+/** Compact tile: icon + number on one row, title, then the copy. */
 function Step({
   n,
   title,
@@ -33,13 +43,34 @@ function Step({
   children: React.ReactNode;
 }) {
   return (
-    <li className="card grid grid-cols-1 gap-6 p-7 text-left lg:grid-cols-[160px_minmax(0,1fr)_minmax(0,560px)] lg:gap-10 lg:p-7">
-      <div className="flex items-center gap-5 lg:flex-col lg:items-start lg:gap-5">
-        <span aria-hidden="true" className="accent text-[40px] leading-none">{n}</span>
-        <IconTile name={title} />
+    <li className="card flex flex-col p-8 text-left sm:p-10">
+      <StepTop n={n} title={title} />
+      <H3 className="mt-6 text-[26px] font-semibold leading-tight text-white">{title}</H3>
+      <Stack className="mx-0 mt-4 max-w-none text-[17px] [--muted:#c7c7cc]">{children}</Stack>
+    </li>
+  );
+}
+
+/** Full-width band: headline on the left, the copy on the right. */
+function Band({
+  n,
+  title,
+  headline,
+  children,
+}: {
+  n: string;
+  title: string;
+  headline: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <li className="card grid grid-cols-1 gap-10 p-10 text-left sm:p-14 md:col-span-2 md:grid-cols-[38fr_62fr] md:gap-12">
+      <div>
+        <StepTop n={n} title={title} />
+        <p className="mt-6 text-[12px] font-medium uppercase leading-none tracking-[0.14em] text-[#c7c7cc]">{title}</p>
+        <H3 className="mt-3 font-semibold text-white">{headline}</H3>
       </div>
-      <H3 className="text-[26px] font-semibold leading-tight text-white">{title}</H3>
-      <Stack className="max-w-none text-[17px] [--muted:#c7c7cc]">{children}</Stack>
+      <Stack className="mx-0 max-w-none text-[17px] [--muted:#c7c7cc]">{children}</Stack>
     </li>
   );
 }
@@ -65,29 +96,20 @@ export function Process() {
         </Prose>
       </Reveal>
 
-      <Reveal className="stagger relative mt-14 sm:mt-20">
-      <span aria-hidden="true" className="absolute bottom-10 left-7 top-10 hidden w-0.5 bg-red/30 lg:block" />
-      <ol className="contents [&>li+li]:mt-4">
+      <Reveal className="stagger mt-14 grid grid-cols-1 items-stretch gap-5 sm:mt-20 md:grid-cols-2">
+      <ol className="contents">
         <Step n="01" title="Product">
           <P>We take what&rsquo;s in your head and turn it into a product that makes sense.</P>
-          <P>
-            What should the app actually do? What does the user experience? What belongs in the
-            first version?
-          </P>
+          <P>What should the app actually do? What belongs in the first version?</P>
           <P>We&rsquo;ll figure that out together.</P>
         </Step>
 
         <Step n="02" title="Design">
-          <P>
-            We design the entire experience: screens, interactions, navigation and visual
-            identity.
-          </P>
-          <P>It should work beautifully.</P>
-          <P>And it should look like a product you&rsquo;re proud to put your name on.</P>
+          <P>We design the entire experience: screens, interactions, navigation and visual identity.</P>
+          <P>It should look like a product you&rsquo;re proud to put your name on.</P>
         </Step>
 
         <Step n="03" title="Development">
-          <P>Then we build it.</P>
           <P>
             The application, backend, database, APIs, integrations and technical infrastructure
             needed to make the product work are our responsibility.
@@ -95,9 +117,20 @@ export function Process() {
           <P>You don&rsquo;t need to know what any of those things mean.</P>
         </Step>
 
-        <Step n="04" title="Refinement">
+        <Step n="05" title="Launch">
+          <P>When the app is finished, we don&rsquo;t hand you a folder and disappear.</P>
+          <P>
+            App Store submission is included. We&rsquo;ll take care of getting it submitted and
+            work through the process with you.
+          </P>
+          <Muted>
+            Apple controls its own review timeline, so App Store review takes place after the
+            21-day build.
+          </Muted>
+        </Step>
+
+        <Band n="04" title="Refinement" headline="You are allowed to change your mind.">
           <P>This is where Cortexity is different.</P>
-          <Strong>You are allowed to change your mind.</Strong>
           <P>You&rsquo;ll see the product as it develops.</P>
           <P>If something doesn&rsquo;t feel right, tell me.</P>
           <P>
@@ -106,21 +139,8 @@ export function Process() {
           </P>
           <P>If I think there&rsquo;s a better solution, I&rsquo;ll tell you too.</P>
           <P>We won&rsquo;t blindly follow a plan that no longer makes sense.</P>
-          <Strong>We&rsquo;re here to build a great first product.</Strong>
-        </Step>
-
-        <Step n="05" title="Launch">
-          <P>When the app is finished, we don&rsquo;t hand you a folder and disappear.</P>
-          <P>App Store submission is included.</P>
-          <P>
-            We&rsquo;ll take care of getting the finished product submitted and work through the
-            process with you.
-          </P>
-          <Muted>
-            Apple controls its own review timeline, so App Store review takes place after the
-            21-day build.
-          </Muted>
-        </Step>
+          <Strong className="text-white">We&rsquo;re here to build a great first product.</Strong>
+        </Band>
       </ol>
       </Reveal>
     </Section>

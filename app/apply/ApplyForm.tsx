@@ -1,0 +1,224 @@
+"use client";
+
+import Link from "next/link";
+import { useRef, useState, useTransition } from "react";
+import { P } from "@/components/Text";
+import { submitApplication } from "./actions";
+import { ANYTHING_ELSE, CONTACT_EMAIL, DETAILS, findErrors, QUESTIONS, type Field, type FieldName } from "./fields";
+
+const NOTE = "I personally review every application.";
+
+/* ---------- primitives ---------- */
+
+function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-[24px] border border-[#e5e5ea] bg-white p-7 shadow-[0_8px_24px_rgba(0,0,0,0.05)] sm:p-9 ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+function Question({ n, label, help, htmlFor }: { n?: number; label: string; help?: string; htmlFor?: string }) {
+  return (
+    <>
+      <h2 className="text-h3">
+        {n ? <span className="accent mr-2">{n}.</span> : null}
+        {htmlFor ? <label htmlFor={htmlFor}>{label}</label> : label}
+      </h2>
+      {help ? <P className="mt-3 max-w-prose">{help}</P> : null}
+    </>
+  );
+}
+
+function RequiredLine({ show }: { show: boolean }) {
+  return show ? <p className="mt-2 text-small font-medium text-red">Required</p> : null;
+}
+
+const FIELD =
+  "block w-full rounded-[14px] border bg-[#f5f5f7] px-4 py-3.5 text-[16px] leading-[1.5] text-ink outline-none transition-colors placeholder:text-[#a1a1a6] focus:border-[#1d1d1f]";
+const border = (bad: boolean) => (bad ? "border-red" : "border-[#e5e5ea]");
+
+function Textarea({ f, bad }: { f: Extract<Field, { kind: "textarea" }>; bad: boolean }) {
+  return (
+    <textarea
+      id={f.name}
+      name={f.name}
+      rows={f.rows}
+      aria-invalid={bad || undefined}
+      className={`${FIELD} ${border(bad)} mt-5 resize-y`}
+    />
+  );
+}
+
+function Choice({ f, bad }: { f: Extract<Field, { kind: "choice" }>; bad: boolean }) {
+  return (
+    <fieldset className="mt-5" aria-invalid={bad || undefined}>
+      <legend className="sr-only">{f.label}</legend>
+      <div className={`flex flex-wrap gap-2.5 ${bad ? "rounded-[18px] outline outline-1 outline-offset-4 outline-red" : ""}`}>
+        {f.options.map((o) => (
+          <label key={o} className="cursor-pointer">
+            <input type="radio" name={f.name} value={o} className="peer sr-only" />
+            <span className="inline-flex min-h-11 items-center rounded-pill border border-transparent bg-[#f5f5f7] px-5 text-[16px] font-medium text-ink transition-colors peer-checked:bg-[#1d1d1f] peer-checked:text-white peer-focus-visible:border-[#1d1d1f] hover:bg-[#ebebef] peer-checked:hover:bg-[#1d1d1f]">
+              {o}
+            </span>
+          </label>
+        ))}
+      </div>
+      {f.help ? <P className="mt-4 max-w-prose text-small">{f.help}</P> : null}
+    </fieldset>
+  );
+}
+
+function Examples({ lines }: { lines: string[] }) {
+  return (
+    <details className="qa group mt-4">
+      <summary className="inline-flex items-center gap-2 text-small font-medium text-ink">
+        <span aria-hidden="true" className="qa-glyph flex h-6 w-6 items-center justify-center rounded-full bg-[#f5f5f7] text-[#6e6e73] transition-colors group-hover:text-red">
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </span>
+        Examples
+      </summary>
+      <ul className="qa-body mt-3 space-y-2 pl-8">
+        {lines.map((l) => (
+          <li key={l} className="text-small text-ink-muted">
+            {l}
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
+/* ---------- the form ---------- */
+
+export function ApplyForm() {
+  const formRef = useRef<HTMLFormElement>(null);
+  const [errors, setErrors] = useState<Set<FieldName>>(new Set());
+  const [failed, setFailed] = useState(false);
+  const [done, setDone] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const values: Record<string, string> = {};
+    fd.forEach((v, k) => (values[k] = String(v)));
+    const missing = findErrors(values);
+    setErrors(new Set(missing));
+    setFailed(false);
+    if (missing.length) {
+      const first = form.querySelector<HTMLElement>(`[data-field="${missing[0]}"]`);
+      first?.scrollIntoView({ behavior: "smooth", block: "center" });
+      (first?.querySelector("textarea, input") as HTMLElement | null)?.focus({ preventScroll: true });
+      return;
+    }
+    startTransition(async () => {
+      const res = await submitApplication(fd);
+      if (res.ok) {
+        setDone(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        if (res.fields?.length) setErrors(new Set(res.fields));
+        setFailed(true);
+      }
+    });
+  };
+
+  if (done) {
+    return (
+      <Card className="text-center">
+        <h2 className="text-h2">Got it.</h2>
+        <P className="mx-auto mt-5 max-w-prose">
+          I’ll read your application myself and reply within 48 hours. If it’s a fit, we’ll set up a call.
+        </P>
+        <Link
+          href="/"
+          className="mt-8 inline-flex min-h-12 items-center justify-center rounded-pill bg-[#1d1d1f] px-7 text-[1rem] font-medium text-white transition-transform duration-200 hover:-translate-y-0.5"
+        >
+          Back to Cortexity
+        </Link>
+      </Card>
+    );
+  }
+
+  return (
+    <form ref={formRef} onSubmit={onSubmit} noValidate className="relative space-y-5">
+      {QUESTIONS.map((f, i) => {
+        const n = i + 1;
+        const bad = errors.has(f.name as FieldName);
+        return (
+          <Card key={f.name} className="scroll-mt-28">
+            <div data-field={f.name}>
+              <Question n={n} label={f.label} help={f.kind === "textarea" ? f.help : undefined} htmlFor={f.kind === "textarea" ? f.name : undefined} />
+              {f.kind === "textarea" && f.examples ? <Examples lines={f.examples} /> : null}
+              {f.kind === "textarea" ? <Textarea f={f} bad={bad} /> : <Choice f={f} bad={bad} />}
+              <RequiredLine show={bad} />
+            </div>
+          </Card>
+        );
+      })}
+
+      <Card>
+        <h2 className="text-h3">Your details</h2>
+        <div className="mt-5 space-y-5">
+          {DETAILS.map((d) => {
+            const bad = errors.has(d.name);
+            return (
+              <div key={d.name} data-field={d.name}>
+                <label htmlFor={d.name} className="block text-[15px] font-medium text-ink">
+                  {d.label}
+                </label>
+                <input
+                  id={d.name}
+                  name={d.name}
+                  type={d.type}
+                  autoComplete={d.autoComplete}
+                  placeholder={"placeholder" in d ? d.placeholder : undefined}
+                  aria-invalid={bad || undefined}
+                  className={`${FIELD} ${border(bad)} mt-2`}
+                />
+                <RequiredLine show={bad} />
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
+      <Card>
+        <div data-field={ANYTHING_ELSE.name}>
+          <Question n={QUESTIONS.length + 1} label={ANYTHING_ELSE.label} help={ANYTHING_ELSE.kind === "textarea" ? ANYTHING_ELSE.help : undefined} htmlFor={ANYTHING_ELSE.name} />
+          {ANYTHING_ELSE.kind === "textarea" ? <Textarea f={ANYTHING_ELSE} bad={false} /> : null}
+        </div>
+      </Card>
+
+      {/* Honeypot: hidden from people, filled by bots. */}
+      <div className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+        <label htmlFor="company">Company</label>
+        <input id="company" name="company" type="text" tabIndex={-1} autoComplete="off" />
+      </div>
+
+      <div className="flex flex-col items-center gap-3 pt-4">
+        <button
+          type="submit"
+          disabled={pending}
+          className="inline-flex min-h-14 w-full items-center justify-center rounded-pill bg-red px-9 text-[1.0625rem] font-medium tracking-[-0.01em] text-white shadow-[0_10px_30px_rgba(224,32,26,0.35)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-wait disabled:opacity-70 disabled:hover:translate-y-0 md:w-auto"
+        >
+          {pending ? "Sending…" : "Submit Your Application"}
+        </button>
+        <span className="text-center text-[0.8125rem] text-ink-muted">{NOTE}</span>
+        {failed ? (
+          <p role="alert" className="mt-1 text-center text-small font-medium text-red">
+            Something went wrong. Please email me at{" "}
+            <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-4">
+              {CONTACT_EMAIL}
+            </a>{" "}
+            instead.
+          </p>
+        ) : null}
+      </div>
+    </form>
+  );
+}

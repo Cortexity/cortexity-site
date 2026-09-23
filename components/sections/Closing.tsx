@@ -1,7 +1,7 @@
 import { ApplyButton } from "../Button";
 import { Reveal } from "../Reveal";
 import { Prose, Section, Stack } from "../Section";
-import { Wordmark } from "../Wordmark";
+import { Footer } from "../Footer";
 import { Blobs, Dots } from "../Decor";
 import { SectionHead } from "../SectionHead";
 import { H3, Muted, P, Strong } from "../Text";
@@ -51,12 +51,7 @@ export function Closing() {
         </Reveal>
       </Section>
 
-      <footer className="tone-white relative px-5 sm:px-8">
-        <div className="mx-auto flex max-w-wide flex-col items-center gap-8 py-14 text-center sm:py-16">
-          <Wordmark size="lg" tagline />
-          <p className="text-small text-ink-muted">&copy; {new Date().getFullYear()} Cortexity</p>
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 }

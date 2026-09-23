@@ -26,9 +26,9 @@ const SECTIONS = [
 ];
 
 const RF2_PNG = { src: "/screens/reflexflow-2.png", alt: "ReflexFlow screen 2 (png)", width: 1320, height: 2868 };
-const RF2_LIVE = { src: "/screens/optimized/reflexflow-2.webp", alt: "ReflexFlow screen 2 (live webp)", width: 1320, height: 2868 };
+const RF2_LIVE = { src: "/screens/reflexflow-2.png", alt: "ReflexFlow screen 2 (live)", width: 1320, height: 2868 };
 const PADEL2_PNG = { src: "/screens/padel-2.png", alt: "Padel screen 2 (png)", width: 853, height: 1844 };
-const PADEL = { src: "/screens/optimized/padel-2.webp", alt: "Padel app, screen 2", width: 853, height: 1844 };
+const PADEL = { src: "/screens/padel-2.png", alt: "Padel app, screen 2", width: 853, height: 1844 };
 
 function lighten(hex: string, amt: number) {
   const n = parseInt(hex.slice(1), 16);
@@ -267,7 +267,7 @@ export default function Lab() {
           </div>
           {/* D: control — live Work rendering, unchanged */}
           <div>
-            <Label>D · control: reflexflow-2 exactly as the live Work section renders it (webp, w-[34%], -translate-y-10)</Label>
+            <Label>D · control: reflexflow-2 exactly as the live Work section renders it (png, w-[34%], -translate-y-10)</Label>
             <div data-swap="D" className="mx-auto w-full max-w-[56rem] rounded-[24px] bg-black p-6 pt-16">
               <Parallax className="relative flex items-end justify-center">
                 <PhoneFrame screen={RF2_LIVE} className="relative z-10 w-[34%] -translate-y-10" />

@@ -42,10 +42,8 @@ function autoScreens(slug: string, count: number, label: string, given: (Screen 
   return Array.from({ length: count }, (_, i) => {
     if (given[i]) return given[i];
     const png = `/screens/${slug}-${i + 1}.png`;
-    const webp = `/screens/optimized/${slug}-${i + 1}.webp`;
     if (!fs.existsSync(path.join(process.cwd(), "public", png))) return undefined;
-    const src = fs.existsSync(path.join(process.cwd(), "public", webp)) ? webp : png;
-    return { src, alt: `${label} app, screen ${i + 1}`, ...(pngSize(png) ?? {}) };
+    return { src: png, alt: `${label} app, screen ${i + 1}`, ...(pngSize(png) ?? {}) };
   });
 }
 

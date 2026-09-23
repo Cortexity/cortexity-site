@@ -23,23 +23,29 @@ export function Reveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const show = () => el.classList.add("is-visible");
     if (!("IntersectionObserver" in window)) {
-      el.classList.add("is-visible");
+      show();
       return;
     }
     const io = new IntersectionObserver(
       (entries) => {
         for (const e of entries) {
           if (e.isIntersecting) {
-            el.classList.add("is-visible");
+            show();
             io.disconnect();
           }
         }
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 },
+      { rootMargin: "0px 0px -40px 0px", threshold: 0.01 },
     );
     io.observe(el);
-    return () => io.disconnect();
+    // Hard fallback: never leave content hidden if the observer misfires (seen on iOS Safari).
+    const timer = window.setTimeout(show, 1200);
+    return () => {
+      io.disconnect();
+      window.clearTimeout(timer);
+    };
   }, []);
 
   return (

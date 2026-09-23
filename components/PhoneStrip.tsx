@@ -28,20 +28,41 @@ export function PhoneStrip({ children, className = "" }: { children: React.React
       el.scrollLeft = mid.offsetLeft - (el.clientWidth - mid.offsetWidth) / 2;
     };
     centre();
-    mq.addEventListener("change", centre);
+    // Older Safari only has the deprecated addListener/removeListener pair.
+    const onMq = (fn: () => void, add: boolean) => {
+      const legacy = mq as unknown as { addListener?: (f: () => void) => void; removeListener?: (f: () => void) => void };
+      if (typeof mq.addEventListener === "function") (add ? mq.addEventListener : mq.removeEventListener).call(mq, "change", fn);
+      else if (add) legacy.addListener?.(fn);
+      else legacy.removeListener?.(fn);
+    };
+    onMq(centre, true);
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) setActive(Array.prototype.indexOf.call(el.children, e.target));
+    // Active dot: nearest child centre to the strip's centre, recomputed on scroll (rAF-throttled).
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const mid = el.scrollLeft + el.clientWidth / 2;
+      let best = 0;
+      let bestD = Infinity;
+      Array.from(el.children).forEach((c, i) => {
+        const h = c as HTMLElement;
+        const d = Math.abs(h.offsetLeft + h.offsetWidth / 2 - mid);
+        if (d < bestD) {
+          bestD = d;
+          best = i;
         }
-      },
-      { root: el, threshold: 0.6 },
-    );
-    for (const c of el.children) io.observe(c);
+      });
+      setActive(best);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    update();
     return () => {
-      mq.removeEventListener("change", centre);
-      io.disconnect();
+      onMq(centre, false);
+      el.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
     };
   }, []);
 

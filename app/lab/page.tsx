@@ -22,7 +22,7 @@ const SECTIONS = [
   ["timeline", "5 · Process timeline"],
 ];
 
-const PADEL = { src: "/screens/padel-2.png", alt: "Padel app, screen 2", width: 853, height: 1844 };
+const PADEL = { src: "/screens/optimized/padel-2.webp", alt: "Padel app, screen 2", width: 853, height: 1844 };
 
 function lighten(hex: string, amt: number) {
   const n = parseInt(hex.slice(1), 16);

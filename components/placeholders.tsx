@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import Image from "next/image";
 import { Parallax } from "./Parallax";
 
 /* ====================================================================
@@ -42,9 +41,11 @@ export const SCREEN_ASPECT = "1179 / 2556";
 function autoScreens(slug: string, count: number, label: string, given: (Screen | undefined)[] = []) {
   return Array.from({ length: count }, (_, i) => {
     if (given[i]) return given[i];
-    const file = `/screens/${slug}-${i + 1}.png`;
-    if (!fs.existsSync(path.join(process.cwd(), "public", file))) return undefined;
-    return { src: file, alt: `${label} app, screen ${i + 1}`, ...(pngSize(file) ?? {}) };
+    const png = `/screens/${slug}-${i + 1}.png`;
+    const webp = `/screens/optimized/${slug}-${i + 1}.webp`;
+    if (!fs.existsSync(path.join(process.cwd(), "public", png))) return undefined;
+    const src = fs.existsSync(path.join(process.cwd(), "public", webp)) ? webp : png;
+    return { src, alt: `${label} app, screen ${i + 1}`, ...(pngSize(png) ?? {}) };
   });
 }
 
@@ -55,37 +56,41 @@ function autoScreens(slug: string, count: number, label: string, given: (Screen 
 export function PhoneFrame({
   screen,
   className = "",
-  sizes = "(min-width: 896px) 720px, 80vw",
   priority = false,
+  tilt = 0,
 }: {
   screen?: Screen;
-  /** Kept for API compatibility; empty slots no longer show a label. */
+  /** Kept for API compatibility. */
   label?: string;
   className?: string;
-  /** Should resolve to ≥ 2× the rendered width so nothing is upscaled. */
+  /** Kept for API compatibility; images are served at native resolution. */
   sizes?: string;
+  /** Above the fold: eager + high fetch priority. */
   priority?: boolean;
+  /** Degrees. Rotated frames get translateZ/backface hints against blur. */
+  tilt?: number;
 }) {
-  const dims = screen?.width && screen?.height ? { width: screen.width, height: screen.height } : null;
   return (
-    <div className={`@container ${className}`} data-placeholder={screen ? undefined : "phone-screen"}>
+    <div
+      className={`@container ${className}`}
+      data-placeholder={screen ? undefined : "phone-screen"}
+      style={tilt ? { transform: `rotate(${tilt}deg) translateZ(0)`, backfaceVisibility: "hidden" } : undefined}
+    >
       <div className="relative rounded-[14.5cqw] bg-black p-[3cqw] shadow-[0_40px_80px_rgba(0,0,0,0.28)]">
         <div className="relative overflow-hidden rounded-[11.5cqw] bg-black" style={{ aspectRatio: SCREEN_ASPECT }}>
           {screen ? (
-            dims ? (
-              <Image
-                src={screen.src}
-                alt={screen.alt}
-                width={dims.width}
-                height={dims.height}
-                quality={100}
-                sizes={sizes}
-                priority={priority}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            ) : (
-              <Image src={screen.src} alt={screen.alt} fill quality={100} sizes={sizes} priority={priority} className="object-cover" />
-            )
+            // Plain <img>: the file is served at native resolution, never resampled by an optimizer.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={screen.src}
+              alt={screen.alt}
+              width={screen.width}
+              height={screen.height}
+              decoding="async"
+              loading={priority ? "eager" : "lazy"}
+              fetchPriority={priority ? "high" : "auto"}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-b from-[#f5f5f7] to-white" />
           )}
@@ -176,17 +181,17 @@ export function PhoneTrio({
     >
       {glow ? <Glow /> : null}
       <Parallax className="relative flex items-end justify-center">
-        <PhoneFrame screen={left} priority={priority} sizes="(min-width: 896px) 600px, 68vw" className="relative z-0 -mr-[5%] mb-[4%] w-[33%]" />
-        <PhoneFrame screen={centre} priority={priority} sizes="(min-width: 896px) 740px, 84vw" className="relative z-10 w-[40%]" />
-        <PhoneFrame screen={right} priority={priority} sizes="(min-width: 896px) 600px, 68vw" className="relative z-0 -ml-[5%] mb-[4%] w-[33%]" />
+        <PhoneFrame screen={left} priority={priority} className="relative z-0 -mr-[5%] mb-[4%] w-[33%]" />
+        <PhoneFrame screen={centre} priority={priority} className="relative z-10 w-[40%]" />
+        <PhoneFrame screen={right} priority={priority} className="relative z-0 -ml-[5%] mb-[4%] w-[33%]" />
       </Parallax>
     </div>
   );
 }
 
 /* --------------------------------------------------------------------
-   3. APP MOCKUPS — SLOWR / ReflexFlow. Same layout as the hero trio:
-   three equal phones, centre raised 40px, no rotation, no filters. `screens` is [left, centre, right].
+   3. APP MOCKUPS — SLOWR / ReflexFlow. Centre phone straight and raised 40px,
+   outer phones tilted ±6°, no filters or scaling. `screens` is [left, centre, right].
    -------------------------------------------------------------------- */
 export function AppMockup({
   name,
@@ -208,9 +213,9 @@ export function AppMockup({
     >
       {glow ? <Glow /> : null}
       <Parallax className="relative flex items-end justify-center">
-        <PhoneFrame screen={left} sizes="(min-width: 896px) 600px, 68vw" className="relative z-0 -mr-[5%] w-[33%]" />
-        <PhoneFrame screen={centre} sizes="(min-width: 896px) 600px, 68vw" className="relative z-10 w-[33%] -translate-y-10" />
-        <PhoneFrame screen={right} sizes="(min-width: 896px) 600px, 68vw" className="relative z-0 -ml-[5%] w-[33%]" />
+        <PhoneFrame screen={left} tilt={-6} className="relative z-0 -mr-[4%] w-[32%]" />
+        <PhoneFrame screen={centre} className="relative z-10 w-[34%] -translate-y-10" />
+        <PhoneFrame screen={right} tilt={6} className="relative z-0 -ml-[4%] w-[32%]" />
       </Parallax>
     </div>
   );

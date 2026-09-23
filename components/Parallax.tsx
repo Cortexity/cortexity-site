@@ -2,20 +2,28 @@
 
 import { useEffect, useRef } from "react";
 
-/** Drifts its content up to `max`px against the scroll. Off under reduced motion. */
+/**
+ * Drifts its content up to `max`px against the scroll. Off under reduced
+ * motion, and off under md when `desktopOnly` is set: a transformed /
+ * will-change ancestor around a touch scroll container (the phone strip)
+ * breaks touch scrolling in WebKit, so the wrapper stays inert on phones.
+ */
 export function Parallax({
   children,
   max = 30,
   className = "",
+  desktopOnly = false,
 }: {
   children: React.ReactNode;
   max?: number;
   className?: string;
+  desktopOnly?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (desktopOnly && !window.matchMedia("(min-width: 768px)").matches) return;
     let raf = 0;
     const update = () => {
       raf = 0;
@@ -36,9 +44,9 @@ export function Parallax({
       window.removeEventListener("resize", on);
       cancelAnimationFrame(raf);
     };
-  }, [max]);
+  }, [max, desktopOnly]);
   return (
-    <div ref={ref} className={`will-change-transform ${className}`}>
+    <div ref={ref} className={`${desktopOnly ? "md:will-change-transform" : "will-change-transform"} ${className}`}>
       {children}
     </div>
   );

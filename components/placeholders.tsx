@@ -204,7 +204,7 @@ export function PhoneTrio({
       data-placeholder={left && centre && right ? undefined : "padel-app-trio"}
     >
       {glow ? <Glow /> : null}
-      <Parallax className="relative">
+      <Parallax desktopOnly className="relative">
         <PhoneStrip>
           <PhoneFrame screen={left} priority={priority} className="relative z-0 w-[72vw] flex-none snap-center md:-mr-[5%] md:mb-[4%] md:w-[33%]" />
           <PhoneFrame screen={centre} priority={priority} className="relative z-10 w-[72vw] flex-none snap-center md:w-[40%]" />
@@ -238,7 +238,7 @@ export function AppMockup({
       data-placeholder={left && centre && right ? undefined : `${slug}-mockups`}
     >
       {glow ? <Glow radius={760} /> : null}
-      <Parallax className="relative">
+      <Parallax desktopOnly className="relative">
         <PhoneStrip>
           <PhoneFrame screen={left} tilt={-6} className="relative z-0 w-[72vw] flex-none snap-center md:-mr-[5%] md:w-[31%]" />
           <PhoneFrame screen={centre} className="relative z-10 w-[72vw] flex-none snap-center md:w-[36%] md:-translate-y-10" />

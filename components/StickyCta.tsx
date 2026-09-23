@@ -8,12 +8,17 @@ import { ApplyButton } from "./Button";
  * and slides back down whenever any in-page "Apply" button is on screen —
  * so there are never two Apply buttons visible at once.
  *
+ * The bar itself is transparent: a fade behind the button blends it into the
+ * page, white by default and black while a tone-black section (or the
+ * footer) sits under the bottom ~120px of the viewport.
+ *
  * Relies on the #hero-cta sentinel and on every CTA being an <a href="/apply">
  * inside <main>.
  */
 export function StickyCta() {
   const [heroGone, setHeroGone] = useState(false);
   const [ctaOnScreen, setCtaOnScreen] = useState(0);
+  const [dark, setDark] = useState(false);
 
   useEffect(() => {
     const hero = document.getElementById("hero-cta");
@@ -35,7 +40,33 @@ export function StickyCta() {
     });
     io.observe(hero);
     ctas.forEach((el) => io.observe(el));
-    return () => io.disconnect();
+
+    // Which surface is under the bar: observe dark sections against the bottom ~120px band only.
+    const darkEls = Array.from(document.querySelectorAll("section.tone-black, footer"));
+    const underBar = new Set<Element>();
+    let band: IntersectionObserver | null = null;
+    const observeBand = () => {
+      band?.disconnect();
+      underBar.clear();
+      band = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) underBar.add(e.target);
+            else underBar.delete(e.target);
+          }
+          setDark(underBar.size > 0);
+        },
+        { rootMargin: `-${Math.max(0, window.innerHeight - 120)}px 0px 0px 0px` },
+      );
+      darkEls.forEach((el) => band!.observe(el));
+    };
+    observeBand();
+    window.addEventListener("resize", observeBand);
+    return () => {
+      io.disconnect();
+      band?.disconnect();
+      window.removeEventListener("resize", observeBand);
+    };
   }, []);
 
   const show = heroGone && ctaOnScreen === 0;
@@ -44,14 +75,23 @@ export function StickyCta() {
     <div
       inert={!show}
       aria-hidden={!show}
+      data-dark={dark ? "" : undefined}
       className={[
-        "fixed inset-x-0 bottom-0 z-40 bg-white/80 backdrop-blur-xl px-5 pt-3 md:hidden",
-        "pb-[max(0.75rem,env(safe-area-inset-bottom))]",
+        "pointer-events-none fixed inset-x-0 bottom-0 z-40 px-5 md:hidden",
+        "pb-[max(1rem,env(safe-area-inset-bottom))]",
+        "[--sticky-bg:#ffffff] data-dark:[--sticky-bg:#000000]",
         "transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
         show ? "translate-y-0" : "translate-y-full",
       ].join(" ")}
     >
-      <ApplyButton variant="red" note={null}>Apply to Build Your App</ApplyButton>
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-0 -z-10 h-24"
+        style={{ background: "linear-gradient(to top, var(--sticky-bg) 40%, transparent)" }}
+      />
+      <ApplyButton variant="red" note={null} className="pointer-events-auto shadow-[0_10px_30px_rgba(224,32,26,0.35)]">
+        Apply to Build Your App
+      </ApplyButton>
     </div>
   );
 }

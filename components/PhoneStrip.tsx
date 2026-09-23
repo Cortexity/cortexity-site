@@ -50,7 +50,7 @@ export function PhoneStrip({ children, className = "" }: { children: React.React
       <div
         ref={ref}
         tabIndex={0}
-        className={`-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden px-[14vw] pb-24 pt-6 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-8 md:mx-0 md:snap-none md:items-end md:justify-center md:gap-0 md:overflow-visible md:px-0 md:pb-0 md:pt-0 ${className}`}
+        className={`-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden px-[14vw] pb-24 pt-6 [overscroll-behavior-x:contain] [touch-action:pan-x_pan-y] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-8 md:mx-0 md:snap-none md:items-end md:justify-center md:gap-0 md:overflow-visible md:[touch-action:auto] md:px-0 md:pb-0 md:pt-0 ${className}`}
       >
         {children}
       </div>

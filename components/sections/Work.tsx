@@ -31,10 +31,10 @@ function App({
           </Stack>
         </Prose>
       </Reveal>
-      <Reveal delay={80} className="mt-12 sm:mt-16">
+      <Reveal delay={80} className="mt-16 sm:mt-20">
         {/* PLACEHOLDER: pass screens={[{src, alt}, {src, alt}]} when screenshots arrive. */}
         <AppMockup name={name} />
-        <p className="mt-12 text-center text-small font-semibold">
+        <p className="mt-16 text-center text-small font-semibold">
           <strong className="font-semibold">Designed. Built. Shipped by Cortexity.</strong>
         </p>
       </Reveal>

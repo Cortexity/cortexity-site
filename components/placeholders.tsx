@@ -19,15 +19,12 @@ import { Parallax } from "./Parallax";
    ==================================================================== */
 
 /**
- * A screenshot dropped into an iPhone frame. `src` is the 2x variant
- * (640 px wide, lanczos-downscaled by scripts/screens.mjs); `srcSet` adds
- * the 3x variant and the original so the browser draws close to 1:1.
- * `width`/`height` describe the 2x variant.
+ * A screenshot dropped into an iPhone frame. `src` is the exact-fit @2x
+ * variant from scripts/screens.mjs (2× the CSS width the slot renders at on
+ * desktop); `srcSet` adds the @3x variant with density descriptors so the
+ * browser draws it 1:1. `width`/`height` are the CSS size (@2x pixels ÷ 2).
  */
 export type Screen = { src: string; alt: string; srcSet?: string; width?: number; height?: number };
-
-/** Default `sizes`: phones are ~320 CSS px on desktop, ~40vw on mobile. */
-const DEFAULT_SIZES = "(min-width: 768px) 320px, 40vw";
 
 /** Reads a PNG's native pixel size from its IHDR chunk (build time only). */
 function pngSize(rel: string): { width: number; height: number } | null {
@@ -53,15 +50,19 @@ function autoScreens(slug: string, count: number, label: string, given: (Screen 
     const orig = `/screens/${name}`;
     if (!fs.existsSync(path.join(process.cwd(), "public", orig))) return undefined;
     const alt = `${label} app, screen ${i + 1}`;
-    const x2 = `/screens/2x/${name}`;
-    const x3 = `/screens/3x/${name}`;
+    const base = name.replace(/\.png$/, "");
+    const x2 = `/screens/fit/${base}@2x.png`;
+    const x3 = `/screens/fit/${base}@3x.png`;
     const has = (rel: string) => fs.existsSync(path.join(process.cwd(), "public", rel));
-    // Variants come from `node scripts/screens.mjs`; fall back to the original if they are missing.
+    // Exact-fit variants come from `node scripts/screens.mjs`; fall back to the original if they are missing.
     if (!has(x2)) return { src: orig, alt, ...(pngSize(orig) ?? {}) };
-    const w = (rel: string) => pngSize(rel)?.width ?? 0;
-    const candidates = [x2, ...(has(x3) ? [x3] : []), orig];
-    const srcSet = candidates.map((rel) => `${rel} ${w(rel)}w`).join(", ");
-    return { src: x2, alt, srcSet, ...(pngSize(x2) ?? {}) };
+    const size = pngSize(x2);
+    return {
+      src: x2,
+      alt,
+      srcSet: `${x2} 2x${has(x3) ? `, ${x3} 3x` : ""}`,
+      ...(size ? { width: Math.round(size.width / 2), height: Math.round(size.height / 2) } : {}),
+    };
   });
 }
 
@@ -74,13 +75,12 @@ export function PhoneFrame({
   className = "",
   priority = false,
   tilt = 0,
-  sizes = DEFAULT_SIZES,
 }: {
   screen?: Screen;
   /** Kept for API compatibility. */
   label?: string;
   className?: string;
-  /** `sizes` for the srcset; defaults to DEFAULT_SIZES. */
+  /** Kept for API compatibility; the srcset uses density descriptors, so `sizes` is not needed. */
   sizes?: string;
   /** Above the fold: eager + high fetch priority. */
   priority?: boolean;
@@ -100,12 +100,11 @@ export function PhoneFrame({
       <div className="relative rounded-[14.5cqw] bg-black p-[3cqw] shadow-[0_40px_80px_rgba(0,0,0,0.28)]">
         <div className="relative overflow-hidden rounded-[11.5cqw] bg-black" style={{ aspectRatio: SCREEN_ASPECT }}>
           {screen ? (
-            // Plain <img> with a srcset of pre-downscaled variants (see scripts/screens.mjs), never resampled by an optimizer.
+            // Plain <img> with exact-fit @2x/@3x variants (see scripts/screens.mjs), never resampled by an optimizer.
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={screen.src}
               srcSet={screen.srcSet}
-              sizes={screen.srcSet ? sizes : undefined}
               alt={screen.alt}
               width={screen.width}
               height={screen.height}
@@ -125,12 +124,12 @@ export function PhoneFrame({
 }
 
 /** Soft white radial glow for phones sitting on black. */
-function Glow() {
+function Glow({ radius = 600 }: { radius?: number }) {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute left-1/2 top-1/2 h-[1200px] w-[1200px] max-w-[200vw] -translate-x-1/2 -translate-y-1/2"
-      style={{ background: "radial-gradient(circle 600px at center, rgba(255,255,255,0.06), transparent 70%)" }}
+      className="pointer-events-none absolute left-1/2 top-1/2 max-w-[200vw] -translate-x-1/2 -translate-y-1/2"
+      style={{ width: radius * 2, height: radius * 2, background: `radial-gradient(circle ${radius}px at center, rgba(255,255,255,0.06), transparent 70%)` }}
     />
   );
 }
@@ -231,14 +230,14 @@ export function AppMockup({
   const [left, centre, right] = autoScreens(slug, 3, name, screens);
   return (
     <div
-      className={`relative mx-auto w-full max-w-[56rem] pt-10 ${className}`}
+      className={`relative mx-auto w-full max-w-[72rem] pt-10 ${className}`}
       data-placeholder={left && centre && right ? undefined : `${slug}-mockups`}
     >
-      {glow ? <Glow /> : null}
+      {glow ? <Glow radius={760} /> : null}
       <Parallax className="relative flex items-end justify-center">
-        <PhoneFrame screen={left} tilt={-6} className="relative z-0 -mr-[4%] w-[32%]" />
-        <PhoneFrame screen={centre} className="relative z-10 w-[34%] -translate-y-10" />
-        <PhoneFrame screen={right} tilt={6} className="relative z-0 -ml-[4%] w-[32%]" />
+        <PhoneFrame screen={left} tilt={-6} className="relative z-0 -mr-[5%] w-[31%]" />
+        <PhoneFrame screen={centre} className="relative z-10 w-[36%] -translate-y-10" />
+        <PhoneFrame screen={right} tilt={6} className="relative z-0 -ml-[5%] w-[31%]" />
       </Parallax>
     </div>
   );

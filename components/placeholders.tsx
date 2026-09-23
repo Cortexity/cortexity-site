@@ -18,8 +18,16 @@ import { Parallax } from "./Parallax";
      3. <AppMockup/>      SLOWR and ReflexFlow iPhone mockups (three each)
    ==================================================================== */
 
-/** A screenshot dropped into an iPhone frame. */
-export type Screen = { src: string; alt: string; width?: number; height?: number };
+/**
+ * A screenshot dropped into an iPhone frame. `src` is the 2x variant
+ * (640 px wide, lanczos-downscaled by scripts/screens.mjs); `srcSet` adds
+ * the 3x variant and the original so the browser draws close to 1:1.
+ * `width`/`height` describe the 2x variant.
+ */
+export type Screen = { src: string; alt: string; srcSet?: string; width?: number; height?: number };
+
+/** Default `sizes`: phones are ~320 CSS px on desktop, ~40vw on mobile. */
+const DEFAULT_SIZES = "(min-width: 768px) 320px, 40vw";
 
 /** Reads a PNG's native pixel size from its IHDR chunk (build time only). */
 function pngSize(rel: string): { width: number; height: number } | null {
@@ -41,9 +49,19 @@ export const SCREEN_ASPECT = "1179 / 2556";
 function autoScreens(slug: string, count: number, label: string, given: (Screen | undefined)[] = []) {
   return Array.from({ length: count }, (_, i) => {
     if (given[i]) return given[i];
-    const png = `/screens/${slug}-${i + 1}.png`;
-    if (!fs.existsSync(path.join(process.cwd(), "public", png))) return undefined;
-    return { src: png, alt: `${label} app, screen ${i + 1}`, ...(pngSize(png) ?? {}) };
+    const name = `${slug}-${i + 1}.png`;
+    const orig = `/screens/${name}`;
+    if (!fs.existsSync(path.join(process.cwd(), "public", orig))) return undefined;
+    const alt = `${label} app, screen ${i + 1}`;
+    const x2 = `/screens/2x/${name}`;
+    const x3 = `/screens/3x/${name}`;
+    const has = (rel: string) => fs.existsSync(path.join(process.cwd(), "public", rel));
+    // Variants come from `node scripts/screens.mjs`; fall back to the original if they are missing.
+    if (!has(x2)) return { src: orig, alt, ...(pngSize(orig) ?? {}) };
+    const w = (rel: string) => pngSize(rel)?.width ?? 0;
+    const candidates = [x2, ...(has(x3) ? [x3] : []), orig];
+    const srcSet = candidates.map((rel) => `${rel} ${w(rel)}w`).join(", ");
+    return { src: x2, alt, srcSet, ...(pngSize(x2) ?? {}) };
   });
 }
 
@@ -56,12 +74,13 @@ export function PhoneFrame({
   className = "",
   priority = false,
   tilt = 0,
+  sizes = DEFAULT_SIZES,
 }: {
   screen?: Screen;
   /** Kept for API compatibility. */
   label?: string;
   className?: string;
-  /** Kept for API compatibility; images are served at native resolution. */
+  /** `sizes` for the srcset; defaults to DEFAULT_SIZES. */
   sizes?: string;
   /** Above the fold: eager + high fetch priority. */
   priority?: boolean;
@@ -72,15 +91,21 @@ export function PhoneFrame({
     <div
       className={`@container ${className}`}
       data-placeholder={screen ? undefined : "phone-screen"}
-      style={tilt ? { transform: `rotate(${tilt}deg) translateZ(0)`, backfaceVisibility: "hidden" } : undefined}
+      style={
+        tilt
+          ? { transform: `rotate(${tilt}deg) translateZ(0)`, willChange: "transform", backfaceVisibility: "hidden", imageRendering: "auto" }
+          : undefined
+      }
     >
       <div className="relative rounded-[14.5cqw] bg-black p-[3cqw] shadow-[0_40px_80px_rgba(0,0,0,0.28)]">
         <div className="relative overflow-hidden rounded-[11.5cqw] bg-black" style={{ aspectRatio: SCREEN_ASPECT }}>
           {screen ? (
-            // Plain <img>: the file is served at native resolution, never resampled by an optimizer.
+            // Plain <img> with a srcset of pre-downscaled variants (see scripts/screens.mjs), never resampled by an optimizer.
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={screen.src}
+              srcSet={screen.srcSet}
+              sizes={screen.srcSet ? sizes : undefined}
               alt={screen.alt}
               width={screen.width}
               height={screen.height}

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { PhoneFrame } from "@/components/placeholders";
+import { Parallax } from "@/components/Parallax";
+import { SwapMetrics } from "@/components/lab/SwapMetrics";
 
 export const metadata: Metadata = {
   title: "Lab",
@@ -20,8 +22,12 @@ const SECTIONS = [
   ["phones", "3 · Phone frame"],
   ["cards", "4 · Card styles"],
   ["timeline", "5 · Process timeline"],
+  ["swap", "6 · Phone sharpness swap"],
 ];
 
+const RF2_PNG = { src: "/screens/reflexflow-2.png", alt: "ReflexFlow screen 2 (png)", width: 1320, height: 2868 };
+const RF2_LIVE = { src: "/screens/optimized/reflexflow-2.webp", alt: "ReflexFlow screen 2 (live webp)", width: 1320, height: 2868 };
+const PADEL2_PNG = { src: "/screens/padel-2.png", alt: "Padel screen 2 (png)", width: 853, height: 1844 };
 const PADEL = { src: "/screens/optimized/padel-2.webp", alt: "Padel app, screen 2", width: 853, height: 1844 };
 
 function lighten(hex: string, amt: number) {
@@ -223,6 +229,53 @@ export default function Lab() {
             ))}
           </ol>
         </div>
+      </section>
+
+      {/* 6 · SWAP TEST — same frame component as the live page, four setups */}
+      <section id="swap" className="mt-24 scroll-mt-8">
+        <h2 className="text-h3">6 · Phone sharpness swap</h2>
+        <p className="mt-2 text-small text-ink-muted">
+          Each box is 56rem wide like the live trios; the centre-phone width class is applied exactly as on the page.
+        </p>
+        <div className="mt-8 grid gap-8 lg:grid-cols-2">
+          {/* A: hero setup, ReflexFlow image */}
+          <div>
+            <Label>A · reflexflow-2.png in the hero/padel centre slot (w-[40%], priority)</Label>
+            <div data-swap="A" className="mx-auto w-full max-w-[56rem] rounded-[24px] bg-[#f5f5f7] p-6">
+              <Parallax className="relative flex items-end justify-center">
+                <PhoneFrame screen={RF2_PNG} priority className="relative z-10 w-[40%]" />
+              </Parallax>
+            </div>
+          </div>
+          {/* B: work setup, padel image */}
+          <div>
+            <Label>B · padel-2.png in the Work/ReflexFlow centre slot (w-[34%], -translate-y-10, lazy)</Label>
+            <div data-swap="B" className="mx-auto w-full max-w-[56rem] rounded-[24px] bg-black p-6 pt-16">
+              <Parallax className="relative flex items-end justify-center">
+                <PhoneFrame screen={PADEL2_PNG} className="relative z-10 w-[34%] -translate-y-10" />
+              </Parallax>
+            </div>
+          </div>
+          {/* C: plain img, no frame, same CSS width as the live Work screen */}
+          <div>
+            <Label>C · reflexflow-2.png as a plain img, no frame, no transform, same width as the live Work screen</Label>
+            <div data-swap="C" className="mx-auto flex w-full max-w-[56rem] justify-center rounded-[24px] bg-black p-6">
+              {/* Live Work screen ≈ 34% of the trio minus the 3% inset each side. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={RF2_PNG.src} alt={RF2_PNG.alt} width={RF2_PNG.width} height={RF2_PNG.height} decoding="async" className="h-auto w-[32%] rounded-[8%]" />
+            </div>
+          </div>
+          {/* D: control — live Work rendering, unchanged */}
+          <div>
+            <Label>D · control: reflexflow-2 exactly as the live Work section renders it (webp, w-[34%], -translate-y-10)</Label>
+            <div data-swap="D" className="mx-auto w-full max-w-[56rem] rounded-[24px] bg-black p-6 pt-16">
+              <Parallax className="relative flex items-end justify-center">
+                <PhoneFrame screen={RF2_LIVE} className="relative z-10 w-[34%] -translate-y-10" />
+              </Parallax>
+            </div>
+          </div>
+        </div>
+        <SwapMetrics />
       </section>
     </main>
   );

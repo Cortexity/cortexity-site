@@ -169,19 +169,9 @@ export default function Lab() {
       {/* 3 · PHONES */}
       <section id="phones" className="mt-24 scroll-mt-8">
         <h2 className="text-h3">3 · Phone frame</h2>
-        <div className="mt-6 grid gap-10 sm:grid-cols-3">
-          <div>
-            <Label>Site frame · inset 3%</Label>
-            <PhoneFrame screen={PADEL} />
-          </div>
-          <div>
-            <Label>Tilted −6°</Label>
-            <PhoneFrame screen={PADEL} tilt={-6} />
-          </div>
-          <div>
-            <Label>Tilted +6°</Label>
-            <PhoneFrame screen={PADEL} tilt={6} />
-          </div>
+        <div className="mt-6 max-w-[16rem]">
+          <Label>Site frame · inset 3%</Label>
+          <PhoneFrame screen={PADEL} />
         </div>
       </section>
 

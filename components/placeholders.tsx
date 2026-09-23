@@ -57,7 +57,6 @@ export function PhoneFrame({
   className = "",
   sizes = "(min-width: 896px) 720px, 80vw",
   priority = false,
-  tilt = 0,
 }: {
   screen?: Screen;
   /** Kept for API compatibility; empty slots no longer show a label. */
@@ -66,16 +65,10 @@ export function PhoneFrame({
   /** Should resolve to ≥ 2× the rendered width so nothing is upscaled. */
   sizes?: string;
   priority?: boolean;
-  /** Degrees; rotated frames get GPU hints against blur. */
-  tilt?: number;
 }) {
   const dims = screen?.width && screen?.height ? { width: screen.width, height: screen.height } : null;
   return (
-    <div
-      className={`@container ${className}`}
-      data-placeholder={screen ? undefined : "phone-screen"}
-      style={tilt ? { rotate: `${tilt}deg`, transform: "translateZ(0)", backfaceVisibility: "hidden" } : undefined}
-    >
+    <div className={`@container ${className}`} data-placeholder={screen ? undefined : "phone-screen"}>
       <div className="relative rounded-[14.5cqw] bg-black p-[3cqw] shadow-[0_40px_80px_rgba(0,0,0,0.28)]">
         <div className="relative overflow-hidden rounded-[11.5cqw] bg-black" style={{ aspectRatio: SCREEN_ASPECT }}>
           {screen ? (
@@ -192,8 +185,8 @@ export function PhoneTrio({
 }
 
 /* --------------------------------------------------------------------
-   3. APP MOCKUPS — SLOWR / ReflexFlow. Three phones: outer ones tilted
-   6°, centre raised 40px. `screens` is [left, centre, right].
+   3. APP MOCKUPS — SLOWR / ReflexFlow. Same layout as the hero trio:
+   three equal phones, centre raised 40px, no rotation, no filters. `screens` is [left, centre, right].
    -------------------------------------------------------------------- */
 export function AppMockup({
   name,
@@ -210,14 +203,14 @@ export function AppMockup({
   const [left, centre, right] = autoScreens(slug, 3, name, screens);
   return (
     <div
-      className={`relative mx-auto w-full max-w-[52rem] pt-10 ${className}`}
+      className={`relative mx-auto w-full max-w-[56rem] pt-10 ${className}`}
       data-placeholder={left && centre && right ? undefined : `${slug}-mockups`}
     >
       {glow ? <Glow /> : null}
       <Parallax className="relative flex items-end justify-center">
-        <PhoneFrame screen={left} sizes="(min-width: 832px) 520px, 64vw" tilt={-6} className="relative z-0 -mr-[4%] w-[30%]" />
-        <PhoneFrame screen={centre} sizes="(min-width: 832px) 620px, 76vw" className="relative z-10 w-[36%] -translate-y-10" />
-        <PhoneFrame screen={right} sizes="(min-width: 832px) 520px, 64vw" tilt={6} className="relative z-0 -ml-[4%] w-[30%]" />
+        <PhoneFrame screen={left} sizes="(min-width: 896px) 600px, 68vw" className="relative z-0 -mr-[5%] w-[33%]" />
+        <PhoneFrame screen={centre} sizes="(min-width: 896px) 600px, 68vw" className="relative z-10 w-[33%] -translate-y-10" />
+        <PhoneFrame screen={right} sizes="(min-width: 896px) 600px, 68vw" className="relative z-0 -ml-[5%] w-[33%]" />
       </Parallax>
     </div>
   );

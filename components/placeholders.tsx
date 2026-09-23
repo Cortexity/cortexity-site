@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Parallax } from "./Parallax";
+import { PhoneStrip } from "./PhoneStrip";
 
 /* ====================================================================
    PLACEHOLDERS — every visual that is waiting on a real asset lives here.
@@ -84,18 +85,19 @@ export function PhoneFrame({
   sizes?: string;
   /** Above the fold: eager + high fetch priority. */
   priority?: boolean;
-  /** Degrees. Rotated frames get translateZ/backface hints against blur. */
+  /** Degrees, applied at md+ only (phones sit straight in the mobile strip). Rotated frames get translateZ/backface hints against blur. */
   tilt?: number;
 }) {
+  // Static class strings so Tailwind can see them (only ±6° is used).
+  const TILT: Record<number, string> = {
+    [-6]: "md:[transform:rotate(-6deg)_translateZ(0)]",
+    [6]: "md:[transform:rotate(6deg)_translateZ(0)]",
+  };
+  const tiltClass = tilt ? `${TILT[tilt] ?? ""} md:will-change-transform md:[backface-visibility:hidden] md:[image-rendering:auto]` : "";
   return (
     <div
-      className={`@container ${className}`}
+      className={`@container ${tiltClass} ${className}`}
       data-placeholder={screen ? undefined : "phone-screen"}
-      style={
-        tilt
-          ? { transform: `rotate(${tilt}deg) translateZ(0)`, willChange: "transform", backfaceVisibility: "hidden", imageRendering: "auto" }
-          : undefined
-      }
     >
       <div className="relative rounded-[14.5cqw] bg-black p-[3cqw] shadow-[0_40px_80px_rgba(0,0,0,0.28)]">
         <div className="relative overflow-hidden rounded-[11.5cqw] bg-black" style={{ aspectRatio: SCREEN_ASPECT }}>
@@ -202,10 +204,12 @@ export function PhoneTrio({
       data-placeholder={left && centre && right ? undefined : "padel-app-trio"}
     >
       {glow ? <Glow /> : null}
-      <Parallax className="relative flex items-end justify-center">
-        <PhoneFrame screen={left} priority={priority} className="relative z-0 -mr-[5%] mb-[4%] w-[33%]" />
-        <PhoneFrame screen={centre} priority={priority} className="relative z-10 w-[40%]" />
-        <PhoneFrame screen={right} priority={priority} className="relative z-0 -ml-[5%] mb-[4%] w-[33%]" />
+      <Parallax className="relative">
+        <PhoneStrip>
+          <PhoneFrame screen={left} priority={priority} className="relative z-0 w-[72vw] flex-none snap-center md:-mr-[5%] md:mb-[4%] md:w-[33%]" />
+          <PhoneFrame screen={centre} priority={priority} className="relative z-10 w-[72vw] flex-none snap-center md:w-[40%]" />
+          <PhoneFrame screen={right} priority={priority} className="relative z-0 w-[72vw] flex-none snap-center md:-ml-[5%] md:mb-[4%] md:w-[33%]" />
+        </PhoneStrip>
       </Parallax>
     </div>
   );
@@ -234,10 +238,12 @@ export function AppMockup({
       data-placeholder={left && centre && right ? undefined : `${slug}-mockups`}
     >
       {glow ? <Glow radius={760} /> : null}
-      <Parallax className="relative flex items-end justify-center">
-        <PhoneFrame screen={left} tilt={-6} className="relative z-0 -mr-[5%] w-[31%]" />
-        <PhoneFrame screen={centre} className="relative z-10 w-[36%] -translate-y-10" />
-        <PhoneFrame screen={right} tilt={6} className="relative z-0 -ml-[5%] w-[31%]" />
+      <Parallax className="relative">
+        <PhoneStrip>
+          <PhoneFrame screen={left} tilt={-6} className="relative z-0 w-[72vw] flex-none snap-center md:-mr-[5%] md:w-[31%]" />
+          <PhoneFrame screen={centre} className="relative z-10 w-[72vw] flex-none snap-center md:w-[36%] md:-translate-y-10" />
+          <PhoneFrame screen={right} tilt={6} className="relative z-0 w-[72vw] flex-none snap-center md:-ml-[5%] md:w-[31%]" />
+        </PhoneStrip>
       </Parallax>
     </div>
   );

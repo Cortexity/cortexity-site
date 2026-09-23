@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Hydrated } from "@/components/Hydrated";
 
 export const metadata: Metadata = {
   // TODO(launch): set metadataBase to the production domain once it is known,
@@ -35,14 +36,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {/* Marks the document as JS-capable before first paint, so the
             reveal-on-scroll styles only ever hide content when JS will
-            reveal it again. */}
+            reveal it again. Fail-safe: if the React bundle has not run
+            (window.__hydrated, set by <Hydrated/>) within 2.5s, drop the
+            class again so nothing stays hidden. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: "document.documentElement.classList.add('js')",
+            __html:
+              "document.documentElement.classList.add('js');setTimeout(function(){if(!window.__hydrated){document.documentElement.classList.remove('js')}},2500)",
           }}
         />
       </head>
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <Hydrated />
+        {children}
+      </body>
     </html>
   );
 }

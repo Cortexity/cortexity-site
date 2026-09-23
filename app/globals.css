@@ -248,3 +248,10 @@ html.js .reveal.stagger > :nth-child(10), html.js .reveal.stagger > .contents > 
   .mesh > i, .float, .marquee-track { animation: none; }
   .card:hover, .glass.lift:hover { transform: none; }
 }
+
+/* Anchors clear the floating nav */
+section[id] { scroll-margin-top: 104px; }
+
+/* Plan cards: dark even on the black pricing section */
+.tone-black .card.card-dark { background: #1d1d1f; color: #fff; --fg: #fff; --muted: #c7c7cc; --tile: rgb(255 255 255 / 0.1);
+  border-color: rgb(255 255 255 / 0.08); box-shadow: none; }

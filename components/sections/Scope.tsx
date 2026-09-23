@@ -5,7 +5,7 @@ import { P, Strong } from "../Text";
 
 export function Scope() {
   return (
-    <Section tone="gray" labelledBy="scope-title">
+    <Section tone="gray" id="scope" labelledBy="scope-title">
       <Reveal>
         <Prose>
           <SectionHead id="scope-title" eyebrow="No scope creep" title="No “that’s outside the scope” every time" accent="you have an idea." sub="Changing your mind is part of building something good." />

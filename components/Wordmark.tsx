@@ -1,10 +1,6 @@
 import Link from "next/link";
 
-/**
- * The Cortexity wordmark — treatment A ("Tracked") from DESIGN.md.
- * Uppercase Geist Medium, wide letter-spacing, optional tagline underneath.
- * Pure text: it scales, prints, and needs no asset.
- */
+/** Cortexity mark: a small red square + "Cortexity" in SF Pro Display Semibold. */
 export function Wordmark({
   size = "sm",
   tagline = false,
@@ -17,17 +13,16 @@ export function Wordmark({
   className?: string;
 }) {
   const mark = (
-    <span
-      className={
-        size === "lg"
-          ? "block text-[1.375rem] font-medium uppercase tracking-[0.26em]"
-          : "block text-[1.125rem] font-semibold uppercase tracking-[0.2em]"
-      }
-    >
-      Cortexity
+    <span className="inline-flex items-center gap-2.5">
+      <span aria-hidden="true" className={`${size === "lg" ? "h-3 w-3" : "h-2.5 w-2.5"} rounded-[3px] bg-red`} />
+      <span
+        className={`font-display font-semibold tracking-[-0.02em] ${size === "lg" ? "text-[24px]" : "text-[20px]"}`}
+        style={{ fontFamily: "var(--font-display)" }}
+      >
+        Cortexity
+      </span>
     </span>
   );
-
   const body = href ? (
     <Link href={href} aria-label="Cortexity — home" className="inline-block">
       {mark}
@@ -35,21 +30,10 @@ export function Wordmark({
   ) : (
     mark
   );
-
   return (
     <div className={className}>
       {body}
-      {tagline ? (
-        <p
-          className={
-            size === "lg"
-              ? "mt-3 text-lead text-ink-muted"
-              : "mt-1.5 text-small text-ink-muted"
-          }
-        >
-          From idea to app.
-        </p>
-      ) : null}
+      {tagline ? <p className="mt-2 text-small text-ink-muted">From idea to app.</p> : null}
     </div>
   );
 }

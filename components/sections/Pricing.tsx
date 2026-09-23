@@ -19,20 +19,20 @@ const BASE = [
 function Check() {
   return (
     <svg aria-hidden="true" width="18" height="18" viewBox="0 0 20 20" fill="none" className="mt-[3px] shrink-0">
-      <circle cx="10" cy="10" r="10" fill="#e0201a" fillOpacity="0.16" />
-      <path d="m6 10.2 2.6 2.6L14.2 7" stroke="#e0201a" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="10" cy="10" r="10" fill="#e0201a" />
+      <path d="m6 10.2 2.6 2.6L14.2 7" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
 function Plan({ name, price, items }: { name: string; price: string; items: string[] }) {
   return (
-    <div className="card flex flex-col p-8 text-left sm:p-10">
+    <div className="card card-dark flex flex-col p-8 text-left sm:p-10">
       <p className="text-small font-medium uppercase tracking-[0.12em] text-ink-muted">{name}</p>
       <p className="mt-3 text-[clamp(2.5rem,2rem+2vw,3.5rem)] font-semibold leading-none tracking-[-0.03em]">{price}</p>
       <ul className="mt-8 flex-1 space-y-3">
         {items.map((it) => (
-          <li key={it} className="flex gap-3 text-body">
+          <li key={it} className="flex gap-3 text-body text-[#c7c7cc]">
             <Check />
             <span>{it}</span>
           </li>
@@ -51,7 +51,7 @@ export function Pricing() {
   return (
     <Section
       tone="black"
-      labelledBy="pricing-title"
+      id="pricing" labelledBy="pricing-title"
       decor={
         <Blobs spots={[{ n: 4, className: "-left-40 top-[38%] w-[340px]", hideOnMobile: true }]} />
       }

@@ -46,7 +46,7 @@ function Check() {
 
 export function Timeline() {
   return (
-    <Section tone="white" labelledBy="timeline-title">
+    <Section tone="white" id="timeline" labelledBy="timeline-title">
       <Reveal>
         <Prose>
           <SectionHead id="timeline-title" eyebrow="The process" title="What the next" accent="21 days look like." sub="Three weeks, three phases, one working app." />

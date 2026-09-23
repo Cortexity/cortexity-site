@@ -20,7 +20,20 @@ import { Parallax } from "./Parallax";
    ==================================================================== */
 
 /** A screenshot dropped into an iPhone frame. */
-export type Screen = { src: string; alt: string };
+export type Screen = { src: string; alt: string; width?: number; height?: number };
+
+/** Reads a PNG's native pixel size from its IHDR chunk (build time only). */
+function pngSize(rel: string): { width: number; height: number } | null {
+  try {
+    const fd = fs.openSync(path.join(process.cwd(), "public", rel), "r");
+    const buf = Buffer.alloc(24);
+    fs.readSync(fd, buf, 0, 24, 0);
+    fs.closeSync(fd);
+    return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+  } catch {
+    return null;
+  }
+}
 
 /** iPhone 15 Pro screen ratio: 1179 × 2556 px. */
 export const SCREEN_ASPECT = "1179 / 2556";
@@ -30,9 +43,8 @@ function autoScreens(slug: string, count: number, label: string, given: (Screen 
   return Array.from({ length: count }, (_, i) => {
     if (given[i]) return given[i];
     const file = `/screens/${slug}-${i + 1}.png`;
-    return fs.existsSync(path.join(process.cwd(), "public", file))
-      ? { src: file, alt: `${label} app, screen ${i + 1}` }
-      : undefined;
+    if (!fs.existsSync(path.join(process.cwd(), "public", file))) return undefined;
+    return { src: file, alt: `${label} app, screen ${i + 1}`, ...(pngSize(file) ?? {}) };
   });
 }
 
@@ -43,30 +55,48 @@ function autoScreens(slug: string, count: number, label: string, given: (Screen 
 export function PhoneFrame({
   screen,
   className = "",
-  sizes = "40vw",
+  sizes = "(min-width: 896px) 720px, 80vw",
   priority = false,
+  tilt = 0,
 }: {
   screen?: Screen;
   /** Kept for API compatibility; empty slots no longer show a label. */
   label?: string;
   className?: string;
+  /** Should resolve to ≥ 2× the rendered width so nothing is upscaled. */
   sizes?: string;
   priority?: boolean;
+  /** Degrees; rotated frames get GPU hints against blur. */
+  tilt?: number;
 }) {
+  const dims = screen?.width && screen?.height ? { width: screen.width, height: screen.height } : null;
   return (
-    <div className={`@container ${className}`} data-placeholder={screen ? undefined : "phone-screen"}>
+    <div
+      className={`@container ${className}`}
+      data-placeholder={screen ? undefined : "phone-screen"}
+      style={tilt ? { rotate: `${tilt}deg`, transform: "translateZ(0)", backfaceVisibility: "hidden" } : undefined}
+    >
       <div className="relative rounded-[14.5cqw] bg-black p-[3cqw] shadow-[0_40px_80px_rgba(0,0,0,0.28)]">
-        <div
-          className="relative overflow-hidden rounded-[11.5cqw] bg-gradient-to-b from-[#f5f5f7] to-white"
-          style={{ aspectRatio: SCREEN_ASPECT }}
-        >
+        <div className="relative overflow-hidden rounded-[11.5cqw] bg-black" style={{ aspectRatio: SCREEN_ASPECT }}>
           {screen ? (
-            <Image src={screen.src} alt={screen.alt} fill sizes={sizes} priority={priority} className="object-cover" />
-          ) : null}
-          <div
-            aria-hidden="true"
-            className="absolute left-1/2 top-[3cqw] h-[8.5cqw] w-[30cqw] -translate-x-1/2 rounded-full bg-black"
-          />
+            dims ? (
+              <Image
+                src={screen.src}
+                alt={screen.alt}
+                width={dims.width}
+                height={dims.height}
+                quality={100}
+                sizes={sizes}
+                priority={priority}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : (
+              <Image src={screen.src} alt={screen.alt} fill quality={100} sizes={sizes} priority={priority} className="object-cover" />
+            )
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-b from-[#f5f5f7] to-white" />
+          )}
+          <div aria-hidden="true" className="absolute left-1/2 top-[3cqw] h-[8.5cqw] w-[30cqw] -translate-x-1/2 rounded-full bg-black" />
         </div>
       </div>
     </div>
@@ -153,9 +183,9 @@ export function PhoneTrio({
     >
       {glow ? <Glow /> : null}
       <Parallax className="relative flex items-end justify-center">
-        <PhoneFrame screen={left} priority={priority} sizes="(min-width: 896px) 290px, 32vw" className="relative z-0 -mr-[5%] mb-[4%] w-[33%]" />
-        <PhoneFrame screen={centre} priority={priority} sizes="(min-width: 896px) 360px, 40vw" className="relative z-10 w-[40%]" />
-        <PhoneFrame screen={right} priority={priority} sizes="(min-width: 896px) 290px, 32vw" className="relative z-0 -ml-[5%] mb-[4%] w-[33%]" />
+        <PhoneFrame screen={left} priority={priority} sizes="(min-width: 896px) 600px, 68vw" className="relative z-0 -mr-[5%] mb-[4%] w-[33%]" />
+        <PhoneFrame screen={centre} priority={priority} sizes="(min-width: 896px) 740px, 84vw" className="relative z-10 w-[40%]" />
+        <PhoneFrame screen={right} priority={priority} sizes="(min-width: 896px) 600px, 68vw" className="relative z-0 -ml-[5%] mb-[4%] w-[33%]" />
       </Parallax>
     </div>
   );
@@ -185,9 +215,9 @@ export function AppMockup({
     >
       {glow ? <Glow /> : null}
       <Parallax className="relative flex items-end justify-center">
-        <PhoneFrame screen={left} sizes="(min-width: 832px) 250px, 30vw" className="relative z-0 -mr-[4%] w-[30%] -rotate-6" />
-        <PhoneFrame screen={centre} sizes="(min-width: 832px) 300px, 36vw" className="relative z-10 w-[36%] -translate-y-10" />
-        <PhoneFrame screen={right} sizes="(min-width: 832px) 250px, 30vw" className="relative z-0 -ml-[4%] w-[30%] rotate-6" />
+        <PhoneFrame screen={left} sizes="(min-width: 832px) 520px, 64vw" tilt={-6} className="relative z-0 -mr-[4%] w-[30%]" />
+        <PhoneFrame screen={centre} sizes="(min-width: 832px) 620px, 76vw" className="relative z-10 w-[36%] -translate-y-10" />
+        <PhoneFrame screen={right} sizes="(min-width: 832px) 520px, 64vw" tilt={6} className="relative z-0 -ml-[4%] w-[30%]" />
       </Parallax>
     </div>
   );

@@ -6,7 +6,7 @@ import { P, Strong } from "../Text";
 
 export function Founder() {
   return (
-    <Section tone="white" labelledBy="founder-title">
+    <Section tone="white" id="founder" labelledBy="founder-title">
       <SectionHead id="founder-title" eyebrow="The founder" title="One person responsible for" accent="getting it done." sub="You work directly with me, from the first call to the App Store." />
 
       <div className="mx-auto mt-12 max-w-[1100px] sm:mt-16">

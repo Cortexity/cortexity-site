@@ -6,7 +6,7 @@ import { P, Strong } from "../Text";
 
 export function Idea() {
   return (
-    <Section tone="white" labelledBy="idea-title">
+    <Section tone="white" id="problem" labelledBy="idea-title">
       <Reveal>
         <Prose>
           <SectionHead id="idea-title" eyebrow="The problem" title="You’ve had the idea." accent="Now make it real." sub="Most app ideas never make it out of the Notes app." />

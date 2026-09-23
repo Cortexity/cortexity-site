@@ -11,7 +11,7 @@ export function Closing() {
     <>
       <Section
         tone="white"
-        labelledBy="closing-title"
+        id="start" labelledBy="closing-title"
         decor={
           <>
             <Dots />

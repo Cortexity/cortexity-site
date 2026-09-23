@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { PhoneFrame, SCREEN_ASPECT } from "@/components/placeholders";
+import { PhoneFrame } from "@/components/placeholders";
 
 export const metadata: Metadata = {
   title: "Lab",
@@ -22,7 +22,7 @@ const SECTIONS = [
   ["timeline", "5 · Process timeline"],
 ];
 
-const PADEL = { src: "/screens/padel-2.png", alt: "Padel app, screen 2" };
+const PADEL = { src: "/screens/padel-2.png", alt: "Padel app, screen 2", width: 853, height: 1844 };
 
 function lighten(hex: string, amt: number) {
   const n = parseInt(hex.slice(1), 16);
@@ -53,19 +53,6 @@ function Pill({ hex, flat }: { hex: string; flat?: boolean }) {
   );
 }
 
-/** Inset phone frame variant: bezel as a % of width, radius matched. */
-function InsetFrame({ inset }: { inset: number }) {
-  return (
-    <div className="@container">
-      <div className="relative rounded-[14.5cqw] bg-black shadow-[0_40px_80px_rgba(0,0,0,0.28)]" style={{ padding: `${inset}cqw` }}>
-        <div className="relative overflow-hidden bg-[#f5f5f7]" style={{ aspectRatio: SCREEN_ASPECT, borderRadius: `calc(14.5cqw - ${inset}cqw)` }}>
-          <Image src={PADEL.src} alt={PADEL.alt} fill sizes="300px" className="object-cover" />
-          <div aria-hidden="true" className="absolute left-1/2 top-[3cqw] h-[8.5cqw] w-[30cqw] -translate-x-1/2 rounded-full bg-black" />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 const PRODUCT = (
   <>
@@ -182,22 +169,18 @@ export default function Lab() {
       {/* 3 · PHONES */}
       <section id="phones" className="mt-24 scroll-mt-8">
         <h2 className="text-h3">3 · Phone frame</h2>
-        <div className="mt-6 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 grid gap-10 sm:grid-cols-3">
           <div>
-            <Label>Current · inset 3%</Label>
-            <PhoneFrame screen={PADEL} sizes="300px" />
+            <Label>Site frame · inset 3%</Label>
+            <PhoneFrame screen={PADEL} />
           </div>
           <div>
-            <Label>Inset 2.5% · matched radius</Label>
-            <InsetFrame inset={2.5} />
+            <Label>Tilted −6°</Label>
+            <PhoneFrame screen={PADEL} tilt={-6} />
           </div>
           <div>
-            <Label>Inset 3%</Label>
-            <InsetFrame inset={3} />
-          </div>
-          <div>
-            <Label>Inset 4%</Label>
-            <InsetFrame inset={4} />
+            <Label>Tilted +6°</Label>
+            <PhoneFrame screen={PADEL} tilt={6} />
           </div>
         </div>
       </section>

@@ -7,6 +7,7 @@ import { Lead, Muted, P, Strong } from "../Text";
 export function Hero() {
   return (
     <section
+      id="hero"
       aria-labelledby="hero-title"
       className="tone-white relative overflow-hidden px-5 pb-20 pt-32 text-center sm:px-8 sm:pb-28 sm:pt-44"
     >

@@ -6,7 +6,7 @@ import { P, Strong } from "../Text";
 
 export function Questions() {
   return (
-    <Section tone="white" labelledBy="questions-title">
+    <Section tone="white" id="faq" labelledBy="questions-title">
       <Reveal>
         <Prose>
           <SectionHead id="questions-title" eyebrow="FAQ" title="Questions you" accent="probably have." sub="Straight answers to what founders ask first." />

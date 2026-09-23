@@ -44,7 +44,7 @@ function App({
 
 export function Work() {
   return (
-    <Section tone="black" labelledBy="work-title">
+    <Section tone="black" id="work" labelledBy="work-title">
       <Reveal>
         <Prose>
           <SectionHead id="work-title" eyebrow="Built by Cortexity" title="Built by" accent="Cortexity." sub="Two apps, designed, built and shipped to the App Store." />

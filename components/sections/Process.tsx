@@ -24,19 +24,22 @@ function IconTile({ name }: { name: string }) {
 }
 
 function Step({
+  n,
   title,
   children,
-  wide = false,
 }: {
+  n: string;
   title: string;
   children: React.ReactNode;
-  wide?: boolean;
 }) {
   return (
-    <li className={`card p-8 text-left sm:p-10 ${wide ? "lg:col-span-2 lg:p-12" : ""}`}>
-      <IconTile name={title} />
-      <H3 className="mt-6">{title}</H3>
-      <Stack className={`mt-4 max-w-none ${wide ? "lg:columns-2 lg:gap-10 lg:[&>.stanza]:break-inside-avoid lg:[&>.stanza:first-child]:mt-0" : ""}`}>{children}</Stack>
+    <li className="card grid grid-cols-1 gap-6 p-7 text-left lg:grid-cols-[160px_minmax(0,1fr)_minmax(0,560px)] lg:gap-10 lg:p-7">
+      <div className="flex items-center gap-5 lg:flex-col lg:items-start lg:gap-5">
+        <span aria-hidden="true" className="accent text-[40px] leading-none">{n}</span>
+        <IconTile name={title} />
+      </div>
+      <H3 className="text-[26px] font-semibold leading-tight text-white">{title}</H3>
+      <Stack className="max-w-none text-[17px] [--muted:#c7c7cc]">{children}</Stack>
     </li>
   );
 }
@@ -45,7 +48,7 @@ export function Process() {
   return (
     <Section
       tone="gray"
-      labelledBy="process-title"
+      id="process" labelledBy="process-title"
       decor={<Blobs spots={[{ n: 3, className: "-right-56 top-24 w-[560px]", back: true, hideOnMobile: true }]} />}
     >
       <Reveal>
@@ -62,9 +65,10 @@ export function Process() {
         </Prose>
       </Reveal>
 
-      <Reveal className="stagger mt-14 grid grid-cols-1 gap-4 sm:mt-20 md:grid-cols-2 lg:grid-cols-3">
-      <ol className="contents">
-        <Step title="Product">
+      <Reveal className="stagger relative mt-14 sm:mt-20">
+      <span aria-hidden="true" className="absolute bottom-10 left-7 top-10 hidden w-0.5 bg-red/30 lg:block" />
+      <ol className="contents [&>li+li]:mt-4">
+        <Step n="01" title="Product">
           <P>We take what&rsquo;s in your head and turn it into a product that makes sense.</P>
           <P>
             What should the app actually do? What does the user experience? What belongs in the
@@ -73,7 +77,7 @@ export function Process() {
           <P>We&rsquo;ll figure that out together.</P>
         </Step>
 
-        <Step title="Design">
+        <Step n="02" title="Design">
           <P>
             We design the entire experience: screens, interactions, navigation and visual
             identity.
@@ -82,7 +86,7 @@ export function Process() {
           <P>And it should look like a product you&rsquo;re proud to put your name on.</P>
         </Step>
 
-        <Step title="Development">
+        <Step n="03" title="Development">
           <P>Then we build it.</P>
           <P>
             The application, backend, database, APIs, integrations and technical infrastructure
@@ -91,7 +95,7 @@ export function Process() {
           <P>You don&rsquo;t need to know what any of those things mean.</P>
         </Step>
 
-        <Step title="Refinement" wide>
+        <Step n="04" title="Refinement">
           <P>This is where Cortexity is different.</P>
           <Strong>You are allowed to change your mind.</Strong>
           <P>You&rsquo;ll see the product as it develops.</P>
@@ -105,7 +109,7 @@ export function Process() {
           <Strong>We&rsquo;re here to build a great first product.</Strong>
         </Step>
 
-        <Step title="Launch">
+        <Step n="05" title="Launch">
           <P>When the app is finished, we don&rsquo;t hand you a folder and disappear.</P>
           <P>App Store submission is included.</P>
           <P>

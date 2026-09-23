@@ -6,7 +6,7 @@ import { P, Strong } from "../Text";
 
 export function Fit() {
   return (
-    <Section tone="white" labelledBy="fit-title">
+    <Section tone="white" id="fit" labelledBy="fit-title">
       <Reveal>
         <Prose>
           <SectionHead id="fit-title" eyebrow="Who it’s for" title="This is for founders who are" accent="serious about building." sub="For founders ready to stop thinking about it and build it." />

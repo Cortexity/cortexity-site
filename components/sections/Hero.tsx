@@ -1,6 +1,6 @@
 import { ApplyButton } from "../Button";
-import { AppMarquee, Blobs, Dots } from "../Decor";
-import { PhoneTrio } from "../placeholders";
+import { AppMarquee, Dots } from "../Decor";
+import { HeroVisual } from "../HeroVisual";
 import { SectionHead } from "../SectionHead";
 import { Lead, Muted, P, Strong } from "../Text";
 
@@ -9,15 +9,9 @@ export function Hero() {
     <section
       id="hero"
       aria-labelledby="hero-title"
-      className="tone-white relative overflow-hidden px-5 pb-20 pt-32 text-center sm:px-8 sm:pb-28 sm:pt-44"
+      className="tone-white relative overflow-hidden px-5 pb-20 pt-28 text-center sm:px-8 sm:pb-28 sm:pt-36"
     >
       <Dots />
-      <Blobs
-        spots={[
-          { n: 1, className: "-left-28 -top-10 w-[170px] md:-left-40 md:top-32 md:w-[480px]" },
-          { n: 2, className: "-right-44 top-[46%] w-[400px]", back: true, hideOnMobile: true },
-        ]}
-      />
       <div className="relative z-10 mx-auto max-w-[60rem]">
         <SectionHead
           level={1}
@@ -38,8 +32,8 @@ export function Hero() {
         </div>
         <Muted className="mt-3">We take on a limited number of projects at a time.</Muted>
       </div>
-      <div className="relative z-10 mt-16 sm:mt-20">
-        <PhoneTrio priority />
+      <div className="relative z-10">
+        <HeroVisual />
       </div>
       <div className="relative z-10">
         <AppMarquee />

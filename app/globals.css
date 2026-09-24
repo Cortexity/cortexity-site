@@ -255,3 +255,37 @@ section[id] { scroll-margin-top: 104px; }
 /* Plan cards: dark even on the black pricing section */
 .tone-black .card.card-dark { background: #1d1d1f; color: #fff; --fg: #fff; --muted: #c7c7cc; --tile: rgb(255 255 255 / 0.1);
   border-color: rgb(255 255 255 / 0.08); box-shadow: none; }
+
+/* ---------- Hero key visual: masked edges so the cream plate melts into the page ---------- */
+.hero-visual {
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 10%, #000 85%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 6%, #000 94%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 10%, #000 85%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  animation: hero-in 0.9s var(--ease-out-quiet) both;
+}
+@media (min-width: 768px) {
+  .hero-visual {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%),
+      linear-gradient(to bottom, transparent 0%, #000 10%, #000 85%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%),
+      linear-gradient(to bottom, transparent 0%, #000 10%, #000 85%, transparent 100%);
+  }
+}
+.hero-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.6;
+  background: radial-gradient(ellipse at center, transparent 55%, #fff 100%);
+}
+@keyframes hero-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-visual { animation: none; }
+}

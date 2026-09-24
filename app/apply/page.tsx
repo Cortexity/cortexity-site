@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   description: "Tell me a little about what you want to build.",
 };
 
-export default function ApplyPage() {
+export default async function ApplyPage({ searchParams }: { searchParams: Promise<{ sent?: string; error?: string }> }) {
+  const { sent, error } = await searchParams;
   return (
     <>
       <Header />
@@ -24,7 +25,7 @@ export default function ApplyPage() {
           </Muted>
         </div>
         <div className="mt-14 sm:mt-16">
-          <ApplyForm />
+          <ApplyForm initialDone={sent === "1"} initialError={error} />
         </div>
       </main>
       <Footer />

@@ -95,14 +95,14 @@ function Examples({ lines }: { lines: string[] }) {
 
 /* ---------- the form ---------- */
 
-export function ApplyForm() {
+export function ApplyForm({ initialDone = false, initialError }: { initialDone?: boolean; initialError?: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const doneRef = useRef<HTMLHeadingElement>(null);
   const submitting = useRef(false);
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
   const [phone, setPhone] = useState<string | undefined>();
-  const [failed, setFailed] = useState(false);
-  const [done, setDone] = useState(false);
+  const [failed, setFailed] = useState(initialError === "send");
+  const [done, setDone] = useState(initialDone);
   const [pending, startTransition] = useTransition();
 
   // Errors clear the moment a field becomes valid, without waiting for the next submit.
@@ -182,7 +182,12 @@ export function ApplyForm() {
   }
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} onInput={onInput} noValidate className="relative space-y-5">
+    <form ref={formRef} method="post" action="/api/apply" onSubmit={onSubmit} onInput={onInput} noValidate className="relative space-y-5">
+      {initialError === "fields" ? (
+        <p role="alert" className="text-center text-small font-medium text-red">
+          Please complete every required question, then submit again.
+        </p>
+      ) : null}
       {QUESTIONS.map((f, i) => {
         const n = i + 1;
         const bad = f.name in errors;

@@ -1,4 +1,4 @@
-import { Braces, Lightbulb, PenTool, Rocket, SlidersHorizontal, type LucideIcon } from "lucide-react";
+import { Code, Lightbulb, Palette, RefreshCw, Rocket, type LucideIcon } from "lucide-react";
 import { Blobs } from "../Decor";
 import { SectionHead } from "../SectionHead";
 import { Reveal } from "../Reveal";
@@ -7,9 +7,9 @@ import { Strong } from "../Text";
 
 const ICONS: Record<string, LucideIcon> = {
   Product: Lightbulb,
-  Design: PenTool,
-  Development: Braces,
-  Refinement: SlidersHorizontal,
+  Design: Palette,
+  Development: Code,
+  Refinement: RefreshCw,
   Launch: Rocket,
 };
 
@@ -19,9 +19,10 @@ function Symbol({ name }: { name: string }) {
   return (
     <span
       aria-hidden="true"
-      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgba(224,32,26,0.08)] transition-colors duration-200 group-hover:bg-[rgba(224,32,26,0.14)] md:h-14 md:w-14"
+      className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-[rgba(224,32,26,0.07)] transition-colors duration-200 group-hover:bg-[rgba(224,32,26,0.12)] md:h-[60px] md:w-[60px]"
     >
-      <Icon color="#e0201a" strokeWidth={1.75} className="h-[22px] w-[22px] md:h-6 md:w-6" />
+      {/* Rocket's body leans up-right; a 1px nudge centres its visual mass. */}
+      <Icon size={26} strokeWidth={1.5} color="#e0201a" className={name === "Launch" ? "translate-y-[1px] -translate-x-[1px]" : undefined} />
     </span>
   );
 }
@@ -34,13 +35,13 @@ const STEPS: { title: string; copy: React.ReactNode }[] = [
   { title: "Launch", copy: <>We submit it to the App Store and stay with you through review.</> },
 ];
 
-/** One editorial row (inside a single white card): icon | title | one sentence, title and sentence sharing a baseline. Hairlines separate rows. */
+/** One editorial row (inside a single white card): icon | title | one sentence on one centreline. Hairlines separate rows. */
 function Step({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <li className="group border-[#e5e5ea] py-[22px] text-left md:grid md:grid-cols-[3.5rem_11rem_minmax(0,1fr)] md:items-baseline md:gap-x-8 md:py-[26px] lg:gap-x-10 [&+li]:border-t">
+    <li className="group border-[#e5e5ea] py-[22px] text-left md:grid md:grid-cols-[3.5rem_11rem_minmax(0,1fr)] md:items-center md:gap-x-8 md:py-[26px] lg:gap-x-10 [&+li]:border-t">
       {/* Mobile: disc + title on one row. Desktop: `contents` hands both to the grid. */}
       <div className="flex items-center gap-3 md:contents">
-        <span className="flex justify-center md:self-center">
+        <span className="flex justify-center">
           <Symbol name={title} />
         </span>
         <h3 className="text-[21px] font-semibold leading-[1.2] tracking-[-0.02em] text-[#1d1d1f] md:text-[24px]">

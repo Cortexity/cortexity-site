@@ -62,7 +62,7 @@ export function Process() {
     >
       <Reveal>
         <Prose>
-          <SectionHead id="process-title" eyebrow="What’s included" title="Everything between the idea and" accent="the App Store." sub="Product, design, development and launch, handled by one person." />
+          <SectionHead id="process-title" eyebrow="What’s Included" title="Everything between the idea and" accent="the App Store." sub="Product, design, development and launch, handled by one person." />
           <Strong className="mt-10 sm:mt-12">Cortexity handles the whole process.</Strong>
         </Prose>
       </Reveal>

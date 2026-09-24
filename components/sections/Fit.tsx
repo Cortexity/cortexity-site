@@ -9,7 +9,7 @@ export function Fit() {
     <Section tone="white" id="fit" labelledBy="fit-title">
       <Reveal>
         <Prose>
-          <SectionHead id="fit-title" eyebrow="Who it’s for" title="This is for founders who are" accent="serious about building." sub="For founders ready to stop thinking about it and build it." />
+          <SectionHead id="fit-title" eyebrow="Who It’s For" title="This is for founders who are" accent="serious about building." sub="For founders ready to stop thinking about it and build it." />
           <Stack className="mt-10 sm:mt-12">
             <P>
               Cortexity makes sense for you if you&rsquo;ve been thinking about an app and

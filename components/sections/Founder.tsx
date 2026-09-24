@@ -34,7 +34,7 @@ const PARAGRAPHS: React.ReactNode[] = [
 export function Founder() {
   return (
     <Section tone="white" id="founder" labelledBy="founder-title">
-      <SectionHead id="founder-title" eyebrow="The founder" title="One person responsible for" accent="getting it done." sub="You work directly with me, from the first call to the App Store." />
+      <SectionHead id="founder-title" eyebrow="The Founder" title="One person responsible for" accent="getting it done." sub="You work directly with me, from the first call to the App Store." />
 
       <Reveal className="mx-auto mt-12 max-w-none sm:mt-12 md:mt-12">
         <div className="grid grid-cols-1 items-stretch gap-6 rounded-[24px] border border-[#e5e5ea] bg-white p-4 shadow-[0_8px_24px_rgba(0,0,0,0.05)] md:grid-cols-2 md:gap-10 md:p-6 lg:gap-12 lg:p-7">

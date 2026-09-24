@@ -8,7 +8,7 @@ export function Scope() {
     <Section tone="gray" id="scope" labelledBy="scope-title">
       <Reveal>
         <Prose>
-          <SectionHead id="scope-title" eyebrow="No scope creep" title="No “that’s outside the scope” every time" accent="you have an idea." sub="Changing your mind is part of building something good." />
+          <SectionHead id="scope-title" eyebrow="No Scope Creep" title="No “that’s outside the scope” every time" accent="you have an idea." sub="Changing your mind is part of building something good." />
           <Stack className="mt-10 sm:mt-12">
             <P>
               A product you imagined three weeks ago won&rsquo;t always be the product you want

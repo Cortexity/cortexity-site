@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Wordmark } from "./Wordmark";
 
@@ -14,6 +15,7 @@ const LINKS = [
 /** Floating pill nav with section links; the active link is tracked while scrolling. */
 export function Header() {
   const [active, setActive] = useState<string | null>(null);
+  const home = usePathname() === "/";
 
   useEffect(() => {
     const els = LINKS.map((l) => document.getElementById(l.id)).filter(Boolean) as HTMLElement[];
@@ -47,7 +49,7 @@ export function Header() {
           {LINKS.map((l) => (
             <a
               key={l.id}
-              href={`#${l.id}`}
+              href={home ? `#${l.id}` : `/#${l.id}`}
               aria-current={active === l.id ? "location" : undefined}
               className="relative py-2 text-[16px] font-medium text-ink transition-colors hover:text-red"
             >

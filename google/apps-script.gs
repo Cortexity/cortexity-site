@@ -7,7 +7,8 @@
  *   1. checks the shared secret,
  *   2. appends one row to the active sheet (creating the header row if missing),
  *   3. emails NOTIFY_EMAIL with every answer, reply-to set to the applicant,
- *   4. answers {"ok":true}.
+ *   4. sends the applicant a short confirmation (reply-to NOTIFY_EMAIL),
+ *   5. answers {"ok":true}.
  *
  * Setup: google/SETUP.md.
  */
@@ -47,6 +48,7 @@ function doPost(e) {
 
     appendRow_(row);
     sendEmail_(data);
+    sendConfirmation_(data);
     return json_({ ok: true });
   } catch (err) {
     return json_({ ok: false, error: String(err) });
@@ -80,6 +82,20 @@ function sendEmail_(d) {
   var opts = { name: "Cortexity applications" };
   if (d.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) opts.replyTo = d.email;
   GmailApp.sendEmail(NOTIFY_EMAIL, subject, body, opts);
+}
+
+/** Short acknowledgement to the applicant; replies go to NOTIFY_EMAIL. */
+function sendConfirmation_(d) {
+  if (!d.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) return;
+  var first = String(d.name || "").trim().split(/\s+/)[0] || "there";
+  var idea = String(d.idea || "").trim().replace(/\s+/g, " ");
+  if (idea.length > 60) idea = idea.slice(0, 60);
+  var body =
+    "Hi " + first + ",\n\n" +
+    "Thanks for telling me about " + idea + "…\n\n" +
+    "I read every application myself. You’ll hear from me within 48 hours.\n\n" +
+    "Joseph\nCortexity";
+  GmailApp.sendEmail(d.email, "Got your application — Cortexity", body, { name: "Joseph at Cortexity", replyTo: NOTIFY_EMAIL });
 }
 
 function json_(obj) {

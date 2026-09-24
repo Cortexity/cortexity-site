@@ -289,3 +289,21 @@ section[id] { scroll-margin-top: 104px; }
 @media (prefers-reduced-motion: reduce) {
   .hero-visual { animation: none; }
 }
+
+/* ---------- /apply: WhatsApp field (react-phone-number-input) styled like the other inputs ---------- */
+.phone-field {
+  display: flex; align-items: center; gap: 10px;
+  border-radius: 14px; border-width: 1px; background: #f5f5f7;
+  padding: 0 16px; transition: border-color 0.15s;
+}
+.phone-field:focus-within { border-color: #1d1d1f; }
+.phone-field .PhoneInputCountry { margin: 0; padding: 14px 0; }
+.phone-field .PhoneInputCountryIcon { width: 26px; height: 18px; box-shadow: none; border-radius: 3px; overflow: hidden; }
+.phone-field .PhoneInputCountryIcon--border { background: transparent; box-shadow: none; }
+.phone-field .PhoneInputCountrySelectArrow { border-color: #6e6e73; opacity: 1; margin-left: 8px; }
+.phone-field .PhoneInputCountrySelect:focus + .PhoneInputCountryIcon { box-shadow: 0 0 0 2px #1d1d1f; }
+.phone-field .PhoneInputInput {
+  flex: 1; min-width: 0; background: transparent; border: 0; outline: none;
+  padding: 14px 0; font-size: 16px; line-height: 1.5; color: #1d1d1f;
+}
+.phone-field .PhoneInputInput::placeholder { color: #a1a1a6; }

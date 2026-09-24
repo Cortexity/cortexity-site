@@ -4,6 +4,13 @@ import { Children, useEffect, useRef, useState } from "react";
 
 const MOBILE = "(max-width: 767px)";
 
+/** scrollLeft that puts `child` in the middle of `strip` (rect-based, so it doesn't depend on offsetParent). */
+function targetLeft(strip: HTMLElement, child: HTMLElement) {
+  const s = strip.getBoundingClientRect();
+  const c = child.getBoundingClientRect();
+  return strip.scrollLeft + (c.left - s.left) - (s.width - c.width) / 2;
+}
+
 /**
  * Under md: a full-bleed horizontal snap strip (one phone ≈ 72vw, neighbours
  * peeking) that starts on the centre phone, with three dots below it.
@@ -20,14 +27,29 @@ export function PhoneStrip({ children, className = "" }: { children: React.React
     if (!el) return;
     const mq = window.matchMedia(MOBILE);
 
-    // Start on the centre phone (instant, no smooth scroll).
+    // Start on the centre phone (instant, no smooth scroll). Layout may not be final
+    // at mount (images, fonts), so retry on the next two frames and whenever the strip
+    // resizes, and only mark it done once the strip is actually scrollable.
+    let centred = false;
     const centre = () => {
       if (!mq.matches) return;
       const mid = el.children[Math.floor(el.children.length / 2)] as HTMLElement | undefined;
-      if (!mid) return;
-      el.scrollLeft = mid.offsetLeft - (el.clientWidth - mid.offsetWidth) / 2;
+      if (!mid || el.scrollWidth <= el.clientWidth) return;
+      el.scrollLeft = targetLeft(el, mid);
+      centred = true;
+    };
+    const recentre = () => {
+      centred = false;
+      centre();
     };
     centre();
+    const raf1 = requestAnimationFrame(() => {
+      centre();
+      requestAnimationFrame(centre);
+    });
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => { if (!centred) centre(); }) : null;
+    ro?.observe(el);
+    window.addEventListener("orientationchange", recentre);
     // Older Safari only has the deprecated addListener/removeListener pair.
     const onMq = (fn: () => void, add: boolean) => {
       const legacy = mq as unknown as { addListener?: (f: () => void) => void; removeListener?: (f: () => void) => void };
@@ -35,7 +57,7 @@ export function PhoneStrip({ children, className = "" }: { children: React.React
       else if (add) legacy.addListener?.(fn);
       else legacy.removeListener?.(fn);
     };
-    onMq(centre, true);
+    onMq(recentre, true);
 
     // Active dot: nearest child centre to the strip's centre, recomputed on scroll (rAF-throttled).
     let raf = 0;
@@ -60,11 +82,22 @@ export function PhoneStrip({ children, className = "" }: { children: React.React
     el.addEventListener("scroll", onScroll, { passive: true });
     update();
     return () => {
-      onMq(centre, false);
+      onMq(recentre, false);
+      window.removeEventListener("orientationchange", recentre);
+      ro?.disconnect();
+      cancelAnimationFrame(raf1);
       el.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
     };
   }, []);
+
+  const scrollToIndex = (i: number) => {
+    const el = ref.current;
+    const c = el?.children[i] as HTMLElement | undefined;
+    if (!el || !c) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollTo({ left: targetLeft(el, c), behavior: reduce ? "auto" : "smooth" });
+  };
 
   return (
     <>
@@ -76,14 +109,23 @@ export function PhoneStrip({ children, className = "" }: { children: React.React
         {children}
       </div>
       <p className="sr-only">Swipe to see more screens.</p>
-      <div aria-hidden="true" className="-mt-14 flex justify-center gap-2 md:hidden">
+      <div className="-mt-14 flex justify-center gap-1 md:hidden">
         {Array.from({ length: count }, (_, i) => (
-          <span
+          <button
             key={i}
-            className={`h-1.5 w-1.5 rounded-full transition-colors duration-300 ${
-              i === active ? "bg-red" : "bg-black/15 [.tone-black_&]:bg-white/25"
-            }`}
-          />
+            type="button"
+            aria-label={`Show screen ${i + 1}`}
+            aria-current={i === active ? "true" : undefined}
+            onClick={() => scrollToIndex(i)}
+            className="flex h-6 w-4 items-center justify-center"
+          >
+            <span
+              aria-hidden="true"
+              className={`h-1.5 w-1.5 rounded-full transition-colors duration-300 ${
+                i === active ? "bg-red" : "bg-black/15 [.tone-black_&]:bg-white/25"
+              }`}
+            />
+          </button>
         ))}
       </div>
     </>

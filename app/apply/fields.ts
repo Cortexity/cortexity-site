@@ -3,6 +3,8 @@
  * inline validation) and the server action (validation + payload).
  */
 
+import { isValidPhoneNumber } from "libphonenumber-js";
+
 export const CONTACT_EMAIL = "hello@cortexity.app";
 
 export type Field =
@@ -91,7 +93,6 @@ export const QUESTIONS: Field[] = [
 export const DETAILS = [
   { name: "name", label: "Name", type: "text", autoComplete: "name" },
   { name: "email", label: "Email", type: "email", autoComplete: "email" },
-  { name: "whatsapp", label: "WhatsApp number", type: "tel", autoComplete: "tel", placeholder: "+961 …" },
 ] as const;
 
 export const ANYTHING_ELSE: Field = {
@@ -109,13 +110,33 @@ export type FieldName = (typeof FIELD_ORDER)[number];
 
 export const REQUIRED: FieldName[] = ["idea", "why", "users", "top3", "stage", "platforms", "start", "budget", "name", "email", "whatsapp"]; // form order, so the first error is the top-most
 
-/** Returns the names of required fields that are empty (or malformed). */
-export function findErrors(values: Record<string, string>): FieldName[] {
-  const errors: FieldName[] = [];
+export const MESSAGES = {
+  required: "Required",
+  email: "Enter a valid email address",
+  phone: "Enter a valid WhatsApp number",
+  detail: "A little more detail helps me understand — a couple of sentences is enough.",
+} as const;
+
+/** Questions that need at least 20 characters. */
+const MIN_DETAIL: FieldName[] = ["idea", "why", "top3"];
+
+/** Validates one field; returns an error message or null. */
+export function validateField(name: FieldName, raw: string | undefined): string | null {
+  const v = (raw ?? "").trim();
+  if (REQUIRED.includes(name) && !v) return MESSAGES.required;
+  if (!v) return null;
+  if (name === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return MESSAGES.email;
+  if (name === "whatsapp" && !isValidPhoneNumber(v)) return MESSAGES.phone;
+  if (MIN_DETAIL.includes(name) && v.length < 20) return MESSAGES.detail;
+  return null;
+}
+
+/** Validates every field, in form order, so the first key is the top-most error. */
+export function findErrors(values: Record<string, string>): Partial<Record<FieldName, string>> {
+  const errors: Partial<Record<FieldName, string>> = {};
   for (const name of REQUIRED) {
-    const v = (values[name] ?? "").trim();
-    if (!v) errors.push(name);
-    else if (name === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) errors.push(name);
+    const m = validateField(name, values[name]);
+    if (m) errors[name] = m;
   }
   return errors;
 }

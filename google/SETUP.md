@@ -27,6 +27,8 @@ Every submission of the `/apply` form is sent to a small Google script that adds
 4. Click **Deploy**, approve permissions if asked again, then **copy the Web app URL** (it ends in `/exec`).
 
 > If you ever change the script later, you must go to **Deploy → Manage deployments → ✎ Edit → Version: New version → Deploy** for the change to go live. The URL stays the same.
+>
+> **Already deployed before the applicant confirmation email was added?** Paste the new `apps-script.gs` over the old one, then do exactly that: Deploy → Manage deployments → ✎ Edit → Version: *New version* → Deploy. Until you do, applicants won't receive the "Got your application" email.
 
 ## 4. Give the website the URL and the secret
 
@@ -46,4 +48,4 @@ The live site needs the same two values: in the Vercel dashboard open the projec
 
 ## Try it
 
-Submit the form on `/apply`. Within a few seconds a new row appears in the sheet and an email lands in your inbox with every answer; replying to that email replies to the applicant. If the form shows "Something went wrong", check that both values in `.env.local` are correct and that the deployment's "Who has access" is **Anyone**.
+Submit the form on `/apply`. Within a few seconds a new row appears in the sheet and an email lands in your inbox with every answer; replying to that email replies to the applicant. The applicant also gets a short "Got your application — Cortexity" email whose replies come to you. If the form shows "Something went wrong", check that both values in `.env.local` are correct and that the deployment's "Who has access" is **Anyone**.

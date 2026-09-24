@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import { P } from "@/components/Text";
 import { submitApplication } from "./actions";
-import { ANYTHING_ELSE, CONTACT_EMAIL, DETAILS, findErrors, QUESTIONS, type Field, type FieldName } from "./fields";
+import { ANYTHING_ELSE, CONTACT_EMAIL, DETAILS, findErrors, MESSAGES, QUESTIONS, validateField, type Field, type FieldName } from "./fields";
 
 const NOTE = "I personally review every application.";
 
@@ -30,8 +32,8 @@ function Question({ n, label, help, htmlFor }: { n?: number; label: string; help
   );
 }
 
-function RequiredLine({ show }: { show: boolean }) {
-  return show ? <p className="mt-2 text-small font-medium text-red">Required</p> : null;
+function ErrorLine({ message }: { message?: string }) {
+  return message ? <p className="mt-2 text-small font-medium text-red">{message}</p> : null;
 }
 
 const FIELD =
@@ -95,42 +97,77 @@ function Examples({ lines }: { lines: string[] }) {
 
 export function ApplyForm() {
   const formRef = useRef<HTMLFormElement>(null);
-  const [errors, setErrors] = useState<Set<FieldName>>(new Set());
+  const doneRef = useRef<HTMLHeadingElement>(null);
+  const submitting = useRef(false);
+  const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
+  const [phone, setPhone] = useState<string | undefined>();
   const [failed, setFailed] = useState(false);
   const [done, setDone] = useState(false);
   const [pending, startTransition] = useTransition();
 
+  // Errors clear the moment a field becomes valid, without waiting for the next submit.
+  const revalidate = (name: FieldName, value: string) =>
+    setErrors((prev) => {
+      if (!(name in prev)) return prev;
+      const m = validateField(name, value);
+      if (m === prev[name]) return prev;
+      const next = { ...prev };
+      if (m) next[name] = m;
+      else delete next[name];
+      return next;
+    });
+  const onInput = (e: React.FormEvent<HTMLFormElement>) => {
+    const t = e.target as HTMLInputElement | HTMLTextAreaElement;
+    if (t?.name && t.name !== "whatsapp") revalidate(t.name as FieldName, t.value);
+  };
+
+  useEffect(() => {
+    if (!done) return;
+    doneRef.current?.scrollIntoView({ block: "start" });
+    doneRef.current?.focus({ preventScroll: true });
+  }, [done]);
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (submitting.current) return; // no double submit
     const form = e.currentTarget;
     const fd = new FormData(form);
+    fd.set("whatsapp", phone ?? ""); // the library's state is E.164; the visible input holds the formatted text
     const values: Record<string, string> = {};
     fd.forEach((v, k) => (values[k] = String(v)));
-    const missing = findErrors(values);
-    setErrors(new Set(missing));
+    const found = findErrors(values);
+    if (values.whatsapp && !isValidPhoneNumber(values.whatsapp)) found.whatsapp = MESSAGES.phone;
+    setErrors(found);
     setFailed(false);
-    if (missing.length) {
-      const first = form.querySelector<HTMLElement>(`[data-field="${missing[0]}"]`);
+    const firstBad = Object.keys(found)[0];
+    if (firstBad) {
+      const first = form.querySelector<HTMLElement>(`[data-field="${firstBad}"]`);
       first?.scrollIntoView({ behavior: "smooth", block: "center" });
-      (first?.querySelector("textarea, input") as HTMLElement | null)?.focus({ preventScroll: true });
+      (first?.querySelector("textarea, input:not([type=hidden])") as HTMLElement | null)?.focus({ preventScroll: true });
       return;
     }
+    submitting.current = true;
     startTransition(async () => {
-      const res = await submitApplication(fd);
-      if (res.ok) {
-        setDone(true);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        if (res.fields?.length) setErrors(new Set(res.fields));
-        setFailed(true);
+      try {
+        const res = await submitApplication(fd);
+        if (res.ok) {
+          setDone(true);
+        } else {
+          if (res.fields?.length) setErrors(Object.fromEntries(res.fields.map((f) => [f, MESSAGES.required])));
+          setFailed(true);
+        }
+      } finally {
+        submitting.current = false;
       }
     });
   };
 
   if (done) {
     return (
-      <Card className="text-center">
-        <h2 className="text-h2">Got it.</h2>
+      <Card className="scroll-mt-28 text-center">
+        <h2 ref={doneRef} tabIndex={-1} className="text-h2 outline-none">
+          Got it.
+        </h2>
         <P className="mx-auto mt-5 max-w-prose">
           I’ll read your application myself and reply within 48 hours. If it’s a fit, we’ll set up a call.
         </P>
@@ -145,17 +182,17 @@ export function ApplyForm() {
   }
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} noValidate className="relative space-y-5">
+    <form ref={formRef} onSubmit={onSubmit} onInput={onInput} noValidate className="relative space-y-5">
       {QUESTIONS.map((f, i) => {
         const n = i + 1;
-        const bad = errors.has(f.name as FieldName);
+        const bad = f.name in errors;
         return (
           <Card key={f.name} className="scroll-mt-28">
             <div data-field={f.name}>
               <Question n={n} label={f.label} help={f.kind === "textarea" ? f.help : undefined} htmlFor={f.kind === "textarea" ? f.name : undefined} />
               {f.kind === "textarea" && f.examples ? <Examples lines={f.examples} /> : null}
               {f.kind === "textarea" ? <Textarea f={f} bad={bad} /> : <Choice f={f} bad={bad} />}
-              <RequiredLine show={bad} />
+              <ErrorLine message={errors[f.name as FieldName]} />
             </div>
           </Card>
         );
@@ -165,7 +202,7 @@ export function ApplyForm() {
         <h2 className="text-h3">Your details</h2>
         <div className="mt-5 space-y-5">
           {DETAILS.map((d) => {
-            const bad = errors.has(d.name);
+            const bad = d.name in errors;
             return (
               <div key={d.name} data-field={d.name}>
                 <label htmlFor={d.name} className="block text-[15px] font-medium text-ink">
@@ -176,14 +213,35 @@ export function ApplyForm() {
                   name={d.name}
                   type={d.type}
                   autoComplete={d.autoComplete}
-                  placeholder={"placeholder" in d ? d.placeholder : undefined}
                   aria-invalid={bad || undefined}
                   className={`${FIELD} ${border(bad)} mt-2`}
                 />
-                <RequiredLine show={bad} />
+                <ErrorLine message={errors[d.name]} />
               </div>
             );
           })}
+          <div data-field="whatsapp">
+            <label htmlFor="whatsapp" className="block text-[15px] font-medium text-ink">
+              WhatsApp number
+            </label>
+            {/* Country selector + number; the value is E.164 (e.g. +96170123456) and is what the sheet receives. */}
+            <PhoneInput
+              id="whatsapp"
+              name="whatsapp"
+              international
+              withCountryCallingCode
+              countryCallingCodeEditable={false}
+              defaultCountry="LB"
+              value={phone}
+              onChange={(v) => {
+                setPhone(v);
+                revalidate("whatsapp", v ?? "");
+              }}
+              className={`phone-field ${border("whatsapp" in errors)} mt-2`}
+              numberInputProps={{ autoComplete: "tel", "aria-invalid": "whatsapp" in errors || undefined }}
+            />
+            <ErrorLine message={errors.whatsapp} />
+          </div>
         </div>
       </Card>
 
@@ -204,6 +262,7 @@ export function ApplyForm() {
         <button
           type="submit"
           disabled={pending}
+          aria-busy={pending || undefined}
           className="inline-flex min-h-14 w-full items-center justify-center rounded-pill bg-red px-9 text-[1.0625rem] font-medium tracking-[-0.01em] text-white shadow-[0_10px_30px_rgba(224,32,26,0.35)] transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:cursor-wait disabled:opacity-70 disabled:hover:translate-y-0 md:w-auto"
         >
           {pending ? "Sending…" : "Submit Your Application"}

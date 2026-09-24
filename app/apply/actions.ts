@@ -1,5 +1,6 @@
 "use server";
 
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { FIELD_ORDER, findErrors, QUESTIONS, type FieldName } from "./fields";
 
 export type SubmitResult = { ok: true } | { ok: false; error: string; fields?: FieldName[] };
@@ -23,10 +24,14 @@ export async function submitApplication(formData: FormData): Promise<SubmitResul
   const values: Record<string, string> = {};
   for (const name of FIELD_ORDER) values[name] = String(formData.get(name) ?? "").trim().slice(0, 5000);
 
-  const fields = findErrors(values);
+  // Normalise the WhatsApp number to E.164 (+96170123456) before validating; the sheet stores that form.
+  const parsed = parsePhoneNumberFromString(values.whatsapp);
+  if (parsed?.isValid()) values.whatsapp = parsed.number;
+  const errors = findErrors(values); // includes libphonenumber-js validation of the WhatsApp number
   for (const [name, options] of Object.entries(CHOICES)) {
-    if (values[name] && !options.includes(values[name])) fields.push(name as FieldName);
+    if (values[name] && !options.includes(values[name])) errors[name as FieldName] = "Choose one of the options";
   }
+  const fields = Object.keys(errors) as FieldName[];
   if (fields.length) return { ok: false, error: "Please complete the highlighted fields.", fields };
 
   const url = process.env.APPS_SCRIPT_URL;

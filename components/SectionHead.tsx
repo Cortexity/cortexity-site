@@ -6,7 +6,8 @@
 /** Plain uppercase label (kept under its old name; /apply uses it too). */
 export function EyebrowPill({ children }: { children: React.ReactNode }) {
   return (
-    <p className="eyebrow-pill inline-flex items-center rounded-pill border border-[#e5e5ea] px-5 py-2.5 text-[17px] font-semibold leading-none tracking-[0.02em] text-[#e0201a] [.tone-black_&]:border-white/[0.14]">
+    <p className="eyebrow-pill inline-flex items-center gap-2 rounded-pill px-5 py-3 text-[19px] font-medium leading-none tracking-[0.02em] text-ink-muted">
+      <span aria-hidden="true" className="h-2 w-2 rounded-full bg-red" />
       {children}
     </p>
   );
@@ -35,7 +36,7 @@ export function SectionHead({
   return (
     <div className={`mx-auto max-w-[64rem] text-center ${className}`}>
       {eyebrow ? <EyebrowPill>{eyebrow}</EyebrowPill> : null}
-      <div className={`${eyebrow ? "mt-[18px]" : ""} flex items-center justify-center gap-8`}>
+      <div className={`${eyebrow ? "mt-5" : ""} flex items-center justify-center gap-8`}>
         <span aria-hidden="true" className="hidden h-px max-w-[140px] flex-1 bg-gradient-to-l from-current to-transparent opacity-10 lg:block" />
         <Tag id={id} className={`${level === 1 ? "text-display" : "text-h2"} max-w-[15em] text-balance`}>
           {title} <em className="accent">{accent}</em>

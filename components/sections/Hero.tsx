@@ -9,7 +9,7 @@ export function Hero() {
     <section
       id="hero"
       aria-labelledby="hero-title"
-      className="tone-white relative overflow-hidden px-5 pb-12 pt-28 text-center sm:px-8 sm:pb-16 sm:pt-36"
+      className="tone-white relative overflow-hidden px-5 pb-8 pt-28 text-center sm:px-8 sm:pb-10 sm:pt-36"
     >
       <Dots />
       <div className="relative z-10 mx-auto max-w-[60rem]">

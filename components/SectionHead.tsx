@@ -6,7 +6,7 @@
 /** Plain uppercase label (kept under its old name; /apply uses it too). */
 export function EyebrowPill({ children }: { children: React.ReactNode }) {
   return (
-    <p className="eyebrow-pill inline-flex items-center gap-2 rounded-pill px-5 py-3 text-[19px] font-medium leading-none tracking-[0.02em] text-ink-muted">
+    <p className="eyebrow-pill inline-flex items-center gap-2 rounded-pill px-5 py-3 text-[19px] font-medium leading-none tracking-[0.02em] text-[#1d1d1f] [.tone-black_&]:text-white">
       <span aria-hidden="true" className="h-2 w-2 rounded-full bg-red" />
       {children}
     </p>

@@ -36,22 +36,22 @@ export function Founder() {
     <Section tone="white" id="founder" labelledBy="founder-title">
       <SectionHead id="founder-title" eyebrow="The founder" title="One person responsible for" accent="getting it done." sub="You work directly with me, from the first call to the App Store." />
 
-      <Reveal className="mx-auto mt-12 max-w-[64rem] sm:mt-16">
-        <div className="grid grid-cols-1 items-center gap-8 rounded-[24px] border border-[#e5e5ea] bg-white p-6 shadow-[0_8px_24px_rgba(0,0,0,0.05)] sm:p-8 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-10 lg:gap-14 lg:p-10">
-          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[20px] bg-[#f5f5f7]">
+      <Reveal className="mx-auto mt-12 max-w-[76rem] sm:mt-16 md:mt-[calc(4rem+24px)]">
+        <div className="grid grid-cols-1 items-center gap-8 rounded-[24px] border border-[#e5e5ea] bg-white p-6 shadow-[0_8px_24px_rgba(0,0,0,0.05)] md:grid-cols-[minmax(0,6fr)_minmax(0,7fr)] md:gap-[72px] md:p-14 lg:p-16">
+          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[24px] bg-[#f5f5f7]">
             <Image
               src="/founder/joseph.jpg"
               alt="Joseph, founder of Cortexity, at his desk"
               fill
-              sizes="(min-width: 768px) 420px, 100vw"
+              sizes="(min-width: 1280px) 520px, (min-width: 768px) 42vw, 100vw"
               quality={88}
               className="object-cover object-[60%_30%]"
             />
           </div>
-          <div className="space-y-4 text-left text-body text-[#1d1d1f]">
+          <div className="space-y-5 text-left text-[19px] leading-[1.5] text-[#1d1d1f] md:space-y-6 md:text-[21px] lg:text-[22px]">
             {PARAGRAPHS.map((p, i) => (
-              <p key={i} className="relative pl-[18px]">
-                <span aria-hidden="true" className="absolute left-0 top-[0.7em] h-1.5 w-1.5 rounded-full bg-[#e0201a]" />
+              <p key={i} className="relative pl-[22px] md:pl-6">
+                <span aria-hidden="true" className="absolute left-0 top-[0.6em] h-1.5 w-1.5 rounded-full bg-[#e0201a] md:top-[0.55em] md:h-2 md:w-2" />
                 {p}
               </p>
             ))}

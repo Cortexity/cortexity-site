@@ -27,7 +27,7 @@ const PARAGRAPHS: React.ReactNode[] = [
     vision. I&rsquo;ll take care of the rest.
   </>,
   <>
-    And yes &mdash; <B>I&rsquo;m the one who answers your messages.</B>
+    And yes, <B>I&rsquo;m the one who answers your messages.</B>
   </>,
 ];
 

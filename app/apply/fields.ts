@@ -114,7 +114,7 @@ export const MESSAGES = {
   required: "Required",
   email: "Enter a valid email address",
   phone: "Enter a valid WhatsApp number",
-  detail: "A little more detail helps me understand — a couple of sentences is enough.",
+  detail: "A little more detail helps me understand. A couple of sentences is enough.",
 } as const;
 
 /** Questions that need at least 20 characters. */

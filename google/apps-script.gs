@@ -75,7 +75,7 @@ function appendRow_(row) {
 function sendEmail_(d) {
   var lines = COLUMNS.filter(function (c) { return c[1] !== "submittedAt"; }).map(function (c) {
     var v = d[c[1]];
-    return c[0].toUpperCase() + "\n" + (v ? String(v) : "—") + "\n";
+    return c[0].toUpperCase() + "\n" + (v ? String(v) : "(not answered)") + "\n";
   });
   var subject = "New Cortexity application — " + (d.name || "Unknown") + " (" + (d.platforms || "platform not chosen") + ")";
   var body = "New application received " + new Date().toLocaleString() + "\n\n" + lines.join("\n");

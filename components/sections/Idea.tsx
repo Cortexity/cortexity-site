@@ -9,7 +9,7 @@ export function Idea() {
     <Section tone="white" id="problem" labelledBy="idea-title">
       <Reveal>
         <Prose>
-          <SectionHead id="idea-title" eyebrow="The problem" title="You’ve had the idea." accent="Now make it real." sub="Most app ideas never make it out of the Notes app." />
+          <SectionHead id="idea-title" title="You’ve had the idea." accent="Now make it real." sub="Most app ideas never make it out of the Notes app." />
           <Stack className="mt-10 sm:mt-12">
             <P>Maybe it&rsquo;s been sitting in your Notes for six months.</P>
             <P>Maybe you&rsquo;ve talked about it with friends.</P>

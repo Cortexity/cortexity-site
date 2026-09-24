@@ -16,7 +16,6 @@ export function Hero() {
         <SectionHead
           level={1}
           id="hero-title"
-          eyebrow="iOS app studio · Beirut"
           title="Your app idea. Built in"
           accent="21 days."
         />

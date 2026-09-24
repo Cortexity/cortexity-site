@@ -26,7 +26,7 @@ export function Closing() {
       >
         <Reveal>
           <Prose>
-            <SectionHead id="closing-title" eyebrow="Start" title="Three weeks from now, this could be" accent="on your iPhone." sub="Tell me about the idea. I read every application myself." />
+            <SectionHead id="closing-title" title="Three weeks from now, this could be" accent="on your iPhone." sub="Tell me about the idea. I read every application myself." />
             <Stack className="mt-10 sm:mt-12">
               <P>Not in your Notes.</P>
               <P>Not something you keep telling people you&rsquo;re going to build someday.</P>

@@ -75,7 +75,7 @@ export function AppMarquee() {
   });
   const row = Array.from({ length: 6 }, () => apps).flat();
   return (
-    <div className="marquee mx-auto mt-16 max-w-[56rem] overflow-hidden opacity-40 grayscale sm:mt-20">
+    <div className="marquee mx-auto mt-10 max-w-[56rem] overflow-hidden opacity-40 grayscale sm:mt-12">
       <p className="sr-only">Apps shipped by Cortexity: SLOWR, ReflexFlow.</p>
       <div aria-hidden="true" className="marquee-track flex items-center gap-16">
         {[...row, ...row].map((a, i) => (

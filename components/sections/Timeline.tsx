@@ -53,7 +53,7 @@ export function Timeline() {
         </Prose>
       </Reveal>
 
-      <Reveal className="stagger mx-auto mt-14 max-w-[44rem] sm:mt-20">
+      <Reveal className="stagger mx-auto mt-10 max-w-[44rem] sm:mt-12">
         <ol className="contents">
           {WEEKS.map((w, i) => (
             <li key={w.label} className="relative border-l-2 border-[#e5e5ea] pb-12 pl-10 last:pb-0 sm:pl-14">

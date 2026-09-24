@@ -13,7 +13,7 @@ export function Transformation() {
       </Prose>
 
       {/* DAY 1 */}
-      <Reveal className="mt-14 sm:mt-20">
+      <Reveal className="mt-10 sm:mt-12">
         <Prose>
           <Eyebrow>Day 1</Eyebrow>
           <blockquote className="mx-auto mt-5 max-w-[30rem] text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] font-semibold leading-[1.25] tracking-[-0.015em]">
@@ -36,7 +36,7 @@ export function Transformation() {
       </Reveal>
 
       {/* ↓ */}
-      <div className="my-14 flex justify-center sm:my-20" aria-hidden="true">
+      <div className="my-10 flex justify-center sm:my-14" aria-hidden="true">
         <svg width="20" height="44" viewBox="0 0 20 44" fill="none" className="text-ink-muted">
           <path d="M10 1v41M1.5 33.5 10 42l8.5-8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -49,8 +49,8 @@ export function Transformation() {
         </Prose>
         {/* PLACEHOLDER: three iPhones showing the finished padel app.
             To drop in real screenshots: screens={[{src, alt}, {src, alt}, {src, alt}]} */}
-        <PhoneTrio className="mt-16 sm:mt-24" />
-        <Prose className="mt-12 sm:mt-16">
+        <PhoneTrio className="mt-10 sm:mt-14" />
+        <Prose className="mt-10">
           <Stack>
             <Strong>A beautifully designed, working iPhone app.</Strong>
             <P>Something you can hold in your hand.</P>
@@ -58,7 +58,7 @@ export function Transformation() {
             <P>Something your first customers can actually use.</P>
             <Strong>That&rsquo;s the transformation you&rsquo;re paying for.</Strong>
           </Stack>
-          <div className="mt-10 flex justify-center sm:mt-12">
+          <div className="mt-8 flex justify-center sm:mt-10">
             <ApplyButton>Apply to Build Your App</ApplyButton>
           </div>
         </Prose>

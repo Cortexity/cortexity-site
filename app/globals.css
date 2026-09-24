@@ -179,9 +179,9 @@ html.js .reveal.stagger > :nth-child(10), html.js .reveal.stagger > .contents > 
 }
 
 /* Copy rhythm: stanzas of short lines, statement lines stand alone. */
-.flow > .stanza + .stanza { margin-top: 40px; }
+.flow > .stanza + .stanza { margin-top: 32px; }
 .flow > .stanza + .stanza.is-stmt,
-.flow > .stanza.is-stmt + .stanza { margin-top: 48px; }
+.flow > .stanza.is-stmt + .stanza { margin-top: 40px; }
 .stanza > * + * { margin-top: 6px; }
 /* Break runs of grey: a lines-stanza that follows another opens in full colour. */
 .flow > .stanza.is-lines + .stanza.is-lines > .line:first-child { color: var(--fg); }

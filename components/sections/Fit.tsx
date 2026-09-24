@@ -45,7 +45,7 @@ export function Fit() {
             <P>Then we should talk.</P>
           </Stack>
 
-          <div className="mt-10 flex justify-center sm:mt-12">
+          <div className="mt-8 flex justify-center sm:mt-10">
             <ApplyButton>Tell Us What You Want to Build</ApplyButton>
           </div>
         </Prose>

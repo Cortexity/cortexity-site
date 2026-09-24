@@ -11,7 +11,7 @@ export function Questions() {
         <Prose>
           <SectionHead id="questions-title" eyebrow="FAQ" title="Questions you" accent="probably have." sub="Straight answers to what founders ask first." />
         </Prose>
-        <div className="mx-auto mt-12 max-w-[48rem] sm:mt-16">
+        <div className="mx-auto mt-10 max-w-[48rem] sm:mt-12">
           <FaqList>
             <FaqItem question="Can you really build my app in 21 days?">
               <P>If we accept your project, that&rsquo;s the commitment.</P>

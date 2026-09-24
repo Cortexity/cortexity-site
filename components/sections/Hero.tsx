@@ -9,7 +9,7 @@ export function Hero() {
     <section
       id="hero"
       aria-labelledby="hero-title"
-      className="tone-white relative overflow-hidden px-5 pb-20 pt-28 text-center sm:px-8 sm:pb-28 sm:pt-36"
+      className="tone-white relative overflow-hidden px-5 pb-12 pt-28 text-center sm:px-8 sm:pb-16 sm:pt-36"
     >
       <Dots />
       <div className="relative z-10 mx-auto max-w-[60rem]">
@@ -25,7 +25,7 @@ export function Hero() {
           <P className="text-ink-muted">Strategy. Design. Development. Testing. App Store submission.</P>
           <Strong>One project. One fixed price. $5,000.</Strong>
         </div>
-        <div id="hero-cta" className="mt-10 flex justify-center sm:mt-12">
+        <div id="hero-cta" className="mt-8 flex justify-center sm:mt-10">
           <ApplyButton size="lg" variant="red" note="No payment until we've talked about your idea.">
             Apply to Build Your App
           </ApplyButton>

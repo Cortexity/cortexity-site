@@ -38,7 +38,7 @@ function Plan({ name, price, items }: { name: string; price: string; items: stri
           </li>
         ))}
       </ul>
-      <div className="mt-10 flex justify-center">
+      <div className="mt-8 flex justify-center">
         <ApplyButton variant="red" note="I'll talk with you about your idea before you pay anything.">
           Apply to Build Your App
         </ApplyButton>
@@ -65,7 +65,7 @@ export function Pricing() {
             accent="Start to finish."
             sub="One fixed price, paid in two halves."
           />
-          <Stack className="mt-12 sm:mt-16">
+          <Stack className="mt-10 sm:mt-12">
             <P>No hourly rate.</P>
             <P>No paying a designer separately.</P>
             <P>No development bill that grows every week.</P>
@@ -74,7 +74,7 @@ export function Pricing() {
         </Prose>
       </Reveal>
 
-      <Reveal className="mt-16 text-center sm:mt-20">
+      <Reveal className="mt-12 text-center sm:mt-14">
         <H3 className="text-h2">
           Your Cortexity build: <span className="text-red">$5,000</span>
         </H3>
@@ -90,12 +90,12 @@ export function Pricing() {
         </Stack>
       </Reveal>
 
-      <Reveal className="stagger mx-auto mt-12 grid max-w-[60rem] grid-cols-1 gap-5 sm:mt-16 md:grid-cols-2">
+      <Reveal className="stagger mx-auto mt-12 grid max-w-[60rem] grid-cols-1 gap-5 sm:mt-14 md:grid-cols-2">
         <Plan name="iPhone" price="$5,000" items={BASE} />
         <Plan name="iPhone + Android" price="$8,000" items={[...BASE, "Android built as a second phase"]} />
       </Reveal>
 
-      <Reveal className="mt-16 sm:mt-20">
+      <Reveal className="mt-12 sm:mt-14">
         <Prose>
           <Stack>
             <P>Before you pay anything, I&rsquo;ll talk with you about your idea.</P>

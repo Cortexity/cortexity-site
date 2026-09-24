@@ -39,7 +39,7 @@ export function Closing() {
               </P>
             </Stack>
 
-            <div className="mt-14 sm:mt-20">
+            <div className="mt-12 sm:mt-14">
               <H3>Your idea. Our responsibility.</H3>
               <Strong className="mt-4">21 days. $5,000.</Strong>
               <div id="final-cta" className="mt-8 flex justify-center sm:mt-10">

@@ -10,7 +10,7 @@ export function Idea() {
       <Reveal>
         <Prose>
           <SectionHead id="idea-title" eyebrow="The problem" title="You’ve had the idea." accent="Now make it real." sub="Most app ideas never make it out of the Notes app." />
-          <Stack className="mt-12 sm:mt-16">
+          <Stack className="mt-10 sm:mt-12">
             <P>Maybe it&rsquo;s been sitting in your Notes for six months.</P>
             <P>Maybe you&rsquo;ve talked about it with friends.</P>
             <P>
@@ -35,7 +35,7 @@ export function Idea() {
             </P>
             <Strong>21 days. $5,000. Done for you.</Strong>
           </Stack>
-          <div className="mt-10 flex justify-center sm:mt-12">
+          <div className="mt-8 flex justify-center sm:mt-10">
             <ApplyButton>Tell Us Your Idea</ApplyButton>
           </div>
         </Prose>

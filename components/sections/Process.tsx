@@ -47,7 +47,7 @@ export function Process() {
         </Prose>
       </Reveal>
 
-      <Reveal className="stagger mx-auto mt-12 max-w-[60rem] rounded-[24px] border border-[#e5e5ea] bg-white px-5 py-1 shadow-[0_8px_24px_rgba(0,0,0,0.05)] sm:mt-16 md:px-10 md:py-2">
+      <Reveal className="stagger mx-auto mt-10 max-w-[60rem] rounded-[24px] border border-[#e5e5ea] bg-white px-5 py-1 shadow-[0_8px_24px_rgba(0,0,0,0.05)] sm:mt-12 md:px-10 md:py-2">
         <ol className="contents">
           {STEPS.map((s, i) => (
             <Step key={s.title} n={String(i + 1)} title={s.title}>

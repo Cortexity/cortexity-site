@@ -19,7 +19,7 @@ function App({
 }) {
   return (
     <article
-      className={`${first ? "pt-6" : "pt-24 sm:pt-32"} text-center`}
+      className={`${first ? "pt-6" : "pt-20 sm:pt-24"} text-center`}
       aria-labelledby={`work-${name.toLowerCase()}`}
     >
       <Reveal>
@@ -31,10 +31,10 @@ function App({
           </Stack>
         </Prose>
       </Reveal>
-      <Reveal delay={80} className="mt-16 sm:mt-20">
+      <Reveal delay={80} className="mt-10 sm:mt-12">
         {/* PLACEHOLDER: pass screens={[{src, alt}, {src, alt}]} when screenshots arrive. */}
         <AppMockup name={name} />
-        <p className="mt-16 text-center text-small font-semibold">
+        <p className="mt-8 text-center text-small font-semibold">
           <strong className="font-semibold">Designed. Built. Shipped by Cortexity.</strong>
         </p>
       </Reveal>

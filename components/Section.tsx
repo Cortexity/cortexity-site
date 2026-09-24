@@ -23,7 +23,7 @@ export function Section({
   return (
     <section id={id} aria-labelledby={labelledBy} className={`tone-${tone} relative overflow-hidden px-5 sm:px-8`}>
       {decor}
-      <div className={`relative z-10 mx-auto w-full max-w-wide py-24 sm:py-32 lg:py-40 ${className}`}>
+      <div className={`relative z-10 mx-auto w-full max-w-wide py-16 sm:py-24 lg:py-28 ${className}`}>
         {children}
       </div>
     </section>

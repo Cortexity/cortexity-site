@@ -1,4 +1,4 @@
-import { Code, Lightbulb, Palette, RefreshCw, Rocket, type LucideIcon } from "lucide-react";
+import { Braces, Lightbulb, Palette, Rocket, SlidersHorizontal, type LucideIcon } from "lucide-react";
 import { Blobs } from "../Decor";
 import { SectionHead } from "../SectionHead";
 import { Reveal } from "../Reveal";
@@ -8,8 +8,8 @@ import { Strong } from "../Text";
 const ICONS: Record<string, LucideIcon> = {
   Product: Lightbulb,
   Design: Palette,
-  Development: Code,
-  Refinement: RefreshCw,
+  Development: Braces,
+  Refinement: SlidersHorizontal,
   Launch: Rocket,
 };
 

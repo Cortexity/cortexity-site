@@ -1,27 +1,27 @@
+import { Braces, Lightbulb, PenTool, Rocket, SlidersHorizontal, type LucideIcon } from "lucide-react";
 import { Blobs } from "../Decor";
 import { SectionHead } from "../SectionHead";
 import { Reveal } from "../Reveal";
 import { Prose, Section } from "../Section";
 import { Strong } from "../Text";
 
-/** SF-Symbols-style line icons, centred in a 24×24 viewBox, drawn white inside the red circle. */
-const ICONS: Record<string, React.ReactNode> = {
-  Product: <><path d="M12 3.5a6 6 0 0 0-3.4 10.95c.55.4.9 1 .9 1.65V17h5v-.9c0-.65.35-1.25.9-1.65A6 6 0 0 0 12 3.5Z" /><path d="M10 20h4" /></>,
-  Design: <><path d="M20 4c-3.5.5-7.5 3-10 6.5l-1 1.5 3 3 1.5-1C17 11.5 19.5 7.5 20 4Z" /><path d="M9 12c-2 0-3.5 1.2-3.9 3.2-.2 1.2-.6 2.4-1.6 3.3 2.9.5 6.5-.3 7.5-3" /></>,
-  Development: <><path d="M9 4H8a2 2 0 0 0-2 2v3.5A2.5 2.5 0 0 1 3.5 12 2.5 2.5 0 0 1 6 14.5V18a2 2 0 0 0 2 2h1" /><path d="M15 4h1a2 2 0 0 1 2 2v3.5a2.5 2.5 0 0 0 2.5 2.5 2.5 2.5 0 0 0-2.5 2.5V18a2 2 0 0 1-2 2h-1" /></>,
-  Refinement: <><path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="12" r="2" /><circle cx="17" cy="17" r="2" /></>,
-  Launch: <><path d="M20.5 3.5 3.5 10l7 3 3 7 7-16.5Z" /><path d="m10.5 13 10-9.5" /></>,
+const ICONS: Record<string, LucideIcon> = {
+  Product: Lightbulb,
+  Design: PenTool,
+  Development: Braces,
+  Refinement: SlidersHorizontal,
+  Launch: Rocket,
 };
 
+/** Tinted disc with the step's Lucide icon; the tint deepens on row hover. */
 function Symbol({ name }: { name: string }) {
+  const Icon = ICONS[name];
   return (
     <span
       aria-hidden="true"
-      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#e0201a] shadow-[inset_0_-2px_0_rgba(0,0,0,0.12),0_6px_16px_rgba(224,32,26,0.28)] transition-transform duration-200 ease-out group-hover:scale-[1.06] md:h-14 md:w-14"
+      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[rgba(224,32,26,0.08)] transition-colors duration-200 group-hover:bg-[rgba(224,32,26,0.14)] md:h-14 md:w-14"
     >
-      <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-[22px] w-[22px] md:h-6 md:w-6">
-        {ICONS[name]}
-      </svg>
+      <Icon color="#e0201a" strokeWidth={1.75} className="h-[22px] w-[22px] md:h-6 md:w-6" />
     </span>
   );
 }
@@ -34,15 +34,12 @@ const STEPS: { title: string; copy: React.ReactNode }[] = [
   { title: "Launch", copy: <>We submit it to the App Store and stay with you through review.</> },
 ];
 
-/** One editorial row (inside a single white card): number | title | one sentence, sharing a baseline. Hairlines separate rows. */
-function Step({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
+/** One editorial row (inside a single white card): icon | title | one sentence, title and sentence sharing a baseline. Hairlines separate rows. */
+function Step({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <li className="group border-[#e5e5ea] py-[22px] text-left md:grid md:grid-cols-[3rem_4rem_11rem_minmax(0,1fr)] md:items-baseline md:gap-x-8 md:py-[26px] lg:gap-x-10 [&+li]:border-t">
-      {/* Mobile: number + circle + title on one row. Desktop: `contents` hands all three to the grid. */}
+    <li className="group border-[#e5e5ea] py-[22px] text-left md:grid md:grid-cols-[3.5rem_11rem_minmax(0,1fr)] md:items-baseline md:gap-x-8 md:py-[26px] lg:gap-x-10 [&+li]:border-t">
+      {/* Mobile: disc + title on one row. Desktop: `contents` hands both to the grid. */}
       <div className="flex items-center gap-3 md:contents">
-        <span aria-hidden="true" className="accent block text-[2rem] leading-none md:text-[2.75rem]">
-          {n}
-        </span>
         <span className="flex justify-center md:self-center">
           <Symbol name={title} />
         </span>
@@ -71,8 +68,8 @@ export function Process() {
 
       <Reveal className="stagger mx-auto mt-10 max-w-[60rem] rounded-[24px] border border-[#e5e5ea] bg-white px-5 py-1 shadow-[0_8px_24px_rgba(0,0,0,0.05)] sm:mt-12 md:px-10 md:py-2">
         <ol className="contents">
-          {STEPS.map((s, i) => (
-            <Step key={s.title} n={String(i + 1)} title={s.title}>
+          {STEPS.map((s) => (
+            <Step key={s.title} title={s.title}>
               {s.copy}
             </Step>
           ))}

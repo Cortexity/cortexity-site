@@ -5,8 +5,8 @@
  */
 export function EyebrowPill({ children }: { children: React.ReactNode }) {
   return (
-    <p className="eyebrow-pill inline-flex items-center gap-3 rounded-pill border border-[#e5e5ea] px-5 py-3 text-[16px] font-medium uppercase leading-none tracking-[0.10em] text-[#1d1d1f] md:px-6 md:py-3.5 md:text-[17px] [.tone-black_&]:border-white/[0.14] [.tone-black_&]:text-white">
-      <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-[#e0201a]" />
+    <p className="eyebrow-pill inline-flex items-center gap-2 rounded-pill border border-[#e5e5ea] px-3.5 py-2 text-[12px] font-medium uppercase leading-none tracking-[0.12em] text-[#1d1d1f] md:px-4 md:py-[9px] md:text-[13px] [.tone-black_&]:border-white/[0.14] [.tone-black_&]:text-white">
+      <span aria-hidden="true" className="h-[7px] w-[7px] rounded-full bg-[#e0201a]" />
       {children}
     </p>
   );

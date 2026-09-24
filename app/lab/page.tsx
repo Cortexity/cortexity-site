@@ -16,7 +16,33 @@ const REDS = [
   { id: "D", hex: "#C8102E" },
 ];
 
+const EYEBROW_LIGHT = [
+  { id: "A", hex: "#1d1d1f", note: "current" },
+  { id: "B", hex: "#2c2c2e" },
+  { id: "C", hex: "#3a3a3c" },
+  { id: "D", hex: "#48484a" },
+  { id: "E", hex: "#6e6e73", note: "original grey" },
+];
+const EYEBROW_DARK = [
+  { id: "A", hex: "rgba(255,255,255,1)" },
+  { id: "B", hex: "rgba(255,255,255,0.92)" },
+  { id: "C", hex: "rgba(255,255,255,0.85)" },
+  { id: "D", hex: "rgba(255,255,255,0.78)" },
+  { id: "E", hex: "rgba(255,255,255,0.62)" },
+];
+
+/** The live EyebrowPill markup (components/SectionHead.tsx), with only the text colour overridden. */
+function EyebrowSample({ color }: { color: string }) {
+  return (
+    <p className="eyebrow-pill inline-flex items-center gap-2 rounded-pill px-5 py-3 text-[19px] font-medium leading-none tracking-[0.02em]" style={{ color }}>
+      <span aria-hidden="true" className="h-2 w-2 rounded-full bg-red" />
+      The Founder
+    </p>
+  );
+}
+
 const SECTIONS = [
+  ["eyebrow", "0 · Eyebrow text colour"],
   ["reds", "1 · Red swatches"],
   ["blobs", "2 · Blob tints"],
   ["phones", "3 · Phone frame"],
@@ -124,8 +150,40 @@ export default function Lab() {
         ))}
       </nav>
 
+      {/* 0 · EYEBROW TEXT COLOUR */}
+      <section id="eyebrow" className="mt-20 scroll-mt-8">
+        <h2 className="text-h3">0 · Eyebrow text colour</h2>
+        <div className="mt-6 grid gap-x-5 gap-y-10 text-center md:grid-cols-5">
+          {EYEBROW_LIGHT.map((v) => (
+            <div key={v.id}>
+              <Label>
+                {v.id} · {v.hex}
+                {v.note ? ` (${v.note})` : ""}
+              </Label>
+              <EyebrowSample color={v.hex} />
+              <h3 className="mx-auto mt-5 max-w-[10em] text-h2 text-balance">
+                One person responsible for <em className="accent">getting it done.</em>
+              </h3>
+            </div>
+          ))}
+        </div>
+        <div className="tone-black mt-10 rounded-[24px] px-6 py-12 text-center sm:px-10">
+          <div className="grid gap-x-5 gap-y-10 md:grid-cols-5">
+            {EYEBROW_DARK.map((v) => (
+              <div key={v.id}>
+                <Label>{v.id} · {v.hex}</Label>
+                <EyebrowSample color={v.hex} />
+                <h3 className="mx-auto mt-5 max-w-[10em] text-h2 text-balance">
+                  One person responsible for <em className="accent">getting it done.</em>
+                </h3>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 1 · REDS */}
-      <section id="reds" className="mt-20 scroll-mt-8">
+      <section id="reds" className="mt-24 scroll-mt-8">
         <h2 className="text-h3">1 · Red swatches</h2>
         <div className="mt-6 grid gap-5 md:grid-cols-2">
           {REDS.map((r) => (

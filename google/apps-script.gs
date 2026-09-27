@@ -88,11 +88,9 @@ function sendEmail_(d) {
 function sendConfirmation_(d) {
   if (!d.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) return;
   var first = String(d.name || "").trim().split(/\s+/)[0] || "there";
-  var idea = String(d.idea || "").trim().replace(/\s+/g, " ");
-  if (idea.length > 60) idea = idea.slice(0, 60);
   var body =
     "Hi " + first + ",\n\n" +
-    "Thanks for telling me about " + idea + "…\n\n" +
+    "Thanks for telling me about your app.\n\n" +
     "I read every application myself. You’ll hear from me within 48 hours.\n\n" +
     "Joseph\nCortexity";
   GmailApp.sendEmail(d.email, "Got your application — Cortexity", body, { name: "Joseph at Cortexity", replyTo: NOTIFY_EMAIL });

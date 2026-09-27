@@ -2,7 +2,7 @@ import { SectionHead } from "../SectionHead";
 import { FaqItem, FaqList } from "../Faq";
 import { Reveal } from "../Reveal";
 import { Prose, Section } from "../Section";
-import { P, Strong } from "../Text";
+import { P } from "../Text";
 
 export function Questions() {
   return (
@@ -14,12 +14,11 @@ export function Questions() {
         <div className="mx-auto mt-10 max-w-[48rem] sm:mt-12">
           <FaqList>
             <FaqItem question="Can you really build my app in 21 days?">
-              <P>If we accept your project, that&rsquo;s the commitment.</P>
+              <P>Yes. That&rsquo;s the promise.</P>
               <P>
-                Before we start, I&rsquo;ll talk through the idea with you and understand what
-                we&rsquo;re getting into.
+                Before we start, we talk through the idea so I know exactly what we&rsquo;re
+                building.
               </P>
-              <P>Once we take it on, our job is to get it built.</P>
             </FaqItem>
 
             <FaqItem question="What if I change my mind about something halfway through?">
@@ -32,7 +31,7 @@ export function Questions() {
               </P>
               <P>
                 If you make a major change that affects the 21-day timeline, I&rsquo;ll tell you
-                immediately and we&rsquo;ll figure out the best way forward together.
+                right away and we&rsquo;ll adjust the delivery date together.
               </P>
             </FaqItem>
 
@@ -83,14 +82,19 @@ export function Questions() {
                 Once the project is completed and the final payment is made, the finished app,
                 code and project are yours.
               </P>
-              <Strong>It&rsquo;s your product. It should belong to you.</Strong>
+              <P>It&rsquo;s your product.</P>
+            </FaqItem>
+
+            <FaqItem question="How is payment made?">
+              <P>Payment is made via Whish.</P>
+              <P>The project starts once the 50% deposit is received.</P>
             </FaqItem>
 
             <FaqItem question="Do I need to know anything about building apps?">
               <P>No.</P>
               <P>You shouldn&rsquo;t have to.</P>
               <P>You know the idea, the customer and the problem you&rsquo;re trying to solve.</P>
-              <Strong>We&rsquo;ll take care of the technology.</Strong>
+              <P>We take care of the rest.</P>
             </FaqItem>
           </FaqList>
         </div>

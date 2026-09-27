@@ -20,7 +20,7 @@ const WEEKS = [
     bullets: [
       "The core of the app works, on your iPhone.",
       "You use it every day and tell me what feels wrong.",
-      "We change it. No meter. No scope conversation.",
+      "We change it. Nothing extra to pay.",
     ],
   },
   {

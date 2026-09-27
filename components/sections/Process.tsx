@@ -31,7 +31,7 @@ const STEPS: { title: string; copy: React.ReactNode }[] = [
   { title: "Product", copy: <>We turn what&rsquo;s in your head into a first version worth building.</> },
   { title: "Design", copy: <>Every screen and every interaction, designed so you&rsquo;re proud to put your name on it.</> },
   { title: "Development", copy: <>App, backend, database, APIs. You never need to know what any of it means.</> },
-  { title: "Refinement", copy: <>You see it as it&rsquo;s built. Change your mind as often as you like. No meter.</> },
+  { title: "Refinement", copy: <>You see it as it&rsquo;s built. Change your mind as often as you like. No hourly bill.</> },
   { title: "Launch", copy: <>We submit it to the App Store and stay with you through review.</> },
 ];
 

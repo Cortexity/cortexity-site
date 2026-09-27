@@ -22,7 +22,7 @@ export function Questions() {
             </FaqItem>
 
             <FaqItem question="What if I change my mind about something halfway through?">
-              <P>Just tell me and we&rsquo;ll work it out.</P>
+              <P>That&rsquo;s expected. Changing your mind is part of the process.</P>
               <P>Seeing the real app always changes how you think about it. That&rsquo;s normal.</P>
               <P>
                 During the 21 days, we&rsquo;ll keep refining the product with you. You&rsquo;re

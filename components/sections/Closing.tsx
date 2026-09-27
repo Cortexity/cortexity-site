@@ -44,7 +44,7 @@ export function Closing() {
               <div id="final-cta" className="mt-8 flex justify-center sm:mt-10">
                 <ApplyButton size="lg" variant="red">Apply to Build Your App</ApplyButton>
               </div>
-              <Muted className="mt-5">Cortexity accepts a limited number of projects at a time.</Muted>
+              <Muted className="mt-5 italic">One new project a month.</Muted>
             </div>
           </Prose>
         </Reveal>

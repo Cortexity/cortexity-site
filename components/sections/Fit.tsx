@@ -12,13 +12,13 @@ export function Fit() {
           <SectionHead id="fit-title" eyebrow="Who It’s For" title="This is for founders who are" accent="serious about building." sub="For founders ready to stop thinking about it and build it." />
           <Stack className="mt-10 sm:mt-12">
             <P>
-              Cortexity makes sense for you if you&rsquo;ve been thinking about an app and
-              you&rsquo;re ready to actually do something about it.
+              Cortexity is for you if you&rsquo;ve been thinking about an app for too long, or if
+              you&rsquo;ve tried to build one before and it went badly.
             </P>
             <P>You don&rsquo;t need to be technical.</P>
             <P>You don&rsquo;t need to have founded a company before.</P>
             <P>You don&rsquo;t even need to have every detail figured out.</P>
-            <Strong>You do need to care.</Strong>
+            <Strong>But you do need to show up.</Strong>
             <P>
               We want founders who answer messages, give feedback, make decisions and genuinely
               want to see their product exist.

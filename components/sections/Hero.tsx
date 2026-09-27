@@ -25,11 +25,11 @@ export function Hero() {
           <Strong>One project. One fixed price. $5,000.</Strong>
         </div>
         <div id="hero-cta" className="mt-8 flex justify-center sm:mt-10">
-          <ApplyButton size="lg" variant="red" note="No payment until we've talked about your idea.">
+          <ApplyButton size="lg" variant="red" note={null}>
             Apply to Build Your App
           </ApplyButton>
         </div>
-        <Muted className="mt-3">We take on a limited number of projects at a time.</Muted>
+        <Muted className="mt-3 italic">One new project a month.</Muted>
       </div>
       <div className="relative z-10">
         <HeroVisual />

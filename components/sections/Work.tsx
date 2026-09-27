@@ -47,11 +47,7 @@ export function Work() {
     <Section tone="black" id="work" labelledBy="work-title">
       <Reveal>
         <Prose>
-          <SectionHead id="work-title" title="Built by" accent="Cortexity." sub="Two apps, designed, built and shipped to the App Store." />
-          <Stack className="mt-10 sm:mt-12">
-            <Strong>Some of the products we&rsquo;ve designed, developed and shipped.</Strong>
-            <P>Real apps. Available on the App Store.</P>
-          </Stack>
+          <SectionHead id="work-title" title="Built by" accent="Cortexity." sub="A few of the apps we’ve built, live on the App Store today." />
         </Prose>
       </Reveal>
 

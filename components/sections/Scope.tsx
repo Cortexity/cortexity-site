@@ -20,7 +20,7 @@ export function Scope() {
               every time you ask us to change a button, rethink a screen or improve how something
               works.
             </P>
-            <P>There is no meter running.</P>
+            <P>Ask for changes as often as you like.</P>
             <P>There is no hourly bill.</P>
             <P>
               There is no awkward conversation because you&rsquo;ve used your allotted number of
@@ -28,8 +28,8 @@ export function Scope() {
             </P>
             <Strong>We&rsquo;re building the product together.</Strong>
             <P>
-              If you ask for a major change that genuinely means the project needs more time,
-              I&rsquo;ll tell you clearly.
+              If you ask for a big change that needs more time, we&rsquo;ll adjust the timeline
+              together.
             </P>
           </Stack>
 

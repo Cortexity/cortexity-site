@@ -23,12 +23,8 @@ export function Questions() {
             </FaqItem>
 
             <FaqItem question="What if I change my mind about something halfway through?">
-              <P>Then tell me.</P>
-              <P>Seriously.</P>
-              <P>
-                Seeing your idea become a real product will change the way you think about it.
-              </P>
-              <P>That&rsquo;s part of building something new.</P>
+              <P>Just tell me and we&rsquo;ll work it out.</P>
+              <P>Seeing the real app always changes how you think about it. That&rsquo;s normal.</P>
               <P>
                 During the 21 days, we&rsquo;ll keep refining the product with you. You&rsquo;re
                 not going to receive an extra invoice because you wanted a screen redesigned or
@@ -44,9 +40,8 @@ export function Questions() {
               <P>Once the build is complete, the app is yours.</P>
               <P>We&rsquo;ll then handle the App Store submission process with you.</P>
               <P>
-                If you want to keep improving the product afterward, new features, larger
-                updates, Android or further development, we can keep working together and agree
-                on the next phase separately.
+                Want to keep building after that? New features and bigger updates are a new
+                project, priced on its own.
               </P>
               <P>You&rsquo;re not locked into Cortexity.</P>
             </FaqItem>
@@ -62,17 +57,14 @@ export function Questions() {
               </P>
               <P>
                 For new features, redesigns or continued product development after the initial
-                project, we can simply scope the next phase together.
+                project, we simply start a new project together, billed separately.
               </P>
             </FaqItem>
 
             <FaqItem question="Can you build Android too?">
-              <P>Yes.</P>
-              <P>Our $5,000 build is focused on iPhone.</P>
-              <P>
-                If you also want an Android version, tell us during your application and
-                we&rsquo;ll discuss the best way to approach both platforms.
-              </P>
+              <P>Yes. iPhone is $5,000. iPhone plus Android is $8,000.</P>
+              <P>We build the iPhone app first, then the Android version, so each one feels native.</P>
+              <P>Tell us in your application if you want both.</P>
             </FaqItem>
 
             <FaqItem question="Is App Store submission included?">
@@ -82,7 +74,7 @@ export function Questions() {
                 Apple controls the review and approval process, so the time Apple takes to
                 approve an app isn&rsquo;t counted as part of the 21 days.
               </P>
-              <P>If Apple comes back with something that needs addressing, we&rsquo;ll work through it.</P>
+              <P>If Apple comes back with something that needs addressing, we&rsquo;ll work through it until the app is live.</P>
             </FaqItem>
 
             <FaqItem question="Do I own everything?">

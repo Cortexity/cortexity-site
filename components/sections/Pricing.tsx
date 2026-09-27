@@ -39,7 +39,7 @@ function Plan({ name, price, items }: { name: string; price: string; items: stri
         ))}
       </ul>
       <div className="mt-8 flex justify-center">
-        <ApplyButton variant="red" note="I'll talk with you about your idea before you pay anything.">
+        <ApplyButton variant="red" note="No payment until we’ve spoken and both said yes.">
           Apply to Build Your App
         </ApplyButton>
       </div>
@@ -103,7 +103,6 @@ export function Pricing() {
               I&rsquo;ll make sure I understand what you want to build and that Cortexity is the
               right studio for it. If it isn&rsquo;t, I&rsquo;ll tell you.
             </P>
-            <Strong>Then we get to work.</Strong>
           </Stack>
         </Prose>
       </Reveal>

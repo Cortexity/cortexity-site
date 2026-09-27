@@ -9,7 +9,7 @@ const WEEKS = [
     line: "One conversation. Then we design.",
     bullets: [
       "We talk through the idea, who it’s for, and how you imagine it working.",
-      "We challenge what needs challenging and define the first version.",
+      "We define the main features for version one.",
       "First screens on your phone by the end of the week.",
     ],
   },

@@ -28,9 +28,8 @@ export function Closing() {
           <Prose>
             <SectionHead id="closing-title" title="Three weeks from now, this could be" accent="on your iPhone." sub="Tell me about the idea. I read every application myself." />
             <Stack className="mt-10 sm:mt-12">
-              <P>Not in your Notes.</P>
-              <P>Not something you keep telling people you&rsquo;re going to build someday.</P>
-              <Strong>A real product.</Strong>
+              <P>Stop telling people about it.</P>
+              <Strong>Hand them the app instead.</Strong>
               <P>If you have an app idea you&rsquo;re serious about, tell us about it.</P>
               <P>I&rsquo;ll personally review what you send.</P>
               <P>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import { P } from "@/components/Text";
+import { Muted, P } from "@/components/Text";
 import { submitApplication } from "./actions";
 import { ANYTHING_ELSE, CONTACT_EMAIL, DETAILS, findErrors, MESSAGES, QUESTIONS, validateField, type Field, type FieldName } from "./fields";
 
@@ -171,6 +171,9 @@ export function ApplyForm({ initialDone = false, initialError }: { initialDone?:
         <P className="mx-auto mt-5 max-w-prose">
           I’ll read your application myself and reply within 48 hours. If it’s a fit, we’ll set up a call.
         </P>
+        <Muted className="mx-auto mt-3 max-w-prose">
+          A confirmation email is on its way. If you don’t see it in a minute, check your spam or junk folder.
+        </Muted>
         <Link
           href="/"
           className="mt-8 inline-flex min-h-12 items-center justify-center rounded-pill bg-[#1d1d1f] px-7 text-[1rem] font-medium text-white transition-transform duration-200 hover:-translate-y-0.5"

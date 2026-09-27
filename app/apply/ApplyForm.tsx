@@ -169,7 +169,7 @@ export function ApplyForm({ initialDone = false, initialError }: { initialDone?:
           Got it.
         </h2>
         <P className="mx-auto mt-5 max-w-prose">
-          I’ll read your application myself and reply within 48 hours. If it’s a fit, we’ll set up a call.
+          I’ll read your application myself and send you a message directly on WhatsApp within 48 hours. If it’s a fit, we’ll set up a call.
         </P>
         <Muted className="mx-auto mt-3 max-w-prose">
           A confirmation email is on its way. If you don’t see it in a minute, check your spam or junk folder.

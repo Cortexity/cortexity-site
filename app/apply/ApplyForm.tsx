@@ -5,6 +5,9 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import PhoneInput, { isValidPhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { Muted, P } from "@/components/Text";
+import { ATTRIBUTION_FIELDS, attributionFields } from "@/lib/attribution";
+import { debugLog, forLog } from "@/lib/debug";
+import { track, trackCustom } from "@/lib/pixel";
 import { submitApplication } from "./actions";
 import { ANYTHING_ELSE, CONTACT_EMAIL, DETAILS, findErrors, MESSAGES, QUESTIONS, validateField, type Field, type FieldName } from "./fields";
 
@@ -105,6 +108,22 @@ export function ApplyForm({ initialDone = false, initialError }: { initialDone?:
   const [done, setDone] = useState(initialDone);
   const [pending, startTransition] = useTransition();
 
+  // ViewContent once per visit to /apply; hidden attribution fields filled for the no-JS-post path too.
+  const viewed = useRef(false);
+  useEffect(() => {
+    if (!viewed.current) {
+      viewed.current = true;
+      track("ViewContent");
+    }
+    try {
+      const form = formRef.current;
+      for (const [k, v] of Object.entries(attributionFields())) {
+        const el = form?.elements.namedItem(k);
+        if (el instanceof HTMLInputElement) el.value = v;
+      }
+    } catch {}
+  }, []);
+
   // Errors clear the moment a field becomes valid, without waiting for the next submit.
   const revalidate = (name: FieldName, value: string) =>
     setErrors((prev) => {
@@ -133,6 +152,10 @@ export function ApplyForm({ initialDone = false, initialError }: { initialDone?:
     const form = e.currentTarget;
     const fd = new FormData(form);
     fd.set("whatsapp", phone ?? ""); // the library's state is E.164; the visible input holds the formatted text
+    try {
+      // _fbp / _fbc are read now, at submit time, so a pixel that loaded late is still captured.
+      for (const [k, v] of Object.entries(attributionFields())) fd.set(k, v);
+    } catch {}
     const values: Record<string, string> = {};
     fd.forEach((v, k) => (values[k] = String(v)));
     const found = findErrors(values);
@@ -146,11 +169,15 @@ export function ApplyForm({ initialDone = false, initialError }: { initialDone?:
       (first?.querySelector("textarea, input:not([type=hidden])") as HTMLElement | null)?.focus({ preventScroll: true });
       return;
     }
+    debugLog("browser payload", forLog(Object.fromEntries(fd.entries())));
     submitting.current = true;
     startTransition(async () => {
       try {
         const res = await submitApplication(fd);
         if (res.ok) {
+          // Same eventID as the server's Conversions API events, so Meta deduplicates them.
+          track("Lead", {}, res.eventId);
+          if (res.qualified) trackCustom("QualifiedLead", {}, res.eventId);
           setDone(true);
         } else {
           if (res.fields?.length) setErrors(Object.fromEntries(res.fields.map((f) => [f, MESSAGES.required])));
@@ -259,6 +286,11 @@ export function ApplyForm({ initialDone = false, initialError }: { initialDone?:
           {ANYTHING_ELSE.kind === "textarea" ? <Textarea f={ANYTHING_ELSE} bad={false} /> : null}
         </div>
       </Card>
+
+      {/* Attribution (fbclid, utm_*, landing URL, _fbp, _fbc); refreshed again at submit. */}
+      {ATTRIBUTION_FIELDS.map((k) => (
+        <input key={k} type="hidden" name={k} defaultValue="" />
+      ))}
 
       {/* Honeypot: hidden from people, filled by bots. */}
       <div className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">

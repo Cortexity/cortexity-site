@@ -33,7 +33,20 @@ var COLUMNS = [
   ["Start", "start"],
   ["Budget", "budget"],
   ["Anything else", "anything"],
+  // Tracking (Meta Pixel + Conversions API); sent by lib/apply.ts
+  ["Qualified", "qualified"],
+  ["Event ID", "eventId"],
+  ["fbp", "fbp"],
+  ["fbc", "fbc"],
+  ["UTM Source", "utmSource"],
+  ["UTM Campaign", "utmCampaign"],
+  ["UTM Content", "utmContent"],
+  ["Landing URL", "landingUrl"],
+  ["Device", "device"],
 ];
+
+/** Keys left out of the notification email (tracking noise). */
+var EMAIL_SKIP = ["submittedAt", "eventId", "fbp", "fbc", "landingUrl"];
 
 function doPost(e) {
   try {
@@ -61,10 +74,14 @@ function appendRow_(row) {
   lock.waitLock(10000);
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var headers = COLUMNS.map(function (c) { return c[0]; });
     if (sheet.getLastRow() === 0) {
-      sheet.appendRow(COLUMNS.map(function (c) { return c[0]; }));
+      sheet.appendRow(headers);
       sheet.getRange(1, 1, 1, COLUMNS.length).setFontWeight("bold");
       sheet.setFrozenRows(1);
+    } else if (sheet.getLastColumn() < COLUMNS.length) {
+      // Existing sheet from before the tracking columns: extend the header row in place.
+      sheet.getRange(1, 1, 1, COLUMNS.length).setValues([headers]).setFontWeight("bold");
     }
     sheet.appendRow(row);
   } finally {
@@ -73,7 +90,7 @@ function appendRow_(row) {
 }
 
 function sendEmail_(d) {
-  var lines = COLUMNS.filter(function (c) { return c[1] !== "submittedAt"; }).map(function (c) {
+  var lines = COLUMNS.filter(function (c) { return EMAIL_SKIP.indexOf(c[1]) === -1; }).map(function (c) {
     var v = d[c[1]];
     return c[0].toUpperCase() + "\n" + (v ? String(v) : "(not answered)") + "\n";
   });
@@ -118,6 +135,15 @@ function test_() {
     start: "As soon as possible",
     budget: "Yes",
     anything: "",
+    qualified: "Yes",
+    eventId: "test-" + new Date().getTime(),
+    fbp: "",
+    fbc: "",
+    utmSource: "",
+    utmCampaign: "",
+    utmContent: "",
+    landingUrl: "",
+    device: "desktop",
   };
   var out = doPost({ postData: { contents: JSON.stringify(fake) } });
   Logger.log(out.getContent());

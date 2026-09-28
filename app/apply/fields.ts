@@ -7,6 +7,10 @@ import { isValidPhoneNumber } from "libphonenumber-js";
 
 export const CONTACT_EMAIL = "hello@cortexity.app";
 
+/** Option strings the "qualified" rule depends on (lib/apply.ts). Used verbatim in QUESTIONS below. */
+export const BUDGET_YES = "Yes";
+export const START_EXPLORING = "I’m just exploring for now";
+
 export type Field =
   | { kind: "textarea"; name: string; label: string; help: string; rows: number; required: boolean; examples?: string[] }
   | { kind: "choice"; name: string; label: string; help?: string; options: string[]; required: boolean };
@@ -78,14 +82,14 @@ export const QUESTIONS: Field[] = [
     kind: "choice",
     name: "start",
     label: "When would you like to start?",
-    options: ["As soon as possible", "Within the next 30 days", "Within 1–3 months", "I’m just exploring for now"],
+    options: ["As soon as possible", "Within the next 30 days", "Within 1–3 months", START_EXPLORING],
     required: true,
   },
   {
     kind: "choice",
     name: "budget",
     label: "Cortexity projects start at $5,000. Are you comfortable with that investment?",
-    options: ["Yes", "Potentially, I’d like to discuss it", "Not currently"],
+    options: [BUDGET_YES, "Potentially, I’d like to discuss it", "Not currently"],
     required: true,
   },
 ];

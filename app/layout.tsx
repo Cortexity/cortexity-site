@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Hydrated } from "@/components/Hydrated";
+import { MetaPixel } from "@/components/MetaPixel";
+import { PIXEL_ID, pixelBaseCode } from "@/lib/pixel";
 
 export const metadata: Metadata = {
   // TODO(launch): set metadataBase to the production domain once it is known,
@@ -45,9 +47,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "document.documentElement.classList.add('js');setTimeout(function(){if(!window.__hydrated){document.documentElement.classList.remove('js')}},2500)",
           }}
         />
+        {/* Meta Pixel base code; only when NEXT_PUBLIC_META_PIXEL_ID is set. PageView is fired by <MetaPixel/>. */}
+        {PIXEL_ID ? <script dangerouslySetInnerHTML={{ __html: pixelBaseCode(PIXEL_ID) }} /> : null}
       </head>
       <body className="flex min-h-full flex-col">
         <Hydrated />
+        <MetaPixel />
+        {PIXEL_ID ? (
+          <noscript>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img height="1" width="1" style={{ display: "none" }} alt="" src={`https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1`} />
+          </noscript>
+        ) : null}
         {children}
       </body>
     </html>

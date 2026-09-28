@@ -30,7 +30,14 @@ Copy `.env.example` to `.env.local` (gitignored) and fill in:
 | `APPS_SCRIPT_URL` | The `/exec` URL of the deployed Apps Script web app. |
 | `APPS_SCRIPT_SECRET` | Must equal the `SECRET` constant at the top of `google/apps-script.gs`. |
 
-Without them the form renders and validates but every submission shows the fallback error line. Vercel needs the same two variables in the project settings.
+| `NEXT_PUBLIC_META_PIXEL_ID` | Meta Pixel id. Empty disables the pixel. |
+| `META_CAPI_ACCESS_TOKEN` | Conversions API token (server only). Empty disables CAPI. |
+| `META_TEST_EVENT_CODE` | Meta Test Events code. Remove in production. |
+| `NEXT_PUBLIC_DEBUG_FORM` | `true` logs form payloads for testing. Empty in production. |
+
+Meta Pixel + Conversions API testing: [`TESTING.md`](TESTING.md).
+
+Without the Apps Script variables the form renders and validates but every submission shows the fallback error line. Vercel needs the same two variables in the project settings.
 
 ## Where things live
 

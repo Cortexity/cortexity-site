@@ -5,8 +5,7 @@ import { MetaPixel } from "@/components/MetaPixel";
 import { PIXEL_ID, pixelBaseCode } from "@/lib/pixel";
 
 export const metadata: Metadata = {
-  // TODO(launch): set metadataBase to the production domain once it is known,
-  // and add an opengraph-image (see DESIGN.md → Placeholders).
+  metadataBase: new URL("https://www.cortexity.studio"),
   title: {
     default: "Cortexity — Your app idea. Built in 21 days.",
     template: "%s — Cortexity",
@@ -17,6 +16,7 @@ export const metadata: Metadata = {
     title: "Cortexity — Your app idea. Built in 21 days.",
     description:
       "You bring the idea. We take care of everything else. One project. One fixed price. $5,000.",
+    url: "https://www.cortexity.studio",
     siteName: "Cortexity",
     type: "website",
     locale: "en_GB",

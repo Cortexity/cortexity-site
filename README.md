@@ -19,7 +19,6 @@ npm run lint
 |---|---|---|
 | `/` | Landing page | Twelve sections in `components/sections/`, in the order listed in `app/page.tsx`. |
 | `/apply` | Application form | Client form → server action (`app/apply/actions.ts`) → Google Apps Script web app → row in a Google Sheet + Gmail notification. Setup in [`google/SETUP.md`](google/SETUP.md). |
-| `/lab` | Internal design lab | Red swatches, blob tints, phone frame, card styles, sharpness swap test. `noindex`. Delete before launch. |
 
 ## Environment variables
 
@@ -47,12 +46,14 @@ app/
   page.tsx              Landing page: Mesh + Header + sections + StickyCta
   globals.css           Tokens (@theme), tone-* section system, reveal/stagger, cards, accent, mesh, marquee
   icon.svg              Favicon
+  apple-icon.png        180×180 home-screen icon, rendered once from icon.svg with sharp
+  opengraph-image.tsx   1200×630 social card (ImageResponse)
+  sitemap.ts            /sitemap.xml: / and /apply
   apply/
     page.tsx            /apply page shell (header, eyebrow, H1, lead, form, footer)
     ApplyForm.tsx       Client form: cards, pill radios, inline validation, honeypot, thank-you state
     fields.ts           The questions as data + shared validation (client and server)
     actions.ts          "use server" submitApplication(): validates, POSTs JSON to Apps Script, 10s timeout
-  lab/page.tsx          Design lab (internal)
 
 components/
   Header.tsx            Floating pill nav; active section tracked with IntersectionObserver
@@ -71,7 +72,6 @@ components/
   Footer.tsx            Wordmark + © line, shared by / and /apply
   Wordmark.tsx          "Cortexity" wordmark
   sections/             Hero, Idea, Transformation, Founder, Process, Work, Timeline, Scope, Fit, Pricing, Questions, Closing
-  lab/SwapMetrics.tsx   Helper for the /lab sharpness test
 
 lib/tokens.ts           Colour + phone-frame constants (mirrored as CSS variables in globals.css)
 scripts/screens.mjs     Generates the exact-fit phone screenshots (below)
@@ -87,12 +87,8 @@ Originals live in `public/screens/<app>-<n>.png` (1 = left phone, 2 = centre, 3 
 
 ## Before launch
 
-- Set `metadataBase` in `app/layout.tsx` to the production domain.
-- Add `app/opengraph-image` and proper icons (only `app/icon.svg` exists).
 - Replace `CONTACT_EMAIL` in `app/apply/fields.ts` (the fallback address shown when a submission fails).
 - Change the Apps Script `SECRET` from its placeholder to a long random string; update `.env.local` and Vercel to match.
-- Delete `app/lab/` and `components/lab/`.
-- Add `APPS_SCRIPT_URL` and `APPS_SCRIPT_SECRET` in Vercel → Settings → Environment Variables.
 - Record the founder video and pass `src`/`poster` to `<FounderVideo>` in `components/sections/Founder.tsx`.
 
 ## Testing note

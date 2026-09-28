@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://www.cortexity.studio/sitemap.xml

@@ -5,7 +5,8 @@ import { debugLog } from "@/lib/debug";
 /**
  * Meta Conversions API (server side). Disabled cleanly when either
  * NEXT_PUBLIC_META_PIXEL_ID or META_CAPI_ACCESS_TOKEN is missing.
- * Never throws: failures are logged and swallowed.
+ * Never throws. Always logs exactly one line per call, prefixed "sendCapiLead" and free of
+ * personal data: "CAPI ok: events_received=N", "CAPI skipped: …", or the error.
  */
 
 const GRAPH = "https://graph.facebook.com/v21.0";
@@ -28,7 +29,10 @@ export type CapiInput = {
 export async function sendCapiLead(i: CapiInput): Promise<void> {
   const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
   const token = process.env.META_CAPI_ACCESS_TOKEN;
-  if (!pixelId || !token) return;
+  if (!pixelId || !token) {
+    console.log("sendCapiLead: CAPI skipped: missing pixel id / token");
+    return;
+  }
 
   const user_data: Record<string, unknown> = {};
   const email = i.email.trim().toLowerCase();
@@ -63,7 +67,15 @@ export async function sendCapiLead(i: CapiInput): Promise<void> {
     });
     const text = await res.text();
     debugLog("CAPI response", { status: res.status, body: text.slice(0, 1000) });
-    if (!res.ok) console.error("sendCapiLead: Meta replied", res.status, text.slice(0, 300));
+    if (!res.ok) {
+      console.error("sendCapiLead: Meta replied", res.status, text.slice(0, 300));
+    } else {
+      let received: unknown = "?";
+      try {
+        received = JSON.parse(text)?.events_received ?? "?";
+      } catch {}
+      console.log(`sendCapiLead: CAPI ok: events_received=${received}`);
+    }
   } catch (err) {
     // Only the message: the error could otherwise carry the request URL (and token).
     console.error("sendCapiLead failed:", controller.signal.aborted ? "timeout" : err instanceof Error ? err.message : "unknown error");

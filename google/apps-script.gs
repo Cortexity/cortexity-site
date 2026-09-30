@@ -55,8 +55,8 @@ function doPost(e) {
 
     var row = COLUMNS.map(function (c) {
       var v = data[c[1]];
-      if (c[1] === "submittedAt") v = v ? new Date(v) : new Date();
-      return v == null ? "" : v;
+      if (c[1] === "submittedAt") return v ? new Date(v) : new Date();
+      return asText_(v);
     });
 
     appendRow_(row);
@@ -66,6 +66,17 @@ function doPost(e) {
   } catch (err) {
     return json_({ ok: false, error: String(err) });
   }
+}
+
+/**
+ * Sheets treats a leading "=", "+", "-" or "@" as a formula: "+96171234567" would lose its "+",
+ * and a free-text answer starting with "=" would run as a formula. A leading apostrophe makes
+ * Sheets store the value as literal text (the apostrophe itself is not shown in the cell).
+ */
+function asText_(v) {
+  if (v == null) return "";
+  var s = String(v);
+  return /^[=+\-@]/.test(s) ? "'" + s : s;
 }
 
 /** Appends the row, adding the header row first if the sheet is empty. */

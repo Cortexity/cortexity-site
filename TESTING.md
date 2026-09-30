@@ -68,4 +68,6 @@ Check for each test submission:
 
 ## Before launch
 
-Remove `META_TEST_EVENT_CODE` and set `NEXT_PUBLIC_DEBUG_FORM` to empty in Vercel, then redeploy. Add `NEXT_PUBLIC_META_PIXEL_ID` and `META_CAPI_ACCESS_TOKEN` in Vercel → Settings → Environment Variables.
+Done: `META_TEST_EVENT_CODE` has been removed from Vercel, so server events now go to the live Events Manager feed (Overview), not the Test events tab. `NEXT_PUBLIC_META_PIXEL_ID` and `META_CAPI_ACCESS_TOKEN` are set in Vercel.
+
+To test again later, add `META_TEST_EVENT_CODE` back in Vercel (and `NEXT_PUBLIC_DEBUG_FORM=true` if you want the payload logs), redeploy, and remove both again when finished. `NEXT_PUBLIC_DEBUG_FORM` should stay empty in production.

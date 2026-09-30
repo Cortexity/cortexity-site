@@ -7,12 +7,17 @@ Every submission of the `/apply` form is sent to a small Google script that adds
 1. Go to [sheets.new](https://sheets.new) and name the spreadsheet, e.g. **Cortexity applications**. Leave it empty — the script adds the column headers by itself.
 2. In the menu choose **Extensions → Apps Script**. A code editor opens in a new tab with a file called `Code.gs`.
 
-## 2. Paste the script and fill in two values
+## 2. Paste the script and set two Script Properties
 
 1. Delete everything in `Code.gs`, then paste the whole contents of `google/apps-script.gs` (this folder) into it.
-2. Near the top, change the two lines:
-   - `SECRET` — replace `change-me-to-a-long-random-string` with a long random password (for example 30+ letters and numbers). This is what stops strangers from posting junk into your sheet. Keep it somewhere safe; you need it again in step 4.
-   - `NOTIFY_EMAIL` — your Gmail address, where each application should arrive.
+2. Set the two private values as **Script Properties** (they are stored with the script, not in the code, so re-pasting `apps-script.gs` later never overwrites them):
+   1. In the left sidebar of the Apps Script editor click the gear icon, **Project Settings**.
+   2. Scroll down to **Script Properties** → **Add script property**, and add:
+      - Property `SECRET` — a long random password (48 letters and numbers is good). This is what stops strangers from posting junk into your sheet. Keep it somewhere safe; you need it again in step 4.
+      - Property `NOTIFY_EMAIL` — your Gmail address, where each application should arrive.
+   3. Click **Save script properties**.
+
+   If either property is missing, the web app answers `{"ok":false,"error":"not-configured"}` (the site shows its error line) and `test_` stops with a "Not configured" message, so a mistake here is never silent.
 3. Press the **Save** icon (or Cmd+S).
 4. Optional but recommended: in the toolbar, pick the function `test_` in the dropdown and press **Run**. Google will ask you to allow the script to use your Sheets and Gmail — approve it (choose your account → *Advanced* → *Go to … (unsafe)* → *Allow*; the "unsafe" wording just means the script is yours, not a published add-on). Afterwards you should see a test row in the sheet and a test email in your inbox.
 
@@ -23,10 +28,10 @@ Every submission of the `/apply` form is sent to a small Google script that adds
 3. Fill in:
    - Description: anything, e.g. `applications`
    - **Execute as: Me**
-   - **Who has access: Anyone** (this is required so the website can reach it; the secret from step 2 is what keeps it private)
+   - **Who has access: Anyone** (this is required so the website can reach it; the `SECRET` property from step 2 is what keeps it private)
 4. Click **Deploy**, approve permissions if asked again, then **copy the Web app URL** (it ends in `/exec`).
 
-> If you ever change the script later, you must go to **Deploy → Manage deployments → ✎ Edit → Version: New version → Deploy** for the change to go live. The URL stays the same.
+> If you ever change the script later, you must go to **Deploy → Manage deployments → ✎ Edit → Version: New version → Deploy** for the change to go live. The URL stays the same, and the Script Properties are kept.
 >
 > **Already deployed before the applicant confirmation email was added?** Paste the new `apps-script.gs` over the old one, then do exactly that: Deploy → Manage deployments → ✎ Edit → Version: *New version* → Deploy. Until you do, applicants won't receive the "Got your application" email.
 
@@ -36,7 +41,7 @@ Every submission of the `/apply` form is sent to a small Google script that adds
 
    ```
    APPS_SCRIPT_URL=https://script.google.com/macros/s/…/exec
-   APPS_SCRIPT_SECRET=the-same-secret-you-typed-in-step-2
+   APPS_SCRIPT_SECRET=the-same-value-as-the-SECRET-property
    ```
 
    `.env.local` is ignored by git on purpose — never commit it. `.env.example` shows the two names.

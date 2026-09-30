@@ -6,17 +6,26 @@
  * CORS headers are needed). Each valid request:
  *   1. checks the shared secret,
  *   2. appends one row to the active sheet (creating the header row if missing),
- *   3. emails NOTIFY_EMAIL with every answer, reply-to set to the applicant,
+ *   3. emails NOTIFY_EMAIL (Script Property) with every answer, reply-to set to the applicant,
  *   4. sends the applicant a short confirmation (reply-to NOTIFY_EMAIL),
  *   5. answers {"ok":true}.
  *
  * Setup: google/SETUP.md.
  */
 
-// ── Fill these two in ───────────────────────────────────────────────────────
-var SECRET = "change-me-to-a-long-random-string"; // same value as APPS_SCRIPT_SECRET on the website
-var NOTIFY_EMAIL = "you@gmail.com"; // where new applications are sent
-// ────────────────────────────────────────────────────────────────────────────
+// SECRET and NOTIFY_EMAIL live in Script Properties (Project Settings → Script Properties),
+// not in this file, so re-pasting the script never overwrites them. See google/SETUP.md.
+//   SECRET        same value as APPS_SCRIPT_SECRET on the website
+//   NOTIFY_EMAIL  where new applications are sent
+
+/** Reads SECRET and NOTIFY_EMAIL from Script Properties; null if either is missing. */
+function config_() {
+  var props = PropertiesService.getScriptProperties();
+  var secret = String(props.getProperty("SECRET") || "").trim();
+  var notifyEmail = String(props.getProperty("NOTIFY_EMAIL") || "").trim();
+  if (!secret || !notifyEmail) return null;
+  return { secret: secret, notifyEmail: notifyEmail };
+}
 
 var COLUMNS = [
   ["Timestamp", "submittedAt"],
@@ -50,8 +59,10 @@ var EMAIL_SKIP = ["submittedAt", "eventId", "fbp", "fbc", "landingUrl"];
 
 function doPost(e) {
   try {
+    var cfg = config_();
+    if (!cfg) return json_({ ok: false, error: "not-configured" });
     var data = JSON.parse((e && e.postData && e.postData.contents) || "{}");
-    if (!data.secret || data.secret !== SECRET) return json_({ ok: false, error: "unauthorised" });
+    if (!data.secret || data.secret !== cfg.secret) return json_({ ok: false, error: "unauthorised" });
 
     var row = COLUMNS.map(function (c) {
       var v = data[c[1]];
@@ -60,8 +71,8 @@ function doPost(e) {
     });
 
     appendRow_(row);
-    sendEmail_(data);
-    sendConfirmation_(data);
+    sendEmail_(data, cfg.notifyEmail);
+    sendConfirmation_(data, cfg.notifyEmail);
     return json_({ ok: true });
   } catch (err) {
     return json_({ ok: false, error: String(err) });
@@ -100,7 +111,7 @@ function appendRow_(row) {
   }
 }
 
-function sendEmail_(d) {
+function sendEmail_(d, notifyEmail) {
   var lines = COLUMNS.filter(function (c) { return EMAIL_SKIP.indexOf(c[1]) === -1; }).map(function (c) {
     var v = d[c[1]];
     return c[0].toUpperCase() + "\n" + (v ? String(v) : "(not answered)") + "\n";
@@ -109,11 +120,11 @@ function sendEmail_(d) {
   var body = "New application received " + new Date().toLocaleString() + "\n\n" + lines.join("\n");
   var opts = { name: "Cortexity applications" };
   if (d.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) opts.replyTo = d.email;
-  GmailApp.sendEmail(NOTIFY_EMAIL, subject, body, opts);
+  GmailApp.sendEmail(notifyEmail, subject, body, opts);
 }
 
-/** Short acknowledgement to the applicant; replies go to NOTIFY_EMAIL. */
-function sendConfirmation_(d) {
+/** Short acknowledgement to the applicant; replies go to notifyEmail. */
+function sendConfirmation_(d, notifyEmail) {
   if (!d.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) return;
   var first = String(d.name || "").trim().split(/\s+/)[0] || "there";
   var body =
@@ -121,7 +132,7 @@ function sendConfirmation_(d) {
     "Thanks for telling me about your app.\n\n" +
     "I read every application myself. You’ll hear from me within 48 hours.\n\n" +
     "Joseph\nCortexity";
-  GmailApp.sendEmail(d.email, "Got your application — Cortexity", body, { name: "Joseph at Cortexity", replyTo: NOTIFY_EMAIL });
+  GmailApp.sendEmail(d.email, "Got your application — Cortexity", body, { name: "Joseph at Cortexity", replyTo: notifyEmail });
 }
 
 function json_(obj) {
@@ -130,11 +141,15 @@ function json_(obj) {
 
 /** Run this once from the editor to check the sheet + email work (asks for permissions). */
 function test_() {
+  var cfg = config_();
+  if (!cfg) {
+    throw new Error("Not configured: add the Script Properties SECRET and NOTIFY_EMAIL (Project Settings → Script Properties). See google/SETUP.md.");
+  }
   var fake = {
-    secret: SECRET,
+    secret: cfg.secret,
     submittedAt: new Date().toISOString(),
     name: "Test Person",
-    email: NOTIFY_EMAIL,
+    email: cfg.notifyEmail,
     whatsapp: "+961 00 000 000",
     idea: "A test application from the Apps Script editor.",
     why: "To check the setup.",

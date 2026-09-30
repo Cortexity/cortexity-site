@@ -27,7 +27,7 @@ Copy `.env.example` to `.env.local` (gitignored) and fill in:
 | Variable | Meaning |
 |---|---|
 | `APPS_SCRIPT_URL` | The `/exec` URL of the deployed Apps Script web app. |
-| `APPS_SCRIPT_SECRET` | Must equal the `SECRET` constant at the top of `google/apps-script.gs`. |
+| `APPS_SCRIPT_SECRET` | Must equal the `SECRET` Script Property of the Apps Script project (see `google/SETUP.md`). |
 
 | `NEXT_PUBLIC_META_PIXEL_ID` | Meta Pixel id. Empty disables the pixel. |
 | `META_CAPI_ACCESS_TOKEN` | Conversions API token (server only). Empty disables CAPI. |
@@ -88,7 +88,6 @@ Originals live in `public/screens/<app>-<n>.png` (1 = left phone, 2 = centre, 3 
 ## Before launch
 
 - Replace `CONTACT_EMAIL` in `app/apply/fields.ts` (the fallback address shown when a submission fails).
-- Change the Apps Script `SECRET` from its placeholder to a long random string; update `.env.local` and Vercel to match.
 - Record the founder video and pass `src`/`poster` to `<FounderVideo>` in `components/sections/Founder.tsx`.
 
 ## Testing note

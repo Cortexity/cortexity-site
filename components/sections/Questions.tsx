@@ -3,8 +3,10 @@ import { FaqItem, FaqList } from "../Faq";
 import { Reveal } from "../Reveal";
 import { Prose, Section } from "../Section";
 import { P } from "../Text";
+import type { Avatar } from "@/lib/avatars";
+import { fill, type Locale } from "@/lib/geo";
 
-export function Questions() {
+export function Questions({ avatar, loc }: { avatar: Avatar; loc: Locale }) {
   return (
     <Section tone="white" id="faq" labelledBy="questions-title">
       <Reveal>
@@ -13,6 +15,12 @@ export function Questions() {
         </Prose>
         <div className="mx-auto mt-10 max-w-[48rem] sm:mt-12">
           <FaqList>
+            <FaqItem question={avatar.faq.q}>
+              {avatar.faq.a.map((a) => (
+                <P key={a}>{fill(a, loc)}</P>
+              ))}
+            </FaqItem>
+
             <FaqItem question="Can you really build my app in 21 days?">
               <P>Yes. That&rsquo;s the promise.</P>
               <P>
@@ -61,7 +69,7 @@ export function Questions() {
             </FaqItem>
 
             <FaqItem question="Can you build Android too?">
-              <P>Yes. iPhone is $5,000. iPhone plus Android is $8,000.</P>
+              <P>{fill("Yes. iPhone is {price}. iPhone plus Android is {price8}.", loc)}</P>
               <P>We build the iPhone app first, then the Android version, so each one feels native.</P>
               <P>Tell us in your application if you want both.</P>
             </FaqItem>

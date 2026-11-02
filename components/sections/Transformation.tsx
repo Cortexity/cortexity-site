@@ -4,8 +4,11 @@ import { PhoneTrio } from "../placeholders";
 import { Reveal } from "../Reveal";
 import { Prose, Section, Stack } from "../Section";
 import { Eyebrow, P, Strong } from "../Text";
+import { lines } from "../Lines";
+import type { Avatar } from "@/lib/avatars";
+import { fill, type Locale } from "@/lib/geo";
 
-export function Transformation() {
+export function Transformation({ avatar, loc }: { avatar: Avatar; loc: Locale }) {
   return (
     <Section tone="white" id="transformation" labelledBy="transformation-title">
       <Prose>
@@ -17,8 +20,7 @@ export function Transformation() {
         <Prose>
           <Eyebrow>Day 1</Eyebrow>
           <blockquote className="mx-auto mt-5 max-w-[30rem] text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] font-semibold leading-[1.25] tracking-[-0.015em]">
-            &ldquo;What if there was an app that showed me every available padel court nearby
-            and let me book one instantly?&rdquo;
+            &ldquo;{fill(avatar.day1, loc)}&rdquo;
           </blockquote>
           <Stack className="mt-8">
             <P>That&rsquo;s enough to start.</P>
@@ -49,15 +51,9 @@ export function Transformation() {
         </Prose>
         {/* PLACEHOLDER: three iPhones showing the finished padel app.
             To drop in real screenshots: screens={[{src, alt}, {src, alt}, {src, alt}]} */}
-        <PhoneTrio className="mt-10 sm:mt-14" />
+        <PhoneTrio className="mt-10 sm:mt-14" slug={avatar.screens} label={avatar.screensLabel} />
         <Prose className="mt-10">
-          <Stack>
-            <Strong>A beautifully designed, working iPhone app.</Strong>
-            <P>Something you can hold in your hand.</P>
-            <P>Something you can show people.</P>
-            <P>Something your first customers can actually use.</P>
-            <Strong>That&rsquo;s the transformation you&rsquo;re paying for.</Strong>
-          </Stack>
+          <Stack>{lines(avatar.after, loc)}</Stack>
           <div className="mt-8 flex justify-center sm:mt-10">
             <ApplyButton>Apply to Build Your App</ApplyButton>
           </div>

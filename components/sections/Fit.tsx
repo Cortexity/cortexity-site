@@ -3,18 +3,16 @@ import { ApplyButton } from "../Button";
 import { Reveal } from "../Reveal";
 import { Prose, Section, Stack } from "../Section";
 import { P, Strong } from "../Text";
+import type { Avatar } from "@/lib/avatars";
 
-export function Fit() {
+export function Fit({ avatar }: { avatar: Avatar }) {
   return (
     <Section tone="white" id="fit" labelledBy="fit-title">
       <Reveal>
         <Prose>
-          <SectionHead id="fit-title" eyebrow="Who It’s For" title="This is for founders who are" accent="serious about building." sub="For founders ready to stop thinking about it and build it." />
+          <SectionHead id="fit-title" eyebrow="Who It’s For" title={avatar.fit.title} accent={avatar.fit.accent} sub={avatar.fit.sub} />
           <Stack className="mt-10 sm:mt-12">
-            <P>
-              Cortexity is for you if you&rsquo;ve been thinking about an app for too long, or if
-              you&rsquo;ve tried to build one before and it went badly.
-            </P>
+            <P>{avatar.fit.first}</P>
             <P>You don&rsquo;t need to be technical.</P>
             <P>You don&rsquo;t need to have founded a company before.</P>
             <P>You don&rsquo;t even need to have every detail figured out.</P>

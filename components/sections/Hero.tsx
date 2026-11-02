@@ -3,8 +3,10 @@ import { AppMarquee, Dots } from "../Decor";
 import { HeroVisual } from "../HeroVisual";
 import { SectionHead } from "../SectionHead";
 import { Lead, Muted, P, Strong } from "../Text";
+import type { Avatar } from "@/lib/avatars";
+import { fill, type Locale } from "@/lib/geo";
 
-export function Hero() {
+export function Hero({ avatar, loc }: { avatar: Avatar; loc: Locale }) {
   return (
     <section
       id="hero"
@@ -16,13 +18,13 @@ export function Hero() {
         <SectionHead
           level={1}
           id="hero-title"
-          title="Your app idea. Built in"
-          accent="21 days."
+          title={avatar.hero.title}
+          accent={avatar.hero.accent}
         />
         <div className="mx-auto mt-6 max-w-prose space-y-3 sm:mt-8">
-          <Lead className="text-ink-muted">You bring the idea. We take care of everything else.</Lead>
-          <P className="text-ink-muted">Strategy. Design. Development. Testing. App Store submission.</P>
-          <Strong>One project. One fixed price. $5,000.</Strong>
+          <Lead className="text-ink-muted">{fill(avatar.hero.lead, loc)}</Lead>
+          <P className="text-ink-muted">{avatar.hero.line}</P>
+          <Strong>{fill("One project. One fixed price. {price}.", loc)}</Strong>
         </div>
         <div id="hero-cta" className="mt-8 flex justify-center sm:mt-10">
           <ApplyButton size="lg" variant="red" note={null}>

@@ -15,7 +15,9 @@ const LINKS = [
 /** Floating pill nav with section links; the active link is tracked while scrolling. */
 export function Header() {
   const [active, setActive] = useState<string | null>(null);
-  const home = usePathname() === "/";
+  // Every landing page (/ and the avatar pages) has the same sections, so its links stay on the page.
+  const path = usePathname();
+  const home = path === "/" || ["/fitness", "/creators", "/tutors", "/salons", "/brands"].includes(path);
 
   useEffect(() => {
     const els = LINKS.map((l) => document.getElementById(l.id)).filter(Boolean) as HTMLElement[];

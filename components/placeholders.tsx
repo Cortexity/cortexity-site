@@ -190,18 +190,24 @@ export function PhoneTrio({
   className = "",
   glow = false,
   priority = false,
+  slug = "padel",
+  label = "Padel",
 }: {
   screens?: (Screen | undefined)[];
+  /** public/screens/<slug>-1..3.png */
+  slug?: string;
+  /** App name used in the alt text. */
+  label?: string;
   className?: string;
   /** Radial glow behind the phones (use on black sections). */
   glow?: boolean;
   priority?: boolean;
 }) {
-  const [left, centre, right] = autoScreens("padel", 3, "Padel", screens);
+  const [left, centre, right] = autoScreens(slug, 3, label, screens);
   return (
     <div
       className={`relative mx-auto w-full max-w-[56rem] ${className}`}
-      data-placeholder={left && centre && right ? undefined : "padel-app-trio"}
+      data-placeholder={left && centre && right ? undefined : `${slug}-app-trio`}
     >
       {glow ? <Glow /> : null}
       <Parallax desktopOnly className="relative">

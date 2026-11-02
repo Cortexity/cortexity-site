@@ -18,6 +18,12 @@ import sharp from "sharp";
 /** Measured CSS width of slot 1 (left), 2 (centre), 3 (right) at viewport 1280. */
 const SLOTS = {
   padel: [277.95, 336.89, 277.95], // PhoneTrio (hero + Transformation, identical sizes)
+  // Avatar example apps share the PhoneTrio slots.
+  fitness: [277.95, 336.89, 277.95],
+  creators: [277.95, 336.89, 277.95],
+  tutors: [277.95, 336.89, 277.95],
+  salons: [277.95, 336.89, 277.95],
+  brands: [277.95, 336.89, 277.95],
   slowr: [335.7, 389.84, 335.7], // AppMockup
   reflexflow: [335.7, 389.84, 335.7], // AppMockup
 };

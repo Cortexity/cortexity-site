@@ -28,6 +28,8 @@ export type Avatar = {
   /** public/screens/<screens>-1..3.png */
   screens: string;
   screensLabel: string;
+  /** "coaching app" in "Here’s what a coaching app built in 21 days looks like." (not used on founders) */
+  exampleApp: string;
   day1: string;
   after: Line[];
   fit: { title: string; accent: string; sub: string; first: string };
@@ -42,6 +44,7 @@ const PAYING: Line = { s: "That’s the transformation you’re paying for." };
 export const AVATARS: Record<AvatarSlug, Avatar> = {
   founders: {
     slug: "founders",
+    exampleApp: "",
     who: "founders",
     path: "/",
     title: "Cortexity — Your app idea. Built in 21 days.",
@@ -106,6 +109,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
 
   fitness: {
     slug: "fitness",
+    exampleApp: "coaching app",
     who: "coaches",
     path: "/fitness",
     title: "Cortexity — Your coaching app. Built in 21 days.",
@@ -168,6 +172,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
 
   creators: {
     slug: "creators",
+    exampleApp: "membership app",
     who: "creators",
     path: "/creators",
     title: "Cortexity — Your own creator app. Built in 21 days.",
@@ -229,6 +234,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
 
   tutors: {
     slug: "tutors",
+    exampleApp: "learning app",
     who: "tutors",
     path: "/tutors",
     title: "Cortexity — Your own learning app. Built in 21 days.",
@@ -290,6 +296,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
 
   salons: {
     slug: "salons",
+    exampleApp: "salon app",
     who: "salon owners",
     path: "/salons",
     title: "Cortexity — Your salon’s own app. Built in 21 days.",
@@ -350,6 +357,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
 
   brands: {
     slug: "brands",
+    exampleApp: "shopping app",
     who: "brand owners",
     path: "/brands",
     title: "Cortexity — Your brand’s own shopping app. Built in 21 days.",

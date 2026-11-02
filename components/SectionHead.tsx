@@ -18,6 +18,7 @@ export function SectionHead({
   eyebrow,
   title,
   accent,
+  after,
   sub,
   level = 2,
   className = "",
@@ -28,6 +29,8 @@ export function SectionHead({
   title: string;
   /** Final words, set in red italic serif. */
   accent: string;
+  /** Optional words after the accent, when the accent sits mid-sentence. */
+  after?: string;
   sub?: string;
   level?: 1 | 2;
   className?: string;
@@ -39,7 +42,7 @@ export function SectionHead({
       <div className={`${eyebrow ? "mt-5" : ""} flex items-center justify-center gap-8`}>
         <span aria-hidden="true" className="hidden h-px max-w-[140px] flex-1 bg-gradient-to-l from-current to-transparent opacity-10 lg:block" />
         <Tag id={id} className={`${level === 1 ? "text-display" : "text-h2"} max-w-[15em] text-balance`}>
-          {title} <em className="accent">{accent}</em>
+          {title} <em className="accent">{accent}</em>{after ? ` ${after}` : null}
         </Tag>
         <span aria-hidden="true" className="hidden h-px max-w-[140px] flex-1 bg-gradient-to-r from-current to-transparent opacity-10 lg:block" />
       </div>

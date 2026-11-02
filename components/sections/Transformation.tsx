@@ -15,7 +15,7 @@ export function Transformation({ avatar, loc }: { avatar: Avatar; loc: Locale })
         {avatar.slug === "founders" ? (
           <SectionHead id="transformation-title" title="An idea today. A real product" accent="21 days later." sub="From one sentence to a working iPhone app." />
         ) : (
-          <SectionHead id="transformation-title" title="What you tell us on Day 1. What you get on" accent="Day 21." />
+          <SectionHead id="transformation-title" title={`Here’s what a ${avatar.exampleApp} built in`} accent="21 days" after="looks like." />
         )}
       </Prose>
 

@@ -17,7 +17,7 @@ export function Idea({ avatar, loc }: { avatar: Avatar; loc: Locale }) {
           <Stack className="mt-10 sm:mt-12">{lines(problem.body, loc)}</Stack>
           <Stack className="mt-10 sm:mt-12">{lines(problem.turn, loc)}</Stack>
           <div className="mt-8 flex justify-center sm:mt-10">
-            <ApplyButton>Tell Us Your Idea</ApplyButton>
+            <ApplyButton>{avatar.slug === "founders" ? "Tell Us Your Idea" : "Apply to Build Your App"}</ApplyButton>
           </div>
         </Prose>
       </Reveal>

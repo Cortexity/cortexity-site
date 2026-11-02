@@ -32,7 +32,7 @@ export async function Landing({ avatar, country }: { avatar: Avatar; country?: s
         <Hero avatar={avatar} loc={loc} />
         <Idea avatar={avatar} loc={loc} />
         <Transformation avatar={avatar} loc={loc} />
-        <Founder />
+        <Founder who={avatar.who} />
         <Process />
         <Work />
         <Timeline />

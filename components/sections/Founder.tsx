@@ -8,13 +8,13 @@ function B({ children }: { children: React.ReactNode }) {
   return <strong className="font-semibold">{children}</strong>;
 }
 
-const PARAGRAPHS: React.ReactNode[] = [
+const paragraphs = (who: string): React.ReactNode[] => [
   <>
-    Hi, I&rsquo;m Joseph, founder of Cortexity. <B>I design and build iPhone apps for founders</B>, from the
+    Hi, I&rsquo;m Joseph, founder of Cortexity. <B>I design and build iPhone apps for {who}</B>, from the
     first call to the App Store.
   </>,
   <>
-    Before building apps for other founders, I built my own. <B>I&rsquo;ve been the client.</B> The delays, the
+    Before building apps for others, I built my own. <B>I&rsquo;ve been the client.</B> The delays, the
     vague answers, the &ldquo;that wasn&rsquo;t in the scope&rdquo;. That&rsquo;s why Cortexity exists.
   </>,
   <>
@@ -31,7 +31,8 @@ const PARAGRAPHS: React.ReactNode[] = [
   </>,
 ];
 
-export function Founder() {
+export function Founder({ who }: { who: string }) {
+  const PARAGRAPHS = paragraphs(who);
   return (
     <Section tone="white" id="founder" labelledBy="founder-title">
       <SectionHead id="founder-title" eyebrow="The Founder" title="One person responsible for" accent="getting it done." sub="You work directly with me, from the first call to the App Store." />

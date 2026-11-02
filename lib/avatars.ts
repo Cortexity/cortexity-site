@@ -20,7 +20,10 @@ export type Avatar = {
   /** <title> without the " — Cortexity" suffix handling (full title). */
   title: string;
   description: string;
-  hero: { title: string; accent: string; lead: string; line: string };
+  /** Who the page talks to, plural ("coaches"): Fit, FAQ intro, Founder section. */
+  who: string;
+  /** `line` is only shown on the founders page; on the avatar pages it made the hero too dense. */
+  hero: { title: string; accent: string; lead: string; line?: string };
   problem: { title: string; accent: string; sub: string; body: Line[]; turn: Line[] };
   /** public/screens/<screens>-1..3.png */
   screens: string;
@@ -39,6 +42,7 @@ const PAYING: Line = { s: "That’s the transformation you’re paying for." };
 export const AVATARS: Record<AvatarSlug, Avatar> = {
   founders: {
     slug: "founders",
+    who: "founders",
     path: "/",
     title: "Cortexity — Your app idea. Built in 21 days.",
     description:
@@ -102,6 +106,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
 
   fitness: {
     slug: "fitness",
+    who: "coaches",
     path: "/fitness",
     title: "Cortexity — Your coaching app. Built in 21 days.",
     description:
@@ -110,7 +115,6 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
       title: "Your coaching app. Built in",
       accent: "21 days.",
       lead: "Quoted $30,000 for a fitness coaching app? We build yours for {price}, fixed.",
-      line: "Programs. Workouts. Progress tracking. Monthly subscriptions. App Store submission.",
     },
     problem: {
       title: "You can only train so many people",
@@ -164,6 +168,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
 
   creators: {
     slug: "creators",
+    who: "creators",
     path: "/creators",
     title: "Cortexity — Your own creator app. Built in 21 days.",
     description:
@@ -172,7 +177,6 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
       title: "Your own creator app. Built in",
       accent: "21 days.",
       lead: "Think your own app costs $50,000? It’s {price}, fixed.",
-      line: "Members-only content. Monthly subscriptions. Your brand. App Store submission.",
     },
     problem: {
       title: "Millions of views. Your income still waits for",
@@ -225,6 +229,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
 
   tutors: {
     slug: "tutors",
+    who: "tutors",
     path: "/tutors",
     title: "Cortexity — Your own learning app. Built in 21 days.",
     description:
@@ -233,7 +238,6 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
       title: "Your own learning app. Built in",
       accent: "21 days.",
       lead: "Think your own learning app costs $50,000? It’s {price}, fixed.",
-      line: "Courses. Video lessons. Quizzes. Monthly subscriptions. App Store submission.",
     },
     problem: {
       title: "You do the teaching.",
@@ -286,6 +290,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
 
   salons: {
     slug: "salons",
+    who: "salon owners",
     path: "/salons",
     title: "Cortexity — Your salon’s own app. Built in 21 days.",
     description:
@@ -294,7 +299,6 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
       title: "Your salon’s own app. Built in",
       accent: "21 days.",
       lead: "Quoted $30,000 for your own app? Get yours for {price}, fixed.",
-      line: "Online booking. Rewards. Offers for your regulars. App Store submission.",
     },
     problem: {
       title: "Your chairs should be full.",
@@ -346,6 +350,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
 
   brands: {
     slug: "brands",
+    who: "brand owners",
     path: "/brands",
     title: "Cortexity — Your brand’s own shopping app. Built in 21 days.",
     description:
@@ -354,7 +359,6 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
       title: "Your brand’s own shopping app. Built in",
       accent: "21 days.",
       lead: "Think your own shopping app costs $50,000? It’s {price}, fixed.",
-      line: "Your store. Member offers. Loyalty points. App Store submission.",
     },
     problem: {
       title: "You sell like a real brand.",

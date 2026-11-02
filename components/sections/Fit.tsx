@@ -18,7 +18,7 @@ export function Fit({ avatar }: { avatar: Avatar }) {
             <P>You don&rsquo;t even need to have every detail figured out.</P>
             <Strong>But you do need to show up.</Strong>
             <P>
-              We want founders who answer messages, give feedback, make decisions and genuinely
+              We want {avatar.who} who answer messages, give feedback, make decisions and genuinely
               want to see their product exist.
             </P>
             <P>In return, you&rsquo;ll get that same commitment from me.</P>

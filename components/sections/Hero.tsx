@@ -23,7 +23,7 @@ export function Hero({ avatar, loc }: { avatar: Avatar; loc: Locale }) {
         />
         <div className="mx-auto mt-6 max-w-prose space-y-3 sm:mt-8">
           <Lead className="text-ink-muted">{fill(avatar.hero.lead, loc)}</Lead>
-          <P className="text-ink-muted">{avatar.hero.line}</P>
+          {avatar.hero.line ? <P className="text-ink-muted">{avatar.hero.line}</P> : null}
           <Strong>{fill("One project. One fixed price. {price}.", loc)}</Strong>
         </div>
         <div id="hero-cta" className="mt-8 flex justify-center sm:mt-10">

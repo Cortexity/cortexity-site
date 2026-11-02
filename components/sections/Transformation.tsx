@@ -12,7 +12,11 @@ export function Transformation({ avatar, loc }: { avatar: Avatar; loc: Locale })
   return (
     <Section tone="white" id="transformation" labelledBy="transformation-title">
       <Prose>
-        <SectionHead id="transformation-title" title="An idea today. A real product" accent="21 days later." sub="From one sentence to a working iPhone app." />
+        {avatar.slug === "founders" ? (
+          <SectionHead id="transformation-title" title="An idea today. A real product" accent="21 days later." sub="From one sentence to a working iPhone app." />
+        ) : (
+          <SectionHead id="transformation-title" title="What you tell us on Day 1. What you get on" accent="Day 21." />
+        )}
       </Prose>
 
       {/* DAY 1 */}
@@ -22,7 +26,8 @@ export function Transformation({ avatar, loc }: { avatar: Avatar; loc: Locale })
           <blockquote className="mx-auto mt-5 max-w-[30rem] text-[clamp(1.5rem,1.2rem+1.2vw,2rem)] font-semibold leading-[1.25] tracking-[-0.015em]">
             &ldquo;{fill(avatar.day1, loc)}&rdquo;
           </blockquote>
-          <Stack className="mt-8">
+          {avatar.slug === "founders" ? (
+            <Stack className="mt-8">
             <P>That&rsquo;s enough to start.</P>
             <Strong>Your idea doesn&rsquo;t need to arrive as a specification.</Strong>
             <P>You don&rsquo;t need wireframes.</P>
@@ -34,6 +39,13 @@ export function Transformation({ avatar, loc }: { avatar: Avatar; loc: Locale })
             <Strong>You just need the idea.</Strong>
             <P>We take it from there.</P>
           </Stack>
+          ) : (
+            <Stack className="mt-8">
+              <P>That&rsquo;s enough to start.</P>
+              <Strong>No specification. No technical knowledge.</Strong>
+              <P>We take it from there.</P>
+            </Stack>
+          )}
         </Prose>
       </Reveal>
 

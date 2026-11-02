@@ -11,7 +11,7 @@ export function Questions({ avatar, loc }: { avatar: Avatar; loc: Locale }) {
     <Section tone="white" id="faq" labelledBy="questions-title">
       <Reveal>
         <Prose>
-          <SectionHead id="questions-title" eyebrow="FAQ" title="Questions you" accent="probably have." sub="Straight answers to what founders ask first." />
+          <SectionHead id="questions-title" eyebrow="FAQ" title="Questions you" accent="probably have." sub={`Straight answers to what ${avatar.who} ask first.`} />
         </Prose>
         <div className="mx-auto mt-10 max-w-[48rem] sm:mt-12">
           <FaqList>
@@ -94,7 +94,8 @@ export function Questions({ avatar, loc }: { avatar: Avatar; loc: Locale }) {
             </FaqItem>
 
             <FaqItem question="How is payment made?">
-              <P>Payment is made via Whish.</P>
+              <P>By bank transfer or a secure Stripe payment link.</P>
+              <P>In Lebanon, you can also pay via Whish.</P>
               <P>The project starts once the 50% deposit is received.</P>
             </FaqItem>
 

@@ -61,7 +61,7 @@ var V2_COLUMNS = [
 ];
 
 /** Keys left out of the v2 notification email (tracking noise / not known yet). */
-var V2_EMAIL_SKIP = ["submittedAt", "eventId", "fbp", "fbc", "landingUrl", "booked", "bookedAt"];
+var V2_EMAIL_SKIP = ["submittedAt", "eventId", "fbp", "fbc", "landingUrl", "bookedAt"];
 
 /* ---------- legacy: one-page form ---------- */
 
@@ -102,7 +102,7 @@ function doPost(e) {
     var data = JSON.parse((e && e.postData && e.postData.contents) || "{}");
     if (!data.secret || data.secret !== cfg.secret) return json_({ ok: false, error: "unauthorised" });
 
-    if (data.action === "booked") return json_(markBooked_(String(data.eventId || ""), data.bookedAt));
+    if (data.action === "booked") return json_(markBooked_(String(data.eventId || ""), data.bookedAt, cfg.notifyEmail));
 
     if (Number(data.version) === 2) {
       data.booked = "No";
@@ -196,7 +196,7 @@ function appendV2Row_(data) {
 }
 
 /** Booked = Yes on the row whose Event ID matches. */
-function markBooked_(eventId, bookedAt) {
+function markBooked_(eventId, bookedAt, notifyEmail) {
   if (!eventId) return { ok: false, error: "no-event-id" };
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
@@ -209,21 +209,45 @@ function markBooked_(eventId, bookedAt) {
     var hit = sheet.getRange(2, idCol, last - 1, 1).createTextFinder(eventId).matchEntireCell(true).findNext();
     if (!hit) return { ok: false, error: "not-found" };
     var r = hit.getRow();
+    var when = bookedAt ? new Date(bookedAt) : new Date();
     sheet.getRange(r, keys.indexOf("booked") + 1).setValue("Yes");
-    sheet.getRange(r, keys.indexOf("bookedAt") + 1).setValue(bookedAt ? new Date(bookedAt) : new Date());
-    return { ok: true };
+    sheet.getRange(r, keys.indexOf("bookedAt") + 1).setValue(when);
+    var values = sheet.getRange(r, 1, 1, keys.length).getValues()[0];
+    var d = {};
+    keys.forEach(function (k, i) { d[k] = values[i]; });
   } finally {
     lock.releaseLock();
   }
+  sendBookedEmail_(d, when, notifyEmail);
+  return { ok: true };
+}
+
+/** "Re: <same subject>" so it threads under the application email in Gmail / Outlook. */
+function sendBookedEmail_(d, when, notifyEmail) {
+  var name = (String(d.firstName || "") + " " + String(d.lastName || "")).trim() || "Unknown";
+  var body =
+    name + " booked a call.\n\n" +
+    "BOOKED\nYes\n\n" +
+    "BOOKED AT\n" + when.toLocaleString() + "\n\n" +
+    "EMAIL\n" + (d.email || "") + "\n\n" +
+    "WHATSAPP\n" + (d.whatsapp || "") + "\n\n" +
+    "Calendly has the call time and invite.";
+  var opts = { name: "Cortexity applications" };
+  if (d.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) opts.replyTo = String(d.email);
+  GmailApp.sendEmail(notifyEmail, "Re: " + v2Subject_(d), body, opts);
+}
+
+function v2Subject_(d) {
+  var name = (String(d.firstName || "") + " " + String(d.lastName || "")).trim() || "Unknown";
+  return "New Cortexity application — " + name + " (" + (d.occupation || "?") + ", " + (d.avatar || "(direct)") + ")";
 }
 
 function sendEmailV2_(d, notifyEmail) {
   var lines = V2_COLUMNS.filter(function (c) { return V2_EMAIL_SKIP.indexOf(c[1]) === -1; }).map(function (c) {
-    var v = d[c[1]];
+    var v = c[1] === "booked" ? "Not yet (you'll get a follow-up email when they book)" : d[c[1]];
     return c[0].toUpperCase() + "\n" + (v ? String(v) : "(not answered)") + "\n";
   });
-  var name = (String(d.firstName || "") + " " + String(d.lastName || "")).trim() || "Unknown";
-  var subject = "New Cortexity application — " + name + " (" + (d.occupation || "?") + ", " + (d.avatar || "(direct)") + ")";
+  var subject = v2Subject_(d);
   var body = "New application received " + new Date().toLocaleString() + "\n\n" + lines.join("\n");
   var opts = { name: "Cortexity applications" };
   if (d.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) opts.replyTo = d.email;

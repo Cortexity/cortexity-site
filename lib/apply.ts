@@ -2,7 +2,7 @@ import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { after } from "next/server";
-import { bookingEventId, CALENDLY_URL, FIELD_ORDER, findErrors, occupationValue, type FieldName } from "@/app/apply/fields";
+import { bookingEventId, CALENDLY_URL, FIELD_ORDER, findErrors, type FieldName } from "@/app/apply/fields";
 import { AVATARS } from "@/lib/avatars";
 import { debugLog, forLog } from "@/lib/debug";
 import { sendCapi } from "@/lib/meta";
@@ -116,7 +116,7 @@ export async function processApplication(formData: FormData, ctx: RequestContext
     email: values.email,
     whatsapp: values.whatsapp,
     idea: values.idea,
-    occupation: occupationValue(values.occupation, values.occupationOther),
+    occupation: values.occupation,
     avatar: AVATAR_PATHS.has(avatarRaw) ? avatarRaw : DIRECT,
     eventId,
     fbp: field(formData, "fbp", 200),

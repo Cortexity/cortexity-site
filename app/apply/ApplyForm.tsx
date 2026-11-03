@@ -18,7 +18,6 @@ import {
   IDEA,
   MESSAGES,
   OCCUPATION,
-  OTHER,
   STEP_OF,
   validateField,
   type FieldName,
@@ -219,13 +218,11 @@ export function ApplyForm({
   const topRef = useRef<HTMLDivElement>(null);
   const headings = useRef<Partial<Record<Step, HTMLElement | null>>>({});
   const submitting = useRef(false);
-  const pointerPick = useRef(false);
   const firstRender = useRef(true);
 
   const [step, setStep] = useState<Step>(1);
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
   const [phone, setPhone] = useState<string | undefined>();
-  const [occupation, setOccupation] = useState("");
   const [failed, setFailed] = useState(initialError === "send");
   const [lead, setLead] = useState<{ eventId: string; bookingToken: string; firstName: string; lastName: string; email: string; whatsapp: string } | null>(null);
   const [booked, setBooked] = useState(false);
@@ -280,7 +277,8 @@ export function ApplyForm({
     // Each screen starts at the top, like a new screen in an app.
     if (window.scrollY > 0) window.scrollTo({ top: 0 });
     const desktop = window.matchMedia("(pointer: fine)").matches;
-    const firstInput = step === 3 && desktop ? formRef.current?.querySelector<HTMLInputElement>("#firstName") : null;
+    const firstId = step === 2 ? "#occupation" : step === 3 ? "#firstName" : null;
+    const firstInput = firstId && desktop ? formRef.current?.querySelector<HTMLInputElement>(firstId) : null;
     (firstInput ?? headings.current[step])?.focus({ preventScroll: true });
   }, [step, booked]);
 
@@ -305,7 +303,16 @@ export function ApplyForm({
     });
   const onInput = (e: React.FormEvent<HTMLFormElement>) => {
     const t = e.target as HTMLInputElement | HTMLTextAreaElement;
-    if (t?.name && t.name !== "whatsapp" && t.name in STEP_OF) revalidate(t.name as FieldName);
+    if (!t?.name || t.name === "whatsapp" || !(t.name in STEP_OF)) return;
+    // The idea's "N characters remaining" only shows after Continue; typing clears it.
+    if (t.name === "idea")
+      setErrors((prev) => {
+        if (!prev.idea) return prev;
+        const next = { ...prev };
+        delete next.idea;
+        return next;
+      });
+    else revalidate(t.name as FieldName);
   };
 
   /** Validates one screen; focuses the first bad field. */
@@ -327,16 +334,6 @@ export function ApplyForm({
 
   const next = (s: 1 | 2) => {
     if (check(s)) goTo((s + 1) as Step);
-  };
-
-  const pickOccupation = (o: string) => {
-    setOccupation(o);
-    revalidate("occupation", { occupation: o });
-    // A tap on a chip moves on by itself (not "Other", which needs typing; not keyboard arrows).
-    if (pointerPick.current && o !== OTHER) {
-      window.setTimeout(() => goTo(3), 220);
-    }
-    pointerPick.current = false;
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -494,7 +491,6 @@ export function ApplyForm({
             <h2 ref={(el) => void (headings.current[1] = el)} tabIndex={-1} className={TITLE}>
               <label htmlFor="idea">{IDEA.label}</label>
             </h2>
-            <Help>{IDEA.help}</Help>
             <Examples lines={IDEA.examples} />
             <textarea
               id="idea"
@@ -521,55 +517,20 @@ export function ApplyForm({
         </section>
 
         {/* 2. Occupation */}
-        <section
-          className="apply-step" data-active={step === 2 ? "" : undefined}>
-          <fieldset data-field="occupation" aria-invalid={bad("occupation") || undefined}>
-            <legend className="contents">
-              <h2 ref={(el) => void (headings.current[2] = el)} tabIndex={-1} className={TITLE}>
-                {OCCUPATION.label}
-              </h2>
-            </legend>
-            <Help>{OCCUPATION.help}</Help>
-            <div className="mt-6 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              {OCCUPATION.options.map((o) => (
-                <label key={o} className="cursor-pointer" onPointerDown={() => (pointerPick.current = true)}>
-                  <input
-                    type="radio"
-                    name="occupation"
-                    value={o}
-                    checked={occupation === o}
-                    onChange={() => pickOccupation(o)}
-                    className="peer sr-only"
-                  />
-                  <span
-                    className={`flex min-h-14 items-center justify-between gap-3 rounded-[16px] border bg-[#f5f5f7] px-5 text-[16px] font-medium text-ink transition-colors hover:bg-[#ebebef] peer-checked:border-[#1d1d1f] peer-checked:bg-[#1d1d1f] peer-checked:text-white peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#1d1d1f] ${
-                      bad("occupation") ? "border-red" : "border-transparent"
-                    }`}
-                  >
-                    {o}
-                    <span aria-hidden="true" className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-current ${occupation === o ? "" : "opacity-40"}`}>
-                      {occupation === o ? <span className="h-2 w-2 rounded-full bg-current" /> : null}
-                    </span>
-                  </span>
-                </label>
-              ))}
-            </div>
-            <ErrorLine message={errors.occupation} />
-          </fieldset>
-          <div data-field="occupationOther" className={`mt-4 ${occupation === OTHER ? "" : "js-hide"}`}>
-            <label htmlFor="occupationOther" className="block text-[15px] font-medium text-ink">
-              <span className="js-only">What do you do?</span>
-              <span className="no-js-only">If other, what do you do?</span>
-            </label>
+        <section className="apply-step" data-active={step === 2 ? "" : undefined}>
+          <div data-field="occupation">
+            <h2 ref={(el) => void (headings.current[2] = el)} tabIndex={-1} className={TITLE}>
+              <label htmlFor="occupation">{OCCUPATION.label}</label>
+            </h2>
             <input
-              id="occupationOther"
-              name="occupationOther"
+              id="occupation"
+              name="occupation"
               type="text"
               autoComplete="organization-title"
-              aria-invalid={bad("occupationOther") || undefined}
-              className={`${FIELD} ${border(bad("occupationOther"))} mt-2`}
+              aria-invalid={bad("occupation") || undefined}
+              className={`${FIELD} ${border(bad("occupation"))} mt-6`}
             />
-            <ErrorLine message={errors.occupationOther} />
+            <ErrorLine message={errors.occupation} />
           </div>
           <div className="js-only mt-8 flex justify-end">
             <button type="button" onClick={() => next(2)} className={PRIMARY}>

@@ -2,7 +2,7 @@
  * The application form, as data. Shared by the client form (rendering +
  * inline validation) and the server (validation + payload).
  *
- * Four screens: 1 idea → 2 occupation → 3 contact details (submits) → 4 Calendly.
+ * Four screens: 1 idea → 2 occupation (free text) → 3 contact details (submits) → 4 Calendly.
  */
 
 import { isValidPhoneNumber } from "libphonenumber-js";
@@ -18,10 +18,12 @@ export const CALENDLY_URL = "https://calendly.com/josephselwan/intro-call";
 /** Event id for the booking events (Schedule + QualifiedLead), shared by Pixel and CAPI so Meta deduplicates them. */
 export const bookingEventId = (eventId: string) => `${eventId}.booked`;
 
+/** Minimum length of the app idea; below it Continue shows "N characters remaining". */
+export const IDEA_MIN = 10;
+
 export const IDEA = {
   name: "idea",
   label: "What’s your app idea?",
-  help: "Explain it like you would to a friend. What does the app do, and why would someone use it? A couple of sentences is enough.",
   examples: [
     "“An app that shows you available padel courts nearby and lets you book one instantly.”",
     "“An app for personal trainers to give their clients workouts, track their progress and keep everything in one place.”",
@@ -29,21 +31,9 @@ export const IDEA = {
   ],
 } as const;
 
-export const OTHER = "Other";
-
 export const OCCUPATION = {
   name: "occupation",
-  label: "What do you do?",
-  help: "Pick the one closest to you.",
-  options: [
-    "Fitness coach",
-    "Content creator",
-    "Tutor or teacher",
-    "Salon or beauty owner",
-    "Brand or shop owner",
-    "Founder or entrepreneur",
-    OTHER,
-  ],
+  label: "What’s your occupation?",
 } as const;
 
 export const DETAILS = [
@@ -52,15 +42,14 @@ export const DETAILS = [
   { name: "email", label: "Email", type: "email", autoComplete: "email" },
 ] as const;
 
-/** Every field the form submits. `occupationOther` is the text typed after choosing "Other". */
-export const FIELD_ORDER = ["idea", "occupation", "occupationOther", "firstName", "lastName", "email", "whatsapp"] as const;
+/** Every field the form submits. */
+export const FIELD_ORDER = ["idea", "occupation", "firstName", "lastName", "email", "whatsapp"] as const;
 export type FieldName = (typeof FIELD_ORDER)[number];
 
 /** Which screen each field lives on (1-based), so a server-side error can send the visitor back to it. */
 export const STEP_OF: Record<FieldName, 1 | 2 | 3> = {
   idea: 1,
   occupation: 2,
-  occupationOther: 2,
   firstName: 3,
   lastName: 3,
   email: 3,
@@ -69,23 +58,19 @@ export const STEP_OF: Record<FieldName, 1 | 2 | 3> = {
 
 export const MESSAGES = {
   required: "Required",
-  choose: "Choose one",
   email: "Enter a valid email address",
   phone: "Enter a valid WhatsApp number",
-  detail: "A little more detail helps me understand. A couple of sentences is enough.",
 } as const;
+
+const remaining = (n: number) => `${n} character${n === 1 ? "" : "s"} remaining`;
 
 /** Validates one field given all current values; returns an error message or null. */
 export function validateField(name: FieldName, values: Record<string, string | undefined>): string | null {
   const v = (values[name] ?? "").trim();
   switch (name) {
     case "idea":
-      if (!v) return MESSAGES.required;
-      return v.length < 20 ? MESSAGES.detail : null;
+      return v.length < IDEA_MIN ? remaining(IDEA_MIN - v.length) : null;
     case "occupation":
-      return (OCCUPATION.options as readonly string[]).includes(v) ? null : MESSAGES.choose;
-    case "occupationOther":
-      return (values.occupation ?? "").trim() === OTHER && !v ? MESSAGES.required : null;
     case "firstName":
     case "lastName":
       return v ? null : MESSAGES.required;
@@ -107,9 +92,4 @@ export function findErrors(values: Record<string, string | undefined>, steps: nu
     if (m) errors[name] = m;
   }
   return errors;
-}
-
-/** The value stored in the sheet's Occupation column: the chip, or "Other: <what they typed>". */
-export function occupationValue(occupation: string, other: string) {
-  return occupation === OTHER ? `${OTHER}: ${other.trim()}` : occupation;
 }

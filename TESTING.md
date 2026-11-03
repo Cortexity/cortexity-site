@@ -57,7 +57,7 @@ Note: the test must run against a URL Meta can associate, and CAPI needs outboun
 
 ## 3. Sheet columns ("Applications v2" tab)
 
-Timestamp, First name, Last name, Email, WhatsApp, Idea, Occupation (chip, or `Other: <typed>`), Avatar, **Booked** (No → Yes), **Booked at**, Event ID, fbp, fbc, UTM Source, UTM Campaign, UTM Content, Landing URL, Device.
+Timestamp, First name, Last name, Email, WhatsApp, Idea, Occupation (their own words), Avatar, **Booked** (No → Yes), **Booked at**, Event ID, fbp, fbc, UTM Source, UTM Campaign, UTM Content, Landing URL, Device.
 
 Check for each test submission:
 - Booked flips to Yes (and Booked at fills) within a few seconds of booking.

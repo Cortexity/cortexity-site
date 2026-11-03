@@ -6,12 +6,17 @@ What is wired up:
 |---|---|---|
 | Browser (Pixel) | `PageView` | Every page load and client-side route change (`components/MetaPixel.tsx`) |
 | Browser (Pixel) | `ViewContent` | `/apply` opens |
-| Browser (Pixel) | `Lead` | Successful submit, with `eventID` from the server response |
-| Browser (Pixel) | `QualifiedLead` (custom) | Successful **qualified** submit, same `eventID` |
-| Server (CAPI) | `Lead` | After the sheet row + emails succeed (`lib/meta.ts`) |
-| Server (CAPI) | `QualifiedLead` | Same, only when qualified, same `event_id` |
+| Browser (Pixel) | `Lead` | Step 3 submitted (sheet row written), `eventID` = the sheet's Event ID |
+| Server (CAPI) | `Lead` | Same moment, same `event_id` (`lib/apply.ts` → `lib/meta.ts`) |
+| Browser (Pixel) | `Schedule` + `QualifiedLead` (custom) | Calendly reports a booking on step 4, `eventID` = `<Event ID>.booked` |
+| Server (CAPI) | `Schedule` + `QualifiedLead` | Same moment, same `event_id`; the sheet row gets Booked = Yes |
 
-**Qualified** = Budget is `Yes` **and** Start is not `I’m just exploring for now` (constants `BUDGET_YES` / `START_EXPLORING` in `app/apply/fields.ts`).
+**Qualified** = booked a call in the embedded Calendly. The booking report is signed by the server at submit (HMAC of Event ID + email + WhatsApp with `APPS_SCRIPT_SECRET`), so it can't be faked from outside.
+
+**Avatar** column = the last landing page (`/`, `/fitness`, `/creators`, `/tutors`, `/salons`, `/brands`) viewed before `/apply` (`cx_avatar` cookie, 30 days, set by `components/AvatarMark.tsx`); `(direct)` if none. **Landing URL** still holds the first-touch page.
+
+Testing a booking without a real Calendly booking: on step 4, run this in the browser console:
+`window.dispatchEvent(new MessageEvent("message", { origin: "https://calendly.com", data: { event: "calendly.event_scheduled" } }))`
 
 ## 0. Prerequisites
 
@@ -26,15 +31,16 @@ What is wired up:
 3. Browser events: in the Test events tab, enter the site URL under *Test browser events* and open it from there (or just keep the tab open while you browse; Pixel Helper confirms fires).
 4. Open the site with a fake ad click to test attribution, e.g.
    `http://localhost:3000/?fbclid=TESTCLICK123&utm_source=facebook&utm_campaign=test&utm_content=ad1&utm_medium=paid`
-5. Go to `/apply`, submit once **qualified** (Budget: Yes, Start: As soon as possible) and once **unqualified** (e.g. Start: I’m just exploring for now).
+5. Go to `/apply`, submit once and book a slot on step 4 (**qualified**), and submit once without booking (**unqualified**).
 
 Note: the test must run against a URL Meta can associate, and CAPI needs outbound internet from the server. Real submissions write real sheet rows and send real emails; use your own email / number.
 
 ### What a correct result looks like
 
 - `PageView` on every page, `ViewContent` once on `/apply`.
-- Qualified submit: **`Lead`** listed once with *Received from: Browser and Server* and marked **Deduplicated** (same event ID), plus **`QualifiedLead`** also Browser + Server, deduplicated.
-- Unqualified submit: `Lead` (Browser + Server, deduplicated), **no** `QualifiedLead`.
+- Every submit: **`Lead`** listed once with *Received from: Browser and Server* and marked **Deduplicated** (same event ID).
+- Booked: **`Schedule`** and **`QualifiedLead`**, each Browser + Server, deduplicated (event ID ends in `.booked`).
+- Not booked: no `Schedule`, no `QualifiedLead`.
 - Server events show matched customer parameters: email, phone, IP, user agent, and `fbp` / `fbc` (fbc present when you arrived with `?fbclid=`).
 - Event IDs match the `Event ID` column in the sheet.
 
@@ -44,21 +50,22 @@ Note: the test must run against a URL Meta can associate, and CAPI needs outboun
 - **Server terminal** (`npm run dev` output / Vercel function logs):
   - `[form-debug] server payload` — what is sent to the sheet, incl. qualified, eventId, device.
   - `[form-debug] CAPI request body` — the exact `data` array (hashed `em`/`ph`) and `test_event_code`.
-  - `[form-debug] CAPI response` — Meta's status and body; success looks like `{"events_received":2,...}` (1 when unqualified).
-- Idea, Why, Top 3 and Anything else are cut to 20 characters + `…`. Name, email and WhatsApp are logged in full. The access token and Apps Script secret are never logged.
+  - `[form-debug] CAPI response` — Meta's status and body; success looks like `{"events_received":1,...}` for Lead, `2` for Schedule + QualifiedLead.
+  - Every CAPI call logs one line: `sendCapi[Lead]: …` or `sendCapi[Schedule+QualifiedLead]: …`.
+- Idea is cut to 20 characters + `…`. Name, email and WhatsApp are logged in full. The access token and Apps Script secret are never logged.
 - Set the flag to `false` (or remove it) and rebuild: nothing about the form is logged. To remove the feature entirely, set `DEBUG_FORM = false` in `lib/debug.ts` (one line), or delete the `debugLog` calls.
 
-## 3. Sheet columns
+## 3. Sheet columns ("Applications v2" tab)
 
-After *Anything else* the sheet now has, in order: **Qualified** (Yes/No), **Event ID**, **fbp**, **fbc**, **UTM Source**, **UTM Campaign**, **UTM Content**, **Landing URL**, **Device** (mobile/desktop).
+Timestamp, First name, Last name, Email, WhatsApp, Idea, Occupation (chip, or `Other: <typed>`), Avatar, **Booked** (No → Yes), **Booked at**, Event ID, fbp, fbc, UTM Source, UTM Campaign, UTM Content, Landing URL, Device.
 
 Check for each test submission:
-- Qualified matches the rule above.
-- Event ID equals the one in the server debug log and in Test Events.
-- fbp looks like `fb.1.<timestamp>.<random>` (needs the pixel to have loaded; empty with ad blockers).
-- fbc looks like `fb.1.<timestamp>.TESTCLICK123` when you arrived with `?fbclid=`.
-- UTM columns and Landing URL match the first URL you opened (stored 30 days in the `cx_attr` cookie; a new fbclid/utm visit replaces it — clear cookies to retest).
-- Device is `mobile` from a phone, `desktop` otherwise.
+- Booked flips to Yes (and Booked at fills) within a few seconds of booking.
+- Event ID equals the one in the server debug log, in Test Events, and in Calendly (booking → Tracking → utm_content).
+- Avatar is the last landing page you opened before /apply.
+- fbp / fbc / UTM / Landing URL / Device as before.
+
+The original tab keeps the old one-page-form rows untouched.
 
 ## 4. Disabled states
 

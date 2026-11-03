@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { AvatarMark } from "./AvatarMark";
 import { Header } from "./Header";
 import { Mesh } from "./Decor";
 import { StickyCta } from "./StickyCta";
@@ -43,6 +44,7 @@ export async function Landing({ avatar, country }: { avatar: Avatar; country?: s
         <Closing avatar={avatar} loc={loc} />
       </main>
       <StickyCta />
+      <AvatarMark path={avatar.path} />
     </>
   );
 }

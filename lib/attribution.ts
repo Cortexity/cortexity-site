@@ -5,6 +5,8 @@
  */
 
 const COOKIE = "cx_attr";
+/** Last landing page viewed before /apply ("/", "/fitness", …); overwritten on every landing page view. */
+const AVATAR_COOKIE = "cx_avatar";
 const MAX_AGE = 60 * 60 * 24 * 30;
 const KEYS = ["fbclid", "utm_source", "utm_medium", "utm_campaign", "utm_content"] as const;
 
@@ -37,6 +39,11 @@ export function captureAttribution() {
   document.cookie = `${COOKIE}=${encodeURIComponent(JSON.stringify(value))}; Max-Age=${MAX_AGE}; Path=/; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
 }
 
+/** Called by every landing page on view: remembers it as the page the visitor applies from. */
+export function markAvatar(path: string) {
+  document.cookie = `${AVATAR_COOKIE}=${encodeURIComponent(path)}; Max-Age=${MAX_AGE}; Path=/; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+}
+
 /** Hidden-field values sent with the application. */
 export function attributionFields(): Record<string, string> {
   const a = readAttribution();
@@ -53,7 +60,8 @@ export function attributionFields(): Record<string, string> {
     utm_content: a.utm_content ?? "",
     landing_url: a.landing_url ?? "",
     event_source_url: window.location.href,
+    avatar: readCookie(AVATAR_COOKIE),
   };
 }
 
-export const ATTRIBUTION_FIELDS = ["fbp", "fbc", "fbclid", "utm_source", "utm_medium", "utm_campaign", "utm_content", "landing_url", "event_source_url"] as const;
+export const ATTRIBUTION_FIELDS = ["fbp", "fbc", "fbclid", "utm_source", "utm_medium", "utm_campaign", "utm_content", "landing_url", "event_source_url", "avatar"] as const;

@@ -51,6 +51,12 @@ Every submission of the `/apply` form is sent to a small Google script that adds
 
 The live site needs the same two values: in the Vercel dashboard open the project → **Settings → Environment Variables**, add `APPS_SCRIPT_URL` and `APPS_SCRIPT_SECRET` with the same values, then redeploy.
 
+## Updating to the multi-step form (Applications v2)
+
+1. Paste the new `apps-script.gs` over the old one, Save, then **Deploy → Manage deployments → ✎ Edit → Version: New version → Deploy** (same URL, Script Properties kept).
+2. Optional: run `testV2_` from the editor. It creates the **Applications v2** tab, adds one test row, sends both emails, and marks the row Booked = Yes.
+3. The script still accepts the old one-page form, so the live site keeps working whether or not the new form is live yet. Old rows stay on the original tab.
+
 ## Try it
 
 Submit the form on `/apply`. Within a few seconds a new row appears in the sheet and an email lands in your inbox with every answer; replying to that email replies to the applicant. The applicant also gets a short "Got your application — Cortexity" email whose replies come to you. If the form shows "Something went wrong", check that both values in `.env.local` are correct and that the deployment's "Who has access" is **Anyone**.

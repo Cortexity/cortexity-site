@@ -6,9 +6,8 @@ const WEEKS = [
   {
     label: "Week 1",
     title: "We understand the idea.",
-    line: "We talk it through, then start designing.",
     bullets: [
-      "We talk through the idea, who it’s for, and how you imagine it working.",
+      "We talk through the idea, who it’s for and how you imagine it working, then start designing.",
       "We define the main features for version one.",
       "First screens on your phone by the end of the week.",
     ],
@@ -17,7 +16,7 @@ const WEEKS = [
     label: "Week 2",
     title: "The app starts working.",
     bullets: [
-      "The core of the app works, on your iPhone.",
+      "The core of the app works on your phone.",
       "You use it every day and tell me what feels wrong.",
       "We change it. Nothing extra to pay.",
     ],
@@ -61,7 +60,6 @@ export function Timeline() {
               <p className="mb-3 text-[12px] font-medium uppercase tracking-[0.14em] text-ink-muted">{w.label}</p>
               <div className="card p-7 text-left sm:p-9">
                 <h3 className="text-[1.5rem] font-semibold leading-tight tracking-[-0.015em] text-white">{w.title}</h3>
-                {"line" in w && w.line ? <p className="mt-2 text-[15px] text-white/70">{w.line}</p> : null}
                 <ul className="mt-6 space-y-3">
                   {w.bullets.map((b) => (
                     <li key={b} className="flex gap-3 text-[17px] leading-snug text-[#e5e5ea]">

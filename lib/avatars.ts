@@ -23,7 +23,14 @@ export type Avatar = {
   /** Who the page talks to, plural ("coaches"): Fit, FAQ intro, Founder section. */
   who: string;
   /** `line` is only shown on the founders page; on the avatar pages it made the hero too dense. */
-  hero: { title: string; accent: string; lead: string; line?: string };
+  hero: {
+    title: string;
+    accent: string;
+    lead: string;
+    line?: string;
+    /** Bold price line under the lead; defaults to "One project. One fixed price. {price}." */
+    strong?: string;
+  };
   problem: { title: string; accent: string; sub?: string; body: Line[]; turn: Line[] };
   /** public/screens/<screens>-1..3.png */
   screens: string;
@@ -118,7 +125,8 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
     hero: {
       title: "Your coaching app. Built in",
       accent: "21 days.",
-      lead: "Quoted $30,000 for a fitness coaching app? We build yours.",
+      lead: "Quoted $30,000 for a fitness coaching app?",
+      strong: "We build yours for {price}. Fixed.",
     },
     problem: {
       title: "You can only train so many people",

@@ -10,7 +10,7 @@ function B({ children }: { children: React.ReactNode }) {
 
 const paragraphs = (who: string): React.ReactNode[] => [
   <>
-    Hi, I&rsquo;m Joseph, founder of Cortexity. <B>I design and build iPhone apps for {who}</B>, from the
+    Hi, I&rsquo;m Joseph, founder of Cortexity. <B>I design and build mobile apps for {who}</B>, from the
     first call to the App Store.
   </>,
   <>

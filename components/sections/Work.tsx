@@ -2,7 +2,7 @@ import { SectionHead } from "../SectionHead";
 import { AppMockup } from "../placeholders";
 import { Reveal } from "../Reveal";
 import { Prose, Section, Stack } from "../Section";
-import { P, Strong } from "../Text";
+import { Strong } from "../Text";
 
 function App({
   name,
@@ -14,7 +14,7 @@ function App({
   name: string;
   heading: string;
   tagline: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   first?: boolean;
 }) {
   return (
@@ -53,23 +53,15 @@ export function Work() {
           first
           name="Slowr"
           heading="SLOWR"
-          tagline="Men’s wellness, reimagined as a product."
+          tagline="A men’s wellness app with step-by-step training programs, progress tracking and a monthly subscription, all in one place."
         >
-          <P>
-            A complete iOS experience built around guided training, progressive programs,
-            education, progress tracking and subscriptions.
-          </P>
         </App>
 
         <App
           name="ReflexFlow"
           heading="ReflexFlow"
-          tagline="A private guided wellness experience for women."
+          tagline="A wellness app for women: a multi-week program they follow from their phone, with guided audio sessions and progress tracking."
         >
-          <P>
-            A multi-week iOS program combining guided audio, progressive training and personal
-            progress tracking.
-          </P>
         </App>
       </div>
     </Section>

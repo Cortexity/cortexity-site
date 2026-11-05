@@ -34,9 +34,6 @@ function App({
       <Reveal delay={80} className="mt-10 sm:mt-12">
         {/* PLACEHOLDER: pass screens={[{src, alt}, {src, alt}]} when screenshots arrive. */}
         <AppMockup name={name} />
-        <p className="mt-8 text-center text-small font-semibold">
-          <strong className="font-semibold">Designed. Built. Shipped by Cortexity.</strong>
-        </p>
       </Reveal>
     </article>
   );

@@ -3,7 +3,6 @@ import { Blobs } from "../Decor";
 import { SectionHead } from "../SectionHead";
 import { Reveal } from "../Reveal";
 import { Prose, Section } from "../Section";
-import { Strong } from "../Text";
 
 const ICONS: Record<string, LucideIcon> = {
   Product: Lightbulb,
@@ -63,7 +62,6 @@ export function Process() {
       <Reveal>
         <Prose>
           <SectionHead id="process-title" eyebrow="What’s Included" title="Everything between the idea and" accent="the App Store." sub="Product, design, development and launch, handled by one person." />
-          <Strong className="mt-10 sm:mt-12">Cortexity handles the whole process.</Strong>
         </Prose>
       </Reveal>
 

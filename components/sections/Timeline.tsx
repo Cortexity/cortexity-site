@@ -6,7 +6,7 @@ const WEEKS = [
   {
     label: "Week 1",
     title: "We understand the idea.",
-    line: "One conversation. Then we design.",
+    line: "We talk it through, then start designing.",
     bullets: [
       "We talk through the idea, who it’s for, and how you imagine it working.",
       "We define the main features for version one.",
@@ -15,8 +15,7 @@ const WEEKS = [
   },
   {
     label: "Week 2",
-    title: "We make it real.",
-    line: "Screens become flows. Flows become features.",
+    title: "The app starts working.",
     bullets: [
       "The core of the app works, on your iPhone.",
       "You use it every day and tell me what feels wrong.",
@@ -25,8 +24,7 @@ const WEEKS = [
   },
   {
     label: "Week 3",
-    title: "We make it better. Then we ship.",
-    line: "The details that make it feel finished.",
+    title: "We polish it and submit it to the App Store.",
     bullets: [
       "Refinement and polish, together.",
       "App Store submission, handled with you.",
@@ -49,7 +47,7 @@ export function Timeline() {
     <Section tone="white" id="timeline" labelledBy="timeline-title">
       <Reveal>
         <Prose>
-          <SectionHead id="timeline-title" eyebrow="The Process" title="What the next" accent="21 days look like." sub="Three weeks, three phases, one working app." />
+          <SectionHead id="timeline-title" eyebrow="The Process" title="What the next" accent="21 days look like." />
         </Prose>
       </Reveal>
 
@@ -63,7 +61,7 @@ export function Timeline() {
               <p className="mb-3 text-[12px] font-medium uppercase tracking-[0.14em] text-ink-muted">{w.label}</p>
               <div className="card p-7 text-left sm:p-9">
                 <h3 className="text-[1.5rem] font-semibold leading-tight tracking-[-0.015em] text-white">{w.title}</h3>
-                <p className="mt-2 text-[15px] text-white/70">{w.line}</p>
+                {"line" in w && w.line ? <p className="mt-2 text-[15px] text-white/70">{w.line}</p> : null}
                 <ul className="mt-6 space-y-3">
                   {w.bullets.map((b) => (
                     <li key={b} className="flex gap-3 text-[17px] leading-snug text-[#e5e5ea]">

@@ -14,8 +14,8 @@ const paragraphs = (who: string): React.ReactNode[] => [
     first call to the App Store.
   </>,
   <>
-    Before building apps for others, I built my own. <B>I&rsquo;ve been the client.</B> The delays, the
-    vague answers, the &ldquo;that wasn&rsquo;t in the scope&rdquo;. That&rsquo;s why Cortexity exists.
+    Before building apps for others, I built my own. <B>I&rsquo;ve been the client myself</B> and felt the delays,
+    the vague answers and the &ldquo;that wasn&rsquo;t in the scope&rdquo;. That&rsquo;s why Cortexity exists.
   </>,
   <>
     <B>When I take on your app, I take responsibility for getting it built.</B> You shouldn&rsquo;t have to
@@ -23,8 +23,7 @@ const paragraphs = (who: string): React.ReactNode[] => [
     the product could be better.
   </>,
   <>
-    For 21 days we work on one goal: <B>the best first version of your app we can build.</B> You bring the
-    vision. I&rsquo;ll take care of the rest.
+    For 21 days we work on one goal: <B>the best first version of your app we can build.</B>
   </>,
   <>
     And yes, <B>I&rsquo;m the one who answers your messages.</B>

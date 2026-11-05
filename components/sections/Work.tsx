@@ -2,7 +2,7 @@ import { SectionHead } from "../SectionHead";
 import { AppMockup } from "../placeholders";
 import { Reveal } from "../Reveal";
 import { Prose, Section, Stack } from "../Section";
-import { Strong } from "../Text";
+import { P } from "../Text";
 
 function App({
   name,
@@ -26,7 +26,7 @@ function App({
         <Prose>
           <h3 id={`work-${name.toLowerCase()}`} className="text-h2 text-balance">{heading}</h3>
           <Stack className="mt-6">
-            <Strong>{tagline}</Strong>
+            <P>{tagline}</P>
             {children}
           </Stack>
         </Prose>

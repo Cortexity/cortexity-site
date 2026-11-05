@@ -156,12 +156,12 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
       title: "This is for coaches who want",
       accent: "more clients without working more hours.",
       sub: "",
-      first: "Cortexity is for you if your clients already trust your method and you’re ready to package it.",
+      first: "Cortexity is for you if your programs already get results, and you want 500 subscribers on top of the 20 clients you train each week.",
     },
     closing: {
       title: "Three weeks from now, your clients could be training",
       accent: "in your app.",
-      lines: ["Stop trading every hour for one session.", { s: "Let your app coach while you rest." }],
+      lines: [{ s: "Imagine waking up to hundreds of new subscribers every day." }],
     },
     faq: {
       q: "Can clients pay me monthly inside the app?",

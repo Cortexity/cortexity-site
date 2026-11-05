@@ -156,7 +156,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
       title: "This is for coaches who want",
       accent: "more clients without working more hours.",
       sub: "",
-      first: "Cortexity is for you if your programs already get results, and you want 500 subscribers on top of the 20 clients you train each week.",
+      first: "Cortexity is for you if your programs already get results, and you want hundreds of paying subscribers on top of the 20 clients you train each week.",
     },
     closing: {
       title: "Three weeks from now, your clients could be training",

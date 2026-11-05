@@ -4,7 +4,7 @@ import { Prose, Section, Stack } from "../Section";
 import { Footer } from "../Footer";
 import { Blobs, Dots } from "../Decor";
 import { SectionHead } from "../SectionHead";
-import { H3, Muted, P, Strong } from "../Text";
+import { Muted, P, Strong } from "../Text";
 import { lines } from "../Lines";
 import type { Avatar } from "@/lib/avatars";
 import { fill, type Locale } from "@/lib/geo";
@@ -29,20 +29,16 @@ export function Closing({ avatar, loc }: { avatar: Avatar; loc: Locale }) {
       >
         <Reveal>
           <Prose>
-            <SectionHead id="closing-title" title={avatar.closing.title} accent={fill(avatar.closing.accent, loc)} sub="Tell me about the idea. I read every application myself." />
+            <SectionHead id="closing-title" title={avatar.closing.title} accent={fill(avatar.closing.accent, loc)} />
             <Stack className="mt-10 sm:mt-12">
               {lines(avatar.closing.lines, loc)}
               <P>If you have an app idea you&rsquo;re serious about, tell us about it.</P>
               <P>I&rsquo;ll personally review what you send.</P>
-              <P>
-                If I think Cortexity is the right fit, I&rsquo;ll contact you directly and
-                we&rsquo;ll talk about the product.
-              </P>
+              <P>At the end of the application, you book a call with me to talk it through.</P>
             </Stack>
 
             <div className="mt-12 sm:mt-14">
-              <H3>Your idea. Our responsibility.</H3>
-              <Strong className="mt-4">{fill("21 days. {price}.", loc)}</Strong>
+              <Strong>{fill("Built in 21 days, for a fixed {price}.", loc)}</Strong>
               <div id="final-cta" className="mt-8 flex justify-center sm:mt-10">
                 <ApplyButton size="lg" variant="red">Apply to Build Your App</ApplyButton>
               </div>

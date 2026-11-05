@@ -148,14 +148,14 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
     day1: "What if my clients could follow my programs, log their workouts and track their progress in my own app, and pay me monthly for it?",
     after: [
       { s: "Your own coaching app, live on the App Store." },
-      "Your programs, your name, your price.",
+      "Your programs, under your name, at the price you set.",
       "Clients train with you without booking a session.",
-      "Income that doesn’t depend on your calendar.",
+      "You earn from your programs without booking more sessions.",
     ],
     fit: {
-      title: "This is for coaches who are",
-      accent: "ready to scale.",
-      sub: "For trainers who want to coach hundreds, not just the next hour.",
+      title: "This is for coaches who want",
+      accent: "more clients without working more hours.",
+      sub: "",
       first: "Cortexity is for you if your clients already trust your method and you’re ready to package it.",
     },
     closing: {

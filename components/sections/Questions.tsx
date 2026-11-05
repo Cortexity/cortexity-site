@@ -22,16 +22,11 @@ export function Questions({ avatar, loc }: { avatar: Avatar; loc: Locale }) {
             </FaqItem>
 
             <FaqItem question="Can you really build my app in 21 days?">
-              <P>Yes. That&rsquo;s the promise.</P>
-              <P>
-                Before we start, we talk through the idea so I know exactly what we&rsquo;re
-                building.
-              </P>
+              <P>Yes. Before we start, we agree exactly what the first version includes, so 21 days is enough.</P>
             </FaqItem>
 
             <FaqItem question="What if I change my mind about something halfway through?">
               <P>That&rsquo;s expected. Changing your mind is part of the process.</P>
-              <P>Seeing the real app always changes how you think about it. That&rsquo;s normal.</P>
               <P>
                 During the 21 days, we&rsquo;ll keep refining the product with you. You&rsquo;re
                 not going to receive an extra invoice because you wanted a screen redesigned or
@@ -101,7 +96,6 @@ export function Questions({ avatar, loc }: { avatar: Avatar; loc: Locale }) {
 
             <FaqItem question="Do I need to know anything about building apps?">
               <P>No.</P>
-              <P>You shouldn&rsquo;t have to.</P>
               <P>You know the idea, the customer and the problem you&rsquo;re trying to solve.</P>
               <P>We take care of the rest.</P>
             </FaqItem>

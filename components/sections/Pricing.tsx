@@ -68,10 +68,7 @@ export function Pricing({ loc }: { loc: Locale }) {
             sub={loc.approxBase ? `One fixed price (${loc.approxBase}), paid in two halves.` : "One fixed price, paid in two halves."}
           />
           <Stack className="mt-10 sm:mt-12">
-            <P>No hourly rate.</P>
-            <P>No paying a designer separately.</P>
-            <P>No development bill that grows every week.</P>
-            <P>No paying extra because you asked for another revision during the project.</P>
+            <P>No hourly rate, no separate designer, and no bill that grows every time you ask for a change.</P>
           </Stack>
         </Prose>
       </Reveal>
@@ -84,12 +81,6 @@ export function Pricing({ loc }: { loc: Locale }) {
           <Strong>{loc.half} to start.</Strong>
           <Strong>{loc.half} when your app is finished.</Strong>
         </div>
-        <Stack className="mt-6">
-          <P>
-            That includes the 21-day product build, design, development, testing, refinement,
-            App Store submission and full ownership of the finished project.
-          </P>
-        </Stack>
       </Reveal>
 
       <Reveal className="stagger mx-auto mt-12 grid max-w-[60rem] grid-cols-1 gap-5 sm:mt-14 md:grid-cols-2">

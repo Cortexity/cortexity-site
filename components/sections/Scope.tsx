@@ -1,7 +1,7 @@
 import { SectionHead } from "../SectionHead";
 import { Reveal } from "../Reveal";
 import { Prose, Section, Stack } from "../Section";
-import { P, Strong } from "../Text";
+import { P } from "../Text";
 
 export function Scope() {
   return (
@@ -14,19 +14,16 @@ export function Scope() {
               A product you imagined three weeks ago won&rsquo;t always be the product you want
               after you&rsquo;ve actually seen and used it.
             </P>
-            <Strong>That&rsquo;s normal.</Strong>
             <P>
               For the 21 days we&rsquo;re working together, you&rsquo;re not going to be charged
               every time you ask us to change a button, rethink a screen or improve how something
               works.
             </P>
             <P>Ask for changes as often as you like.</P>
-            <P>There is no hourly bill.</P>
             <P>
               There is no awkward conversation because you&rsquo;ve used your allotted number of
               revisions.
             </P>
-            <Strong>We&rsquo;re building the product together.</Strong>
             <P>
               If you ask for a big change that needs more time, we&rsquo;ll adjust the timeline
               together.

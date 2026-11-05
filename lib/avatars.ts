@@ -24,7 +24,7 @@ export type Avatar = {
   who: string;
   /** `line` is only shown on the founders page; on the avatar pages it made the hero too dense. */
   hero: { title: string; accent: string; lead: string; line?: string };
-  problem: { title: string; accent: string; sub: string; body: Line[]; turn: Line[] };
+  problem: { title: string; accent: string; sub?: string; body: Line[]; turn: Line[] };
   /** public/screens/<screens>-1..3.png */
   screens: string;
   screensLabel: string;
@@ -118,26 +118,21 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
     hero: {
       title: "Your coaching app. Built in",
       accent: "21 days.",
-      lead: "Quoted $30,000 for a fitness coaching app? We build yours for {price}, fixed.",
+      lead: "Quoted $30,000 for a fitness coaching app? We build yours.",
     },
     problem: {
       title: "You can only train so many people",
       accent: "one hour at a time.",
-      sub: "Your income stops the moment your sessions do.",
       body: [
-        "Your calendar is full.",
-        "You send every program by hand on WhatsApp and answer the same questions all day.",
+        "Your calendar is full, and you still send every program by hand on WhatsApp and answer the same questions all day.",
         "At the end of every month, you chase each client to get paid.",
-        "No sessions, no income. Not when you’re sick, not when you travel.",
         "You’ve thought about your own app. Then someone quoted you $30,000 and six months.",
-        { g: "Developers. Designers. Payments. Workout videos. Progress tracking. App Store rejections." },
-        "So it stays an idea.",
+        "That’s too much money and too much time, so it stayed an idea.",
       ],
       turn: [
-        SIMPLE,
-        "Bring us your method.",
-        "We’ll turn it into an app your clients pay for every month and train with, without you in the room.",
-        PRICE_LINE,
+        { s: "Send us your training programs." },
+        "We’ll turn them into an app your clients pay for every month and train with, without you in the room.",
+        { s: "We build it for you in 21 days, for a fixed {price}." },
       ],
     },
     screens: "fitness",
@@ -148,7 +143,6 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
       "Your programs, your name, your price.",
       "Clients train with you without booking a session.",
       "Income that doesn’t depend on your calendar.",
-      PAYING,
     ],
     fit: {
       title: "This is for coaches who are",

@@ -45,7 +45,6 @@ export type Avatar = {
 };
 
 const PRICE_LINE: Line = { s: "21 days. {price}. Done for you." };
-const SIMPLE: Line = { s: "It can be simple." };
 const PAYING: Line = { s: "That’s the transformation you’re paying for." };
 
 export const AVATARS: Record<AvatarSlug, Avatar> = {
@@ -364,13 +363,11 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
         "Every sale starts with an ad, and ads keep getting more expensive.",
         "Customers buy once and forget your name, so you pay for another ad to reach them again.",
         "Next to {big names}, you look small, and new customers hesitate. Your competitors’ apps are already on your customers’ phones, and yours isn’t.",
-        { g: "Developers. Product catalogue. Checkout. Payments. App Store rejections." },
-        "So you stay an Instagram page and a website.",
+        "You wish you had your own app, but it seemed like too much money and too much time, so you’re still selling only through your website.",
       ],
       turn: [
-        SIMPLE,
-        "Bring us your brand.",
-        "We’ll build your brand its own shopping app, on your customers’ phones like {big names}. You send them offers directly, and they come back without another ad.",
+        { s: "We build your brand its own app, so it sits on your customers’ phones next to {big names}." },
+        "You send them offers directly, and they come back without another ad.",
         { s: "We build it for you in 21 days, for a fixed {price}." },
       ],
     },

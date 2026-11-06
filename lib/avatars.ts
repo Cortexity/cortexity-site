@@ -366,7 +366,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
         "You thought about having your own app, but it seemed like too much money and too much time, so you’re still selling only through your website.",
       ],
       turn: [
-        { s: "We build your brand its own app, so it sits on your customers’ phones next to {big names}." },
+        { s: "Your brand gets its own app, right next to {big names} on your customers’ phones." },
         "You send them offers directly, and they come back without another ad.",
         { s: "We build it for you in 21 days, for a fixed {price}." },
       ],

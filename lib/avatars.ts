@@ -363,7 +363,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
         "Every sale starts with an ad, and ads keep getting more expensive.",
         "Customers buy once and forget your name, so you pay for another ad to reach them again.",
         "Next to {big names}, you look small, and new customers hesitate. Your competitors’ apps are already on your customers’ phones, and yours isn’t.",
-        "You wish you had your own app, but it seemed like too much money and too much time, so you’re still selling only through your website.",
+        "You thought about having your own app, but it seemed like too much money and too much time, so you’re still selling only through your website.",
       ],
       turn: [
         { s: "We build your brand its own app, so it sits on your customers’ phones next to {big names}." },

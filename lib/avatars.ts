@@ -64,7 +64,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
       title: "Your app idea is still",
       accent: "in your Notes app.",
       body: [
-        "You have a good job and an app idea you can’t stop thinking about.",
+        "You’re a full-time professional, and you have an app idea you can’t stop thinking about.",
         "You’d build it tonight, but you’re not technical and you don’t have a technical co-founder.",
         "One agency quoted you $10,000, another $50,000, and you can’t tell which one is honest.",
         "And you’ve heard the stories: the developer who disappears halfway, and the founder left with a half-finished app and an empty bank account.",

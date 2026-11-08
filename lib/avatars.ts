@@ -44,8 +44,6 @@ export type Avatar = {
   faq: { q: string; a: string[] };
 };
 
-const PRICE_LINE: Line = { s: "21 days. {price}. Done for you." };
-const PAYING: Line = { s: "That’s the transformation you’re paying for." };
 
 export const AVATARS: Record<AvatarSlug, Avatar> = {
   founders: {
@@ -59,38 +57,31 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
     hero: {
       title: "Your app idea. Built in",
       accent: "21 days.",
-      lead: "Quoted $10,000 to $500,000 for your app idea? Ours is {price}, fixed.",
-      line: "Strategy. Design. Development. Testing. App Store submission.",
+      lead: "Quoted $10,000 to $500,000 for your app idea?",
+      strong: "We build yours for {price}. Fixed.",
     },
     problem: {
-      title: "You’ve had the idea.",
-      accent: "Now make it real.",
-      sub: "Most app ideas never make it out of the Notes app.",
+      title: "Your app idea is still",
+      accent: "in your Notes app.",
       body: [
-        "Maybe it’s been sitting in your Notes for six months.",
-        "Maybe you’ve talked about it with friends.",
-        "Maybe you can already picture exactly how it should work. You just have no idea how to actually build it.",
-        "And when you start looking into development, you’re completely overwhelmed:",
-        { g: "Designers. Developers. Technical decisions. Quotes. Timelines. APIs. Databases. Architecture. Bugs. Unresponsive developer. Vague answers. No updates for two weeks. App Store rejections." },
-        "Suddenly, building your idea feels like too much stress.",
+        "You have a good job and an app idea you can’t stop thinking about.",
+        "You’d build it tonight, but you’re not technical and you don’t have a technical co-founder.",
+        "One agency quoted you $10,000, another $50,000, and you can’t tell which one is honest.",
+        "And you’ve heard the stories: the developer who disappears halfway, and the founder left with a half-finished app and an empty bank account.",
+        "So the idea stays in your Notes app, and your 9-to-5 stays your life.",
       ],
       turn: [
-        { s: "It can be simple AND easy." },
-        "That’s our job.",
-        "Bring us the idea.",
-        "We’ll help you think through the product, design it, build it, refine it with you, and turn it into a real iPhone app.",
-        PRICE_LINE,
+        { s: "We build your app for you, from the first screen to the App Store." },
+        "You don’t need to know anything technical, and the app and its code are 100% yours.",
+        { s: "We build it for you in 21 days, for a fixed {price}." },
       ],
     },
     screens: "padel",
     screensLabel: "Padel",
     day1: "What if there was an app that showed me every available padel court nearby and let me book one instantly?",
     after: [
-      { s: "A beautifully designed, working iPhone app." },
-      "Something you can hold in your hand.",
-      "Something you can show people.",
-      "Something your first customers can actually use.",
-      PAYING,
+      { s: "Your app, live on the App Store." },
+      "A real app you can show users and investors, not a demo.",
     ],
     fit: {
       title: "This is for founders who are",
@@ -101,8 +92,8 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
     },
     closing: {
       title: "Three weeks from now, this could be",
-      accent: "on your iPhone.",
-      lines: ["Stop telling people about it.", { s: "Hand them the app instead." }],
+      accent: "on your phone.",
+      lines: [{ s: "Imagine handing someone your phone and saying: this is my app." }],
     },
     faq: {
       q: "Why are other quotes so much higher?",

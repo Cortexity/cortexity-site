@@ -15,7 +15,7 @@ export const CONTACT_EMAIL = "hello@cortexity.app";
  */
 export const CALENDLY_URL = "https://calendly.com/josephselwan/intro-call";
 
-/** Event id for the booking events (Schedule + QualifiedLead), shared by Pixel and CAPI so Meta deduplicates them. */
+/** Event id for the booking event (Schedule), shared by Pixel and CAPI so Meta deduplicates them. */
 export const bookingEventId = (eventId: string) => `${eventId}.booked`;
 
 /** Minimum length of the app idea; below it Continue shows "N characters remaining". */

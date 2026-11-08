@@ -161,7 +161,7 @@ export type BookingInput = {
 
 /**
  * Calendly reported a booking in the browser: mark the sheet row Booked = Yes and
- * send Schedule + QualifiedLead to the Conversions API (Pixel fires the same two
+ * send Schedule to the Conversions API (Pixel fires the same event
  * in the browser with the same event id).
  */
 export async function processBooking(i: BookingInput, ctx: RequestContext = {}): Promise<BookingResult> {
@@ -174,7 +174,7 @@ export async function processBooking(i: BookingInput, ctx: RequestContext = {}):
   }
 
   after(() =>
-    sendCapi(["Schedule", "QualifiedLead"], {
+    sendCapi(["Schedule"], {
       eventId: bookingEventId(eventId),
       email,
       phoneE164: whatsapp,

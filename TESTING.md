@@ -8,10 +8,10 @@ What is wired up:
 | Browser (Pixel) | `ViewContent` | `/apply` opens |
 | Browser (Pixel) | `Lead` | Step 3 submitted (sheet row written), `eventID` = the sheet's Event ID |
 | Server (CAPI) | `Lead` | Same moment, same `event_id` (`lib/apply.ts` → `lib/meta.ts`) |
-| Browser (Pixel) | `Schedule` + `QualifiedLead` (custom) | Calendly reports a booking on step 4, `eventID` = `<Event ID>.booked` |
-| Server (CAPI) | `Schedule` + `QualifiedLead` | Same moment, same `event_id`; the sheet row gets Booked = Yes |
+| Browser (Pixel) | `Schedule` | Calendly reports a booking on step 4, `eventID` = `<Event ID>.booked` |
+| Server (CAPI) | `Schedule` | Same moment, same `event_id`; the sheet row gets Booked = Yes |
 
-**Qualified** = booked a call in the embedded Calendly. The booking report is signed by the server at submit (HMAC of Event ID + email + WhatsApp with `APPS_SCRIPT_SECRET`), so it can't be faked from outside.
+**Qualified** = booked a call (Schedule). Optimise ads for Schedule. The booking report is signed by the server at submit (HMAC of Event ID + email + WhatsApp with `APPS_SCRIPT_SECRET`), so it can't be faked from outside.
 
 **Avatar** column = the last landing page (`/`, `/fitness`, `/creators`, `/tutors`, `/salons`, `/brands`) viewed before `/apply` (`cx_avatar` cookie, 30 days, set by `components/AvatarMark.tsx`); `(direct)` if none. **Landing URL** still holds the first-touch page.
 
@@ -39,8 +39,8 @@ Note: the test must run against a URL Meta can associate, and CAPI needs outboun
 
 - `PageView` on every page, `ViewContent` once on `/apply`.
 - Every submit: **`Lead`** listed once with *Received from: Browser and Server* and marked **Deduplicated** (same event ID).
-- Booked: **`Schedule`** and **`QualifiedLead`**, each Browser + Server, deduplicated (event ID ends in `.booked`).
-- Not booked: no `Schedule`, no `QualifiedLead`.
+- Booked: **`Schedule`**, Browser + Server, deduplicated (event ID ends in `.booked`).
+- Not booked: no `Schedule`.
 - Server events show matched customer parameters: email, phone, IP, user agent, and `fbp` / `fbc` (fbc present when you arrived with `?fbclid=`).
 - Event IDs match the `Event ID` column in the sheet.
 
@@ -50,8 +50,8 @@ Note: the test must run against a URL Meta can associate, and CAPI needs outboun
 - **Server terminal** (`npm run dev` output / Vercel function logs):
   - `[form-debug] server payload` — what is sent to the sheet, incl. qualified, eventId, device.
   - `[form-debug] CAPI request body` — the exact `data` array (hashed `em`/`ph`) and `test_event_code`.
-  - `[form-debug] CAPI response` — Meta's status and body; success looks like `{"events_received":1,...}` for Lead, `2` for Schedule + QualifiedLead.
-  - Every CAPI call logs one line: `sendCapi[Lead]: …` or `sendCapi[Schedule+QualifiedLead]: …`.
+  - `[form-debug] CAPI response` — Meta's status and body; success looks like `{"events_received":1,...}` for both Lead and Schedule.
+  - Every CAPI call logs one line: `sendCapi[Lead]: …` or `sendCapi[Schedule]: …`.
 - Idea is cut to 20 characters + `…`. Name, email and WhatsApp are logged in full. The access token and Apps Script secret are never logged.
 - Set the flag to `false` (or remove it) and rebuild: nothing about the form is logged. To remove the feature entirely, set `DEBUG_FORM = false` in `lib/debug.ts` (one line), or delete the `debugLog` calls.
 

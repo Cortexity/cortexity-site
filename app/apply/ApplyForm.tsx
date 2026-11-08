@@ -7,7 +7,7 @@ import PhoneInput, { isSupportedCountry, isValidPhoneNumber, type Country } from
 import "react-phone-number-input/style.css";
 import { ATTRIBUTION_FIELDS, attributionFields } from "@/lib/attribution";
 import { debugLog, forLog } from "@/lib/debug";
-import { track, trackCustom } from "@/lib/pixel";
+import { track } from "@/lib/pixel";
 import { reportBooking, submitApplication } from "./actions";
 import {
   bookingEventId,
@@ -25,7 +25,7 @@ import {
 
 /**
  * /apply as four screens: 1 idea → 2 occupation → 3 contact (submits: sheet row + Lead) → 4 Calendly
- * (booking: Booked = Yes + Schedule + QualifiedLead).
+ * (booking: Booked = Yes + Schedule).
  *
  * All three form screens are always in the DOM. With JavaScript only the active one is shown
  * (`html.js .apply-step:not([data-active])` is hidden in globals.css); without it they stack and
@@ -400,7 +400,6 @@ export function ApplyForm({
     if (!lead) return;
     const id = bookingEventId(lead.eventId);
     track("Schedule", {}, id);
-    trackCustom("QualifiedLead", {}, id);
     setBooked(true);
     let tracking: Record<string, string> = {};
     try {

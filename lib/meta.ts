@@ -10,7 +10,7 @@ import { debugLog } from "@/lib/debug";
  *
  * Events sent by the site:
  *   form submit    → Lead                        (event_id = the sheet's Event ID)
- *   Calendly booked → Schedule + QualifiedLead   (event_id = "<Event ID>.booked")
+ *   Calendly booked → Schedule                   (event_id = "<Event ID>.booked")
  */
 
 const GRAPH = "https://graph.facebook.com/v21.0";

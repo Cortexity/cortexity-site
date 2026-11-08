@@ -84,11 +84,10 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
       "A real app you can show users and investors, not a demo.",
     ],
     fit: {
-      title: "This is for founders who are",
-      accent: "serious about building.",
-      sub: "For founders ready to stop thinking about it and build it.",
-      first:
-        "Cortexity is for you if you’ve been thinking about an app for too long, or if you’ve tried to build one before and it went badly.",
+      title: "This is for professionals with an app idea they can’t stop thinking about,",
+      accent: "and are ready to launch it.",
+      sub: "",
+      first: "Cortexity is for you if you already know what your app should do, and you want it built right the first time.",
     },
     closing: {
       title: "Three weeks from now, this could be",

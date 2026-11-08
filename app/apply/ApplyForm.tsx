@@ -595,7 +595,13 @@ export function ApplyForm({
                 </>
               )}
             </button>
-            <span className="text-center text-[0.8125rem] text-ink-muted">{NOTE}</span>
+            <span className="text-center text-[0.8125rem] text-ink-muted">
+              {NOTE} See our{" "}
+              <Link href="/privacy" className="underline underline-offset-4">
+                Privacy Policy
+              </Link>
+              .
+            </span>
             {failed ? (
               <p role="alert" className="mt-1 text-center text-small font-medium text-red sm:text-right">
                 Something went wrong. Please email me at{" "}

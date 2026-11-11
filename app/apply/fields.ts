@@ -7,7 +7,7 @@
 
 import { isValidPhoneNumber } from "libphonenumber-js";
 
-export const CONTACT_EMAIL = "hello@cortexity.app";
+export const CONTACT_EMAIL = "joseph@cortexity.studio";
 
 /**
  * Calendly event embedded on the last screen. Name, email and WhatsApp are pre-filled;

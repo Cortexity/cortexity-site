@@ -69,14 +69,16 @@ export function AppMarquee() {
   const apps = [
     { name: "SLOWR", slug: "slowr" },
     { name: "ReflexFlow", slug: "reflexflow" },
+    { name: "Pixelogram", slug: "pixelogram" },
+    { name: "IQ Calorie", slug: "iqcalorie" },
   ].map((a) => {
     const icon = `/screens/${a.slug}-icon.png`;
     return { ...a, icon: fs.existsSync(path.join(process.cwd(), "public", icon)) ? icon : null };
   });
-  const row = Array.from({ length: 6 }, () => apps).flat();
+  const row = Array.from({ length: 3 }, () => apps).flat();
   return (
     <div className="marquee mx-auto mt-10 max-w-[56rem] overflow-hidden opacity-40 grayscale sm:mt-12">
-      <p className="sr-only">Apps shipped by Cortexity: SLOWR, ReflexFlow.</p>
+      <p className="sr-only">Apps shipped by Cortexity: SLOWR, ReflexFlow, Pixelogram, IQ Calorie.</p>
       <div aria-hidden="true" className="marquee-track flex items-center gap-16">
         {[...row, ...row].map((a, i) => (
           <span key={i} className="flex shrink-0 items-center gap-3 text-[1.375rem] font-semibold tracking-[-0.01em]">

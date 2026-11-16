@@ -1,148 +1,152 @@
 import Image from "next/image";
-import { Check } from "lucide-react";
+import {
+  Braces,
+  Database,
+  FlaskConical,
+  KeyRound,
+  Lightbulb,
+  Palette,
+  Receipt,
+  Rocket,
+  Timer,
+  UserRound,
+  type LucideIcon,
+} from "lucide-react";
 import { AvatarMark } from "../AvatarMark";
 import { ApplyButton } from "../Button";
-import { Blobs, Dots, Mesh } from "../Decor";
+import { AppMarquee, Blobs, Dots, Mesh } from "../Decor";
 import { FaqItem, FaqList } from "../Faq";
 import { Footer } from "../Footer";
 import { Header } from "../Header";
-import { AppMockup, PhoneTrio, type Screen } from "../placeholders";
+import { HeroVisual } from "../HeroVisual";
+import { AppMockup } from "../placeholders";
 import { Reveal } from "../Reveal";
-import { Prose, Section } from "../Section";
+import { Prose, Section, Stack } from "../Section";
 import { SectionHead } from "../SectionHead";
 import { StickyCta } from "../StickyCta";
 import { Lead, Muted, P, Strong } from "../Text";
 
 /**
  * The home page (/): product-aware, no prices. Copy approved in the
- * "Cortexity: new home page script" doc. The old founders page lives at /founders.
+ * "Cortexity: new home page script" doc. Built only from the site's existing
+ * components and section styles. The old founders page lives at /founders.
  */
+
+/* ---------------- shared bits (same marks as the original Pricing / Process sections) ---------------- */
+
+/** Red disc with a white tick (the original Pricing check). */
+function Check({ size = 18 }: { size?: number }) {
+  return (
+    <svg aria-hidden="true" width={size} height={size} viewBox="0 0 20 20" fill="none" className="mt-[3px] shrink-0">
+      <circle cx="10" cy="10" r="10" fill="#e0201a" />
+      <path d="m6 10.2 2.6 2.6L14.2 7" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** Grey disc with a cross, for "not for you". */
+function Cross({ size = 18 }: { size?: number }) {
+  return (
+    <svg aria-hidden="true" width={size} height={size} viewBox="0 0 20 20" fill="none" className="mt-[3px] shrink-0">
+      <circle cx="10" cy="10" r="10" fill="#d1d1d6" />
+      <path d="m7 7 6 6M13 7l-6 6" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** Tinted disc with a Lucide icon (the original Process symbol); tint deepens on row hover. */
+function Symbol({ icon: Icon }: { icon: LucideIcon }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-[rgba(224,32,26,0.07)] transition-colors duration-200 group-hover:bg-[rgba(224,32,26,0.12)] md:h-[60px] md:w-[60px]"
+    >
+      <Icon size={26} strokeWidth={1.5} color="#e0201a" />
+    </span>
+  );
+}
 
 const BADGES = ["First version in 21 days", "100% satisfaction guarantee", "Fixed price", "You own the code"];
 
-/** Row of small check pills; `dark` for black sections. */
-function Badges({ items = BADGES, dark = false, className = "" }: { items?: string[]; dark?: boolean; className?: string }) {
+/** Trust line: red-disc ticks with plain text, no boxes. */
+function Badges({ className = "" }: { className?: string }) {
   return (
-    <ul className={`flex flex-wrap justify-center gap-2.5 ${className}`}>
-      {items.map((b) => (
-        <li
-          key={b}
-          className={`inline-flex items-center gap-2 rounded-pill px-4 py-2 text-[14px] font-medium sm:text-[15px] ${
-            dark ? "bg-white/10 text-white" : "bg-white text-ink shadow-[0_2px_10px_rgba(0,0,0,0.06)] ring-1 ring-[#e5e5ea]"
-          }`}
-        >
-          <Check size={16} strokeWidth={2.5} className="text-red" aria-hidden="true" />
-          {b}
+    <ul className={`mx-auto flex max-w-[48rem] flex-wrap justify-center gap-x-7 gap-y-3 ${className}`}>
+      {BADGES.map((b) => (
+        <li key={b} className="flex items-center gap-2 text-[15px] font-medium text-ink sm:text-[16px]">
+          <Check size={17} />
+          <span className="mt-[2px]">{b}</span>
         </li>
       ))}
     </ul>
   );
 }
 
-function Tags({ items }: { items: string[] }) {
-  return (
-    <ul className="mt-6 flex flex-wrap justify-center gap-2">
-      {items.map((t) => (
-        <li key={t} className="rounded-pill bg-white/10 px-3.5 py-1.5 text-[13px] font-medium text-white/80">
-          {t}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/** Horizontal flow of short steps joined by arrows (wraps to a column on phones). */
-function Flow({ label, steps }: { label: string; steps: string[] }) {
-  return (
-    <div className="text-center">
-      <p className="text-eyebrow uppercase text-white/50">{label}</p>
-      <ol className="mt-4 flex flex-col items-center justify-center gap-2 md:flex-row md:gap-3">
-        {steps.map((s, i) => (
-          <li key={s} className="flex flex-col items-center gap-2 md:flex-row md:gap-3">
-            <span className="rounded-[14px] bg-white/10 px-4 py-3 text-[15px] font-medium text-white">{s}</span>
-            {i < steps.length - 1 ? (
-              <span aria-hidden="true" className="text-red md:rotate-0 rotate-90">
-                →
-              </span>
-            ) : null}
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-const shot = (file: string, alt: string): Screen => ({ src: `/work/${file}`, alt });
-
-/* ---------------- 1. Hero ---------------- */
+/* ---------------- 1. Hero (original layout: headline, CTA, liquid visual, app band) ---------------- */
 
 function Hero() {
   return (
-    <section id="hero" aria-labelledby="hero-title" className="tone-white relative overflow-hidden px-5 pb-12 pt-28 text-center sm:px-8 sm:pb-16 sm:pt-36">
+    <section id="hero" aria-labelledby="hero-title" className="tone-white relative overflow-hidden px-5 pb-8 pt-28 text-center sm:px-8 sm:pb-10 sm:pt-36">
       <Dots />
       <div className="relative z-10 mx-auto max-w-[60rem]">
         <SectionHead level={1} id="hero-title" title="Your app’s first version," accent="working in 21 days." />
-        <Lead className="mx-auto mt-6 max-w-prose text-ink-muted sm:mt-8">
-          One fixed price. A new build every week. 100% satisfaction guaranteed.
-        </Lead>
+        <div className="mx-auto mt-6 max-w-prose sm:mt-8">
+          <Lead className="text-ink-muted">One fixed price. A new build every week. 100% satisfaction guaranteed.</Lead>
+        </div>
         <div id="hero-cta" className="mt-8 flex justify-center sm:mt-10">
-          <ApplyButton size="lg" variant="red" note="iPhone · Android · Web">
+          <ApplyButton size="lg" variant="red" note={null}>
             Apply to build your app
           </ApplyButton>
         </div>
+        <Muted className="mt-3">iPhone · Android · Web</Muted>
         <Badges className="mt-8" />
       </div>
-      <div className="relative z-10 mt-12 sm:mt-16">
-        <PhoneTrio
-          priority
-          slug="home-hero"
-          label="Cortexity"
-          screens={[
-            { src: "/screens/fit/slowr-1@2x.png", srcSet: "/screens/fit/slowr-1@2x.png 2x, /screens/fit/slowr-1@3x.png 3x", alt: "SLOWR app" },
-            shot("calorie-chat.jpg", "AI calorie tracker chat on WhatsApp"),
-            { src: "/screens/fit/reflexflow-1@2x.png", srcSet: "/screens/fit/reflexflow-1@2x.png 2x, /screens/fit/reflexflow-1@3x.png 3x", alt: "ReflexFlow app" },
-          ]}
-        />
+      <div className="relative z-10">
+        <HeroVisual />
+      </div>
+      <div className="relative z-10">
+        <AppMarquee />
       </div>
     </section>
   );
 }
 
-/* ---------------- 2. Proof ---------------- */
+/* ---------------- 2. Proof (original Work layout) ---------------- */
 
-function Product({
-  id,
+function App({
   name,
+  slug,
+  heading,
   line,
   body,
-  tags,
-  children,
   first = false,
 }: {
-  id: string;
   name: string;
+  slug: string;
+  heading: string;
   line: string;
   body: string;
-  tags: string[];
-  children?: React.ReactNode;
   first?: boolean;
 }) {
   return (
-    <article className={`${first ? "pt-6" : "pt-20 sm:pt-28"} text-center`} aria-labelledby={id}>
+    <article className={`${first ? "pt-6" : "pt-20 sm:pt-24"} text-center`} aria-labelledby={`work-${slug}`}>
       <Reveal>
         <Prose>
-          <h3 id={id} className="text-h2 text-balance">{name}</h3>
-          <p className="mt-3 text-lead font-semibold text-white">{line}</p>
-          <P className="mx-auto mt-4 max-w-prose">{body}</P>
-          <Tags items={tags} />
+          <h3 id={`work-${slug}`} className="text-h2 text-balance">{heading}</h3>
+          <Stack className="mt-6">
+            <Strong>{line}</Strong>
+            <P>{body}</P>
+          </Stack>
         </Prose>
       </Reveal>
-      {children ? <Reveal delay={80} className="mt-10 sm:mt-12">{children}</Reveal> : null}
+      <Reveal delay={80} className="mt-10 sm:mt-12">
+        <AppMockup name={name} slug={slug} />
+      </Reveal>
     </article>
   );
 }
 
-function Proof() {
+function Work() {
   return (
     <Section tone="black" id="work" labelledBy="work-title">
       <Reveal>
@@ -152,66 +156,38 @@ function Proof() {
       </Reveal>
 
       <div className="mt-10 sm:mt-12">
-        <Product
+        <App
           first
-          id="work-slowr"
           name="SLOWR"
+          slug="slowr"
+          heading="SLOWR"
           line="A complete subscription app, live on the App Store."
-          body="Guided training, progressive programs, progress tracking and in-app subscriptions. Designed, built and shipped by Cortexity."
-          tags={["Subscriptions", "Programs", "Progress tracking", "App Store"]}
-        >
-          <AppMockup name="Slowr" />
-        </Product>
-
-        <Product
-          id="work-reflexflow"
+          body="Guided training, progressive programs, progress tracking and in-app subscriptions."
+        />
+        <App
           name="ReflexFlow"
+          slug="reflexflow"
+          heading="ReflexFlow"
           line="A multi-week guided audio program."
           body="Guided audio sessions produced in-house, progressive training and personal progress tracking. If your app needs voice, audio or guided sessions, we have built it."
-          tags={["Audio", "Guided programs", "Meditation-style apps"]}
-        >
-          <AppMockup name="ReflexFlow" />
-        </Product>
-
-        <Product
-          id="work-pixelogram"
-          name="Pixelogram"
-          line="1,500 installs in 3 days."
-          body="Designed, built and launched by Cortexity."
-          tags={["Launch", "Paid ads", "Growth"]}
         />
-
-        <Product
-          id="work-calorie"
-          name="AI calorie tracker on WhatsApp"
+        <App
+          name="Pixelogram"
+          slug="pixelogram"
+          heading="Pixelogram"
+          line="1,500 installs in 3 days."
+          body="A puzzle game with hundreds of levels and a picture gallery. Designed, built and launched by Cortexity."
+        />
+        <App
+          name="IQ Calorie"
+          slug="iqcalorie"
+          heading="IQ Calorie"
           line="An AI nutrition coach that lives in WhatsApp."
-          body="Send a photo of your meal and get calories and macros back in seconds. Behind the chat: an AI model that reads food photos, a full backend and database, an onboarding flow, Stripe subscriptions with free trials, and a web dashboard for each user."
-          tags={["AI", "WhatsApp chatbot", "Stripe payments", "Backend and database", "Web dashboard"]}
-        >
-          <AppMockup
-            name="Calorie"
-            screens={[
-              shot("calorie-onboarding.jpg", "Calorie tracker onboarding: choose your diet"),
-              shot("calorie-chat.jpg", "Calorie tracker chat: meal logged with calories and macros"),
-              shot("calorie-results.jpg", "Calorie tracker: personal daily plan"),
-            ]}
-          />
-          <div className="mx-auto mt-14 max-w-[60rem] space-y-10">
-            <Flow label="How it works" steps={["Photo sent on WhatsApp", "AI reads the meal", "Saved to the database", "Daily progress sent back"]} />
-            <Flow label="How it gets paid" steps={["Free trial", "Stripe subscription", "Dashboard and billing"]} />
-          </div>
-          <div className="mx-auto mt-12 grid max-w-[64rem] grid-cols-1 items-center gap-8 md:grid-cols-[1fr_2.2fr]">
-            <div className="mx-auto w-[60vw] max-w-[260px] overflow-hidden rounded-[28px] ring-1 ring-white/10 md:w-full">
-              <Image src="/work/calorie-checkout.jpg" alt="Calorie tracker checkout with a 7-day free trial" width={941} height={2040} className="h-auto w-full" />
-            </div>
-            <div className="overflow-hidden rounded-[20px] ring-1 ring-white/10">
-              <Image src="/work/calorie-dashboard.jpg" alt="Calorie tracker web dashboard with subscription and weekly calories" width={1672} height={941} className="h-auto w-full" />
-            </div>
-          </div>
-        </Product>
+          body="Send a photo of your meal and get calories and macros back in seconds. Behind the chat: an AI model that reads food photos, a full backend and database, an onboarding flow, Stripe subscriptions with free trials, and a dashboard for each user."
+        />
       </div>
 
-      <Reveal className="mt-20 sm:mt-28">
+      <Reveal className="mt-20 sm:mt-24">
         <Prose>
           <Strong>Subscriptions, payments, AI, audio, chatbots, dashboards.</Strong>
           <P className="mt-4">Whatever your app needs, we have probably shipped it already.</P>
@@ -221,29 +197,23 @@ function Proof() {
   );
 }
 
-/* ---------------- 3. Benefits ---------------- */
+/* ---------------- 3. Benefits (white cards, Process icon discs) ---------------- */
 
-const BENEFITS: { q: string; a: string; img: string; alt: string; badges: string[] }[] = [
+const BENEFITS: { q: string; a: string; icon: LucideIcon }[] = [
   {
-    q: "Will it actually get built?",
-    a: "Your first working version, with the core of your app running on a real phone, is ready in 21 days. From there you get a new build every week until the full app is finished, so you always know exactly where your app stands. We take it all the way through App Store and Google Play approval. And it comes with a 100% satisfaction guarantee: we keep working until the app does everything we agreed, at no extra charge.",
-    img: "/work/benefit-built.jpg",
-    alt: "A phone beside a calendar showing 21 and weekly progress tiles",
-    badges: ["21 days", "Weekly builds", "Satisfaction guarantee"],
+    q: "How long until I have a working app?",
+    a: "In 21 days you have the first working version, with the core of your app running on a real phone. After that you get a new build every week until the full app is finished and approved on the App Store and Google Play.",
+    icon: Timer,
   },
   {
     q: "What will it cost me?",
     a: "One fixed price, agreed before we start. There is no hourly billing and there are no surprise invoices. When the project is finished, everything is yours: the code, the design and the accounts. And if a bug shows up in what we delivered, we fix it free for 30 days after launch.",
-    img: "/work/benefit-cost.jpg",
-    alt: "A quote marked Fixed price beside a closed red padlock",
-    badges: ["Fixed price", "You own the code", "30-day warranty"],
+    icon: Receipt,
   },
   {
     q: "Who will I be working with?",
     a: "One team that does the whole job: strategy, design, development and backend, for iPhone, Android and web. We take one project at a time, so your app gets our full attention, and you talk directly to the person building it.",
-    img: "/work/benefit-team.jpg",
-    alt: "One laptop and one phone showing the same app design",
-    badges: ["One project at a time", "Direct line", "iPhone, Android and web"],
+    icon: UserRound,
   },
 ];
 
@@ -252,28 +222,18 @@ function Benefits() {
     <Section tone="gray" id="benefits" labelledBy="benefits-title" decor={<Blobs spots={[{ n: 1, className: "-left-48 top-24 w-[420px]", back: true, hideOnMobile: true }]} />}>
       <Reveal>
         <Prose>
-          <SectionHead id="benefits-title" title="What you get with" accent="Cortexity." sub="Choosing who builds your app comes down to three questions. Here is how we answer each one." />
+          <SectionHead id="benefits-title" eyebrow="Benefits" title="What you get with" accent="Cortexity." sub="Choosing who builds your app comes down to three questions. Here is how we answer each one." />
         </Prose>
       </Reveal>
-      <div className="stagger mx-auto mt-10 grid max-w-[72rem] grid-cols-1 gap-6 sm:mt-12 lg:grid-cols-3">
+      <Reveal className="stagger mx-auto mt-10 grid max-w-[72rem] grid-cols-1 gap-5 sm:mt-12 lg:grid-cols-3">
         {BENEFITS.map((b) => (
-          <Reveal key={b.q} className="flex flex-col overflow-hidden rounded-[28px] border border-[#e5e5ea] bg-white shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
-            <Image src={b.img} alt={b.alt} width={1448} height={1086} sizes="(min-width: 1024px) 380px, 100vw" className="h-auto w-full" />
-            <div className="flex flex-1 flex-col p-6 text-left sm:p-8">
-              <h3 className="text-h3 text-ink">{b.q}</h3>
-              <p className="mt-4 flex-1 text-[17px] leading-[1.55] text-[#3a3a3c]">{b.a}</p>
-              <ul className="mt-6 flex flex-wrap gap-2">
-                {b.badges.map((x) => (
-                  <li key={x} className="inline-flex items-center gap-1.5 rounded-pill bg-[#f5f5f7] px-3 py-1.5 text-[13px] font-medium text-ink">
-                    <Check size={14} strokeWidth={2.5} className="text-red" aria-hidden="true" />
-                    {x}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Reveal>
+          <div key={b.q} className="group rounded-[24px] border border-[#e5e5ea] bg-white p-7 text-left shadow-[0_8px_24px_rgba(0,0,0,0.05)] sm:p-8">
+            <Symbol icon={b.icon} />
+            <h3 className="mt-6 text-[21px] font-semibold leading-[1.2] tracking-[-0.02em] text-[#1d1d1f] md:text-[24px]">{b.q}</h3>
+            <p className="mt-3 text-[16px] leading-[1.5] text-[#3a3a3c] md:text-[18px] md:leading-[1.5]">{b.a}</p>
+          </div>
         ))}
-      </div>
+      </Reveal>
     </Section>
   );
 }
@@ -316,8 +276,8 @@ function Compare() {
                 <td className="px-5 py-4 text-ink-muted">{a}</td>
                 <td className="px-5 py-4 text-ink-muted">{b}</td>
                 <td className="bg-[rgba(224,32,26,0.05)] px-5 py-4 font-semibold text-ink">
-                  <span className="inline-flex items-start gap-2">
-                    <Check size={18} strokeWidth={2.5} className="mt-[3px] shrink-0 text-red" aria-hidden="true" />
+                  <span className="inline-flex items-start gap-2.5">
+                    <Check />
                     {c}
                   </span>
                 </td>
@@ -339,7 +299,7 @@ function Compare() {
 
 const STEPS: [string, string][] = [
   ["Apply.", "Tell us what you want to build. It takes two minutes."],
-  ["We talk.", "One call. We go through your app together: what it does, who it is for and what the first version needs. You leave with a price range."],
+  ["We get on a call.", "We go through your app together: what it does, who it is for and what the first version needs. You leave with a price range."],
   ["Your proposal within 24 hours.", "A formal quote with exactly what we build, a clear development timeline and one fixed price, so you know what to expect before you commit."],
   ["Day 21: your first working version.", "The core of your app, working on a real phone. The full app follows in weekly builds."],
   ["Weekly builds.", "Every week you get a new version. You test it, we refine it."],
@@ -347,12 +307,12 @@ const STEPS: [string, string][] = [
   ["30 days of cover.", "Any bug in what we delivered, fixed free."],
 ];
 
-function Process() {
+function HowItWorks() {
   return (
     <Section tone="gray" id="process" labelledBy="process-title">
       <Reveal>
         <Prose>
-          <SectionHead id="process-title" title="From your brief to" accent="the app stores." />
+          <SectionHead id="process-title" eyebrow="How It Works" title="From your brief to" accent="the app stores." />
         </Prose>
       </Reveal>
       <Reveal className="mx-auto mt-10 max-w-[56rem] rounded-[24px] border border-[#e5e5ea] bg-white px-5 py-1 shadow-[0_8px_24px_rgba(0,0,0,0.05)] sm:mt-12 md:px-10 md:py-2">
@@ -374,63 +334,146 @@ function Process() {
   );
 }
 
-/* ---------------- 6. What's included ---------------- */
+/* ---------------- 6. What's included (original Process rows) ---------------- */
 
-const INCLUDED: [string, string][] = [
-  ["Product strategy", "What goes in the first version and what waits."],
-  ["Design", "Every screen, the full user experience and the visual identity."],
-  ["Development", "iPhone, Android and web."],
-  ["Backend", "Database, user accounts, payments, AI and integrations."],
-  ["Testing", "On real devices, every week."],
-  ["Launch", "App Store and Google Play submission and approval."],
-  ["Ownership", "Code, design and accounts handed over to you."],
+const INCLUDED: { title: string; copy: string; icon: LucideIcon }[] = [
+  { title: "Product", copy: "What goes in the first version and what waits.", icon: Lightbulb },
+  { title: "Design", copy: "Every screen, the full user experience and the visual identity.", icon: Palette },
+  { title: "Development", copy: "iPhone, Android and web.", icon: Braces },
+  { title: "Backend", copy: "Database, user accounts, payments, AI and integrations.", icon: Database },
+  { title: "Testing", copy: "On real devices, every week.", icon: FlaskConical },
+  { title: "Launch", copy: "App Store and Google Play submission and approval.", icon: Rocket },
+  { title: "Ownership", copy: "Code, design and accounts handed over to you.", icon: KeyRound },
 ];
 
 function Included() {
   return (
-    <Section tone="white" id="included" labelledBy="included-title">
+    <Section tone="white" id="included" labelledBy="included-title" decor={<Blobs spots={[{ n: 3, className: "-right-64 top-[42%] w-[520px]", back: true, hideOnMobile: true }]} />}>
       <Reveal>
         <Prose>
-          <SectionHead id="included-title" title="One team for" accent="the whole job." sub="You don’t hire a designer, then a developer, then someone for the backend. We do all of it." />
+          <SectionHead id="included-title" eyebrow="What’s Included" title="One team for" accent="the whole job." sub="You don’t hire a designer, then a developer, then someone for the backend. We do all of it." />
         </Prose>
       </Reveal>
-      <Reveal className="stagger mx-auto mt-10 grid max-w-[64rem] grid-cols-1 gap-4 sm:mt-12 sm:grid-cols-2">
-        {INCLUDED.map(([t, c]) => (
-          <div key={t} className="flex gap-4 rounded-[20px] bg-[#f5f5f7] p-5 text-left sm:p-6">
-            <Check size={22} strokeWidth={2.5} className="mt-0.5 shrink-0 text-red" aria-hidden="true" />
-            <div>
-              <h3 className="text-[18px] font-semibold text-ink">{t}</h3>
-              <p className="mt-1 text-[16px] leading-[1.5] text-[#3a3a3c]">{c}</p>
-            </div>
-          </div>
-        ))}
+      <Reveal className="stagger mx-auto mt-10 max-w-[60rem] rounded-[24px] border border-[#e5e5ea] bg-white px-5 py-1 shadow-[0_8px_24px_rgba(0,0,0,0.05)] sm:mt-12 md:px-10 md:py-2">
+        <ol className="contents">
+          {INCLUDED.map((s) => (
+            <li key={s.title} className="group border-[#e5e5ea] py-[22px] text-left md:grid md:grid-cols-[3.5rem_11rem_minmax(0,1fr)] md:items-center md:gap-x-8 md:py-[26px] lg:gap-x-10 [&+li]:border-t">
+              <div className="flex items-center gap-3 md:contents">
+                <span className="flex justify-center">
+                  <Symbol icon={s.icon} />
+                </span>
+                <h3 className="text-[21px] font-semibold leading-[1.2] tracking-[-0.02em] text-[#1d1d1f] md:text-[24px]">{s.title}</h3>
+              </div>
+              <p className="mt-2 max-w-[34rem] text-[16px] leading-[1.5] text-[#3a3a3c] md:mt-0 md:text-[19px] md:leading-[1.45]">{s.copy}</p>
+            </li>
+          ))}
+        </ol>
       </Reveal>
     </Section>
   );
 }
 
-/* ---------------- 7. Founder ---------------- */
+/* ---------------- 7. Your build (original Pricing section, no prices; iPhone, Android and web) ---------------- */
+
+const BASE = [
+  "Product strategy",
+  "Full app design",
+  "Development",
+  "Backend, database & APIs",
+  "Testing on real devices, every week",
+  "First working version in 21 days",
+  "100% satisfaction guarantee",
+  "Full ownership of the app and code",
+  "30 days of free bug fixes after launch",
+];
+
+function Plan({ name, items }: { name: string; items: string[] }) {
+  return (
+    <div className="card card-dark flex flex-col p-8 text-left sm:p-10">
+      <p className="text-small font-medium uppercase tracking-[0.12em] text-ink-muted">Your build</p>
+      <p className="mt-3 text-[clamp(2rem,1.6rem+1.6vw,2.75rem)] font-semibold leading-none tracking-[-0.03em]">{name}</p>
+      <p className="mt-2 text-small text-ink-muted">Fixed price, quoted within 24 hours of our call.</p>
+      <ul className="mt-8 flex-1 space-y-3">
+        {items.map((it) => (
+          <li key={it} className="flex gap-3 text-body text-[#c7c7cc]">
+            <Check />
+            <span>{it}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-8 flex justify-center">
+        <ApplyButton variant="red" note={null}>
+          Apply to build your app
+        </ApplyButton>
+      </div>
+    </div>
+  );
+}
+
+function Build() {
+  return (
+    <Section tone="black" id="build" labelledBy="build-title" decor={<Blobs spots={[{ n: 4, className: "-left-40 top-[38%] w-[340px]", hideOnMobile: true }]} />}>
+      <Reveal>
+        <Prose>
+          <SectionHead id="build-title" eyebrow="Your Build" title="One fixed price." accent="Start to finish." sub="Agreed before we start. No hourly rate, no separate designer, and no bill that grows every week." />
+        </Prose>
+      </Reveal>
+
+      <Reveal className="stagger mx-auto mt-12 grid max-w-[72rem] grid-cols-1 gap-5 sm:mt-14 lg:grid-cols-3">
+        <Plan name="Mobile app" items={[...BASE.slice(0, 4), "iPhone and Android", ...BASE.slice(4), "App Store and Google Play submission"]} />
+        <Plan name="Web app" items={[...BASE.slice(0, 4), "Works in any browser, desktop and mobile", ...BASE.slice(4), "Launch on your own domain"]} />
+        <Plan name="Mobile + web" items={[...BASE.slice(0, 4), "iPhone, Android and web from one backend", ...BASE.slice(4), "Store submission and web launch"]} />
+      </Reveal>
+
+      <Reveal className="mt-12 sm:mt-14">
+        <Prose>
+          <Stack>
+            <P>Before you pay anything, we go through your app on a call.</P>
+            <P>Within 24 hours you get a formal quote with the exact scope, a clear development timeline and one fixed price.</P>
+          </Stack>
+        </Prose>
+      </Reveal>
+    </Section>
+  );
+}
+
+/* ---------------- 8. Founder (original layout) ---------------- */
 
 function Founder() {
-  const paras = [
-    "I’m Joseph, founder of Cortexity.",
-    "Before I built apps for clients, I built my own. I designed them, coded them, got them approved and ran the ads that brought in the users.",
-    "So I know what you are worried about, because I have been the one paying for it: the developer who goes quiet, the invoice that keeps growing, the app that is always “almost ready”.",
-    "That is why Cortexity works differently. One project at a time. A fixed price. A working version in 21 days. And a guarantee in writing.",
+  const paras: React.ReactNode[] = [
+    <>I&rsquo;m Joseph, founder of Cortexity.</>,
+    <>
+      Before I built apps for clients, I built my own. I designed them, coded them, got them approved and ran the ads that brought in the users.
+    </>,
+    <>
+      So I know what you are worried about, because I have been the one paying for it: the developer who goes quiet, the invoice that keeps growing, the
+      app that is always &ldquo;almost ready&rdquo;.
+    </>,
+    <>That is why Cortexity works differently. One project at a time. A fixed price. A working version in 21 days. And a guarantee in writing.</>,
+    <strong key="last" className="font-semibold">When I take on your app, getting it shipped is my responsibility, not yours.</strong>,
   ];
   return (
-    <Section tone="gray" id="founder" labelledBy="founder-title">
-      <SectionHead id="founder-title" eyebrow="The Founder" title="One person responsible for" accent="getting it done." />
-      <Reveal className="mx-auto mt-12">
+    <Section tone="white" id="founder" labelledBy="founder-title">
+      <SectionHead id="founder-title" eyebrow="The Founder" title="One person responsible for" accent="getting it done." sub="You work directly with me, from the first call to the app stores." />
+      <Reveal className="mx-auto mt-12 max-w-none">
         <div className="grid grid-cols-1 items-stretch gap-6 rounded-[24px] border border-[#e5e5ea] bg-white p-4 shadow-[0_8px_24px_rgba(0,0,0,0.05)] md:grid-cols-2 md:gap-10 md:p-6 lg:gap-12 lg:p-7">
-          <div className="relative aspect-[4/5] h-full w-full overflow-hidden rounded-[20px] bg-[#f5f5f7] md:aspect-auto md:min-h-[520px]">
-            <Image src="/founder/joseph.jpg" alt="Joseph, founder of Cortexity, at his desk" fill sizes="(min-width: 768px) 46vw, 100vw" quality={88} className="object-cover object-[55%_30%]" />
+          <div className="relative aspect-[4/5] h-full w-full overflow-hidden rounded-[20px] bg-[#f5f5f7] md:aspect-auto md:min-h-[560px] lg:min-h-[640px]">
+            <Image
+              src="/founder/joseph.jpg"
+              alt="Joseph, founder of Cortexity, at his desk"
+              fill
+              sizes="(min-width: 1280px) 560px, (min-width: 768px) 46vw, 100vw"
+              quality={88}
+              className="object-cover object-[55%_30%]"
+            />
           </div>
-          <div className="flex flex-col justify-center space-y-5 px-2 text-left text-[19px] leading-[1.5] text-[#1d1d1f] md:space-y-6 md:px-4 md:text-[21px]">
-            {paras.map((p) => (
-              <p key={p}>{p}</p>
+          <div className="flex flex-col justify-center space-y-5 px-2 text-left text-[19px] leading-[1.5] text-[#1d1d1f] md:space-y-6 md:px-4 md:text-[21px] lg:px-6 lg:text-[22px]">
+            {paras.map((p, i) => (
+              <p key={i} className="relative pl-[22px] md:pl-6">
+                <span aria-hidden="true" className="absolute left-0 top-[0.6em] h-1.5 w-1.5 rounded-full bg-[#e0201a] md:top-[0.55em] md:h-2 md:w-2" />
+                {p}
+              </p>
             ))}
-            <p className="font-semibold">When I take on your app, getting it shipped is my responsibility, not yours.</p>
           </div>
         </div>
       </Reveal>
@@ -438,7 +481,7 @@ function Founder() {
   );
 }
 
-/* ---------------- 8. Who it's for ---------------- */
+/* ---------------- 9. Who it's for ---------------- */
 
 function Fit() {
   const yes = [
@@ -449,31 +492,31 @@ function Fit() {
   ];
   const no = ["You are still deciding whether you want an app at all.", "You are looking for the cheapest quote you can find."];
   return (
-    <Section tone="white" id="fit" labelledBy="fit-title">
+    <Section tone="gray" id="fit" labelledBy="fit-title">
       <Reveal>
         <Prose>
-          <SectionHead id="fit-title" title="This is for people who are" accent="ready to build." />
+          <SectionHead id="fit-title" eyebrow="Who It’s For" title="This is for people who are" accent="ready to build." />
         </Prose>
       </Reveal>
-      <Reveal className="mx-auto mt-10 grid max-w-[64rem] grid-cols-1 gap-6 text-left sm:mt-12 md:grid-cols-2">
-        <div className="rounded-[24px] bg-[#f5f5f7] p-6 sm:p-8">
-          <h3 className="text-h3">Cortexity is for you if:</h3>
-          <ul className="mt-5 space-y-4">
+      <Reveal className="stagger mx-auto mt-10 grid max-w-[64rem] grid-cols-1 gap-5 text-left sm:mt-12 md:grid-cols-2">
+        <div className="rounded-[24px] border border-[#e5e5ea] bg-white p-7 shadow-[0_8px_24px_rgba(0,0,0,0.05)] sm:p-9">
+          <h3 className="text-[21px] font-semibold tracking-[-0.02em] text-[#1d1d1f] md:text-[24px]">Cortexity is for you if:</h3>
+          <ul className="mt-6 space-y-4">
             {yes.map((x) => (
               <li key={x} className="flex gap-3 text-[17px] leading-[1.5] text-[#3a3a3c]">
-                <Check size={20} strokeWidth={2.5} className="mt-0.5 shrink-0 text-red" aria-hidden="true" />
-                {x}
+                <Check />
+                <span>{x}</span>
               </li>
             ))}
           </ul>
         </div>
-        <div className="rounded-[24px] border border-[#e5e5ea] p-6 sm:p-8">
-          <h3 className="text-h3">It is not for you if:</h3>
-          <ul className="mt-5 space-y-4">
+        <div className="rounded-[24px] border border-[#e5e5ea] bg-white p-7 shadow-[0_8px_24px_rgba(0,0,0,0.05)] sm:p-9">
+          <h3 className="text-[21px] font-semibold tracking-[-0.02em] text-[#1d1d1f] md:text-[24px]">It is not for you if:</h3>
+          <ul className="mt-6 space-y-4">
             {no.map((x) => (
               <li key={x} className="flex gap-3 text-[17px] leading-[1.5] text-ink-muted">
-                <span aria-hidden="true" className="mt-[11px] h-0.5 w-3 shrink-0 bg-[#c7c7cc]" />
-                {x}
+                <Cross />
+                <span>{x}</span>
               </li>
             ))}
           </ul>
@@ -488,7 +531,7 @@ function Fit() {
   );
 }
 
-/* ---------------- 9. FAQ ---------------- */
+/* ---------------- 10. FAQ ---------------- */
 
 const FAQ: [string, string][] = [
   ["How much does it cost?", "Every app is different, so we give you one fixed price after a short call. Once it is agreed, it does not change."],
@@ -506,7 +549,7 @@ const FAQ: [string, string][] = [
 
 function Questions() {
   return (
-    <Section tone="gray" id="faq" labelledBy="faq-title">
+    <Section tone="white" id="faq" labelledBy="faq-title">
       <Reveal>
         <Prose>
           <SectionHead id="faq-title" eyebrow="FAQ" title="Questions you" accent="probably have." />
@@ -525,7 +568,7 @@ function Questions() {
   );
 }
 
-/* ---------------- 10. Closing ---------------- */
+/* ---------------- 11. Closing (original layout) ---------------- */
 
 function Closing() {
   return (
@@ -549,16 +592,16 @@ function Closing() {
         <Reveal>
           <Prose>
             <SectionHead id="closing-title" title="21 days from now, you could be" accent="holding your app." />
-            <Lead className="mx-auto mt-8 max-w-prose text-ink-muted">
-              Tell us what you want to build. If it is a fit, we will talk this week and you will have a fixed price straight after.
-            </Lead>
+            <Stack className="mt-10 sm:mt-12">
+              <P>Tell us what you want to build. If it is a fit, we will talk this week and you will have a fixed price straight after.</P>
+            </Stack>
             <Badges className="mt-10" />
             <div id="final-cta" className="mt-10 flex justify-center">
               <ApplyButton size="lg" variant="red" note={null}>
                 Apply to build your app
               </ApplyButton>
             </div>
-            <Muted className="mt-5">We take one project at a time.</Muted>
+            <Muted className="mt-5 italic">We take one project at a time.</Muted>
           </Prose>
         </Reveal>
       </Section>
@@ -574,11 +617,12 @@ export function Home() {
       <Header />
       <main id="main" data-avatar="home">
         <Hero />
-        <Proof />
+        <Work />
         <Benefits />
         <Compare />
-        <Process />
+        <HowItWorks />
         <Included />
+        <Build />
         <Founder />
         <Fit />
         <Questions />

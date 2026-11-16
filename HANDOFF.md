@@ -31,8 +31,8 @@ Owner: Joseph (Cortexity). Joseph makes all decisions; confirm before changing c
 3. ~~New wording~~ APPROVED: Pixelogram line, build-card platform lines, quote line, "CORTEXITY" on seal.
 3b. DONE: Closing = trust close: dark seal → "Built right, or we keep working." → 2 guarantee lines → ticks → Apply. Seal % and stars white; build-section seal 222px.
 4. ~~Apps Script redeploy~~ DONE 16 Nov: Code.gs replaced with google/apps-script.gs @549968f, deployment updated to Version 11 (same web app URL). reminders.gs in the editor (42 lines) differs from repo google/reminders.gs (73 lines); untouched.
-5. Test on preview: one qualified + one unqualified application; check sheet rows, both emails, Meta events (Schedule only for qualified).
-6. Go live (merge to master) only on Joseph's OK.
+5. ~~Preview test~~ DONE 16 Nov: Test Qualified + Test Unqualified (booked 30 Nov 14:00/15:00 on Calendly, cancel them). v3 rows correct; CAPI: Lead x2, Schedule only for qualified.
+6. ~~Go live~~ DONE 16 Nov: merged to master on Joseph's OK.
 
 ## Core selling points (for upcoming ad creatives)
 1. Working first version in 21 days.

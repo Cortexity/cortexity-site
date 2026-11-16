@@ -12,7 +12,7 @@
  *   3. Done. To test without waiting, run `testReminderScan` (logs what it would send, sends nothing).
  */
 
-var REMINDER_TITLE = "Cortexity Intro Call"; // matches the Calendly event name (case-insensitive "contains")
+var REMINDER_TITLE = "Cortexity Intro Call"; // Calendly event type name, matched in the title or description (case-insensitive)
 var REMINDER_FROM_NAME = "Joseph at Cortexity";
 var REMINDER_WINDOWS = [
   { tag: "cx_rem_24h", label: "tomorrow" },
@@ -37,8 +37,11 @@ function scan_(dryRun) {
   var events = CalendarApp.getDefaultCalendar().getEvents(now, until);
 
   events.forEach(function (ev) {
-    if (ev.getTitle().toLowerCase().indexOf(REMINDER_TITLE.toLowerCase()) === -1) return;
+    // Calendly titles the event "<Guest> and Joseph Selwan"; the event type name is in the description.
+    var text = (ev.getTitle() + "\n" + (ev.getDescription() || "")).toLowerCase();
+    if (text.indexOf(REMINDER_TITLE.toLowerCase()) === -1) return;
     var minsAway = (ev.getStartTime().getTime() - now.getTime()) / 60000;
+    if (dryRun) Logger.log("[dry run] found: " + ev.getTitle() + " at " + ev.getStartTime() + " (" + Math.round(minsAway) + " min away)");
 
     // 1h reminder: call starts within the next hour. 24h reminder: call starts 23–24h from now
     // (calls booked less than 23h ahead skip it; they only just got the invite).

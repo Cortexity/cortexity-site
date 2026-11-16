@@ -30,7 +30,7 @@ Owner: Joseph (Cortexity). Joseph makes all decisions; confirm before changing c
 2. ~~Benefit headings~~ DONE: "First version ready in 21 days." / "One fixed price. 100% satisfaction guaranteed." / "Built by the founder himself.", sub line dropped, cards = grey lead line + 3 ticks.
 3. ~~New wording~~ APPROVED: Pixelogram line, build-card platform lines, quote line, "CORTEXITY" on seal.
 3b. DONE: Closing = trust close: dark seal → "Built right, or we keep working." → 2 guarantee lines → ticks → Apply. Seal % and stars white; build-section seal 222px.
-4. Joseph redeploys the Apps Script (paste file → Deploy → Manage deployments → Edit → New version). Must happen BEFORE go-live, or v3 rows land in the legacy tab.
+4. ~~Apps Script redeploy~~ DONE 16 Nov: Code.gs replaced with google/apps-script.gs @549968f, deployment updated to Version 11 (same web app URL). reminders.gs in the editor (42 lines) differs from repo google/reminders.gs (73 lines); untouched.
 5. Test on preview: one qualified + one unqualified application; check sheet rows, both emails, Meta events (Schedule only for qualified).
 6. Go live (merge to master) only on Joseph's OK.
 

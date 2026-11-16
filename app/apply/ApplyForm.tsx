@@ -109,11 +109,15 @@ function Continue({ onClick }: { onClick: () => void }) {
   );
 }
 
-/** Back button + "Step n of 9" + a segmented bar. JS only. */
+/** Progress bar head start: the first question already shows this much filled. */
+const HEAD_START = 15;
+
+/** Back button + one continuous bar (no step count shown). JS only. */
 function Progress({ step, onBack }: { step: Step; onBack?: () => void }) {
+  const pct = Math.round(HEAD_START + ((step - 1) / (STEPS - 1)) * (100 - HEAD_START));
   return (
     <div className="js-only mb-5 sm:mb-6">
-      <div className="flex h-10 items-center justify-between">
+      <div className="flex h-10 items-center">
         {onBack ? (
           <button
             type="button"
@@ -125,19 +129,17 @@ function Progress({ step, onBack }: { step: Step; onBack?: () => void }) {
             </svg>
             Back
           </button>
-        ) : (
-          <span />
-        )}
-        <span className="text-[13px] font-medium uppercase tracking-[0.14em] text-ink-muted" aria-live="polite">
-          Step {step} of {STEPS}
-        </span>
+        ) : null}
       </div>
-      <div className="mt-3 grid gap-1" style={{ gridTemplateColumns: `repeat(${STEPS}, minmax(0, 1fr))` }} aria-hidden="true">
-        {Array.from({ length: STEPS }, (_, i) => (
-          <span key={i} className="h-1 overflow-hidden rounded-full bg-[#e5e5ea]">
-            <span className={`block h-full rounded-full bg-red transition-[width] duration-500 ease-out ${i < step ? "w-full" : "w-0"}`} />
-          </span>
-        ))}
+      <div
+        className="mt-3 h-1 overflow-hidden rounded-full bg-[#e5e5ea]"
+        role="progressbar"
+        aria-label="Application progress"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={pct}
+      >
+        <span className="block h-full rounded-full bg-red transition-[width] duration-500 ease-out" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );

@@ -91,7 +91,7 @@ function Hero() {
       <div className="relative z-10 mx-auto max-w-[60rem]">
         <SectionHead level={1} id="hero-title" title="Your app’s first version," accent="working in 21 days." />
         <div className="mx-auto mt-6 max-w-prose sm:mt-8">
-          <Lead className="text-ink-muted">One fixed price. A new build every week. 100% satisfaction guaranteed.</Lead>
+          <Lead className="text-ink-muted">One fixed price. 100% satisfaction guaranteed.</Lead>
         </div>
         <div id="hero-cta" className="mt-8 flex justify-center sm:mt-10">
           <ApplyButton size="lg" variant="red" note={null}>
@@ -212,7 +212,7 @@ const BENEFITS: { q: string; a: string; icon: LucideIcon }[] = [
   },
   {
     q: "Who will I be working with?",
-    a: "One team that does the whole job: strategy, design, development and backend, for iPhone, Android and web. We take one project at a time, so your app gets our full attention, and you talk directly to the person building it.",
+    a: "The founder himself. Joseph designs and builds your app, and he is the one you talk to, from the first call to launch. We take one project at a time, so yours gets our full attention.",
     icon: UserRound,
   },
 ];
@@ -245,7 +245,7 @@ const ROWS: [string, string, string, string][] = [
   ["Price", "Hourly, and it grows", "Cheap, then the extras start", "Fixed before we start"],
   ["Who you talk to", "An account manager", "Whoever replies", "The person building it"],
   ["Attention", "One of 10+ clients", "Juggling other jobs", "One project at a time"],
-  ["If you’re not happy with the result", "You pay extra for the fixes", "They disappear", "We keep working until you are, at no extra charge"],
+  ["If you’re not happy with the result", "You pay extra for the fixes", "They disappear", "We keep working until you are 100% satisfied, at no extra charge"],
   ["Who owns the code", "Often locked in", "Unclear", "100% yours"],
   ["After launch", "A new contract", "Gone", "30 days of free bug fixes"],
   ["Have launched their own apps", "Rarely", "No", "Yes"],

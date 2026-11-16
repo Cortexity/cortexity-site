@@ -215,7 +215,7 @@ const BENEFITS: { q: string; lead: string; items: string[]; icon: LucideIcon }[]
   },
   {
     q: "Built by the founder himself.",
-    lead: "Joseph designs and builds your app.",
+    lead: "No juniors, no outsourcing.",
     items: ["You talk to him directly, from the first call to launch", "One project at a time", "Your app gets our full attention"],
     icon: UserRound,
   },
@@ -272,27 +272,27 @@ function Compare() {
         </Prose>
       </Reveal>
       <Reveal className="mx-auto mt-10 max-w-[64rem] overflow-x-auto sm:mt-12">
-        <table className="w-full min-w-[640px] border-separate border-spacing-0 overflow-hidden rounded-[24px] border border-[#e5e5ea] text-left text-[15px] sm:text-[16px]">
+        <table className="w-full min-w-[450px] table-fixed border-separate border-spacing-0 overflow-hidden rounded-[24px] border border-[#e5e5ea] text-left text-[14px] sm:text-[16px]">
           <thead>
             <tr className="bg-[#f5f5f7]">
-              <th scope="col" className="w-[24%] px-5 py-4" />
-              <th scope="col" className="px-5 py-4 font-semibold text-ink-muted">Typical agency</th>
-              <th scope="col" className="px-5 py-4 font-semibold text-ink-muted">Freelancer or offshore team</th>
-              <th scope="col" className="bg-red px-5 py-4 font-semibold text-white">Cortexity</th>
+              <th scope="col" className="w-[25%] px-3 py-4 sm:px-5" />
+              <th scope="col" className="w-[25%] bg-red px-3 py-4 font-semibold text-white sm:px-5">Cortexity</th>
+              <th scope="col" className="w-[25%] px-3 py-4 font-semibold text-ink-muted sm:px-5">Typical agency</th>
+              <th scope="col" className="w-[25%] px-3 py-4 font-semibold text-ink-muted sm:px-5">Freelancer or offshore team</th>
             </tr>
           </thead>
           <tbody>
             {ROWS.map(([label, a, b, c]) => (
               <tr key={label} className="[&>*]:border-t [&>*]:border-[#e5e5ea]">
-                <th scope="row" className="px-5 py-4 font-semibold text-ink">{label}</th>
-                <td className="px-5 py-4 text-ink-muted">{a}</td>
-                <td className="px-5 py-4 text-ink-muted">{b}</td>
-                <td className="bg-[rgba(224,32,26,0.05)] px-5 py-4 font-semibold text-ink">
-                  <span className="inline-flex items-start gap-2.5">
+                <th scope="row" className="px-3 py-4 font-semibold text-ink sm:px-5">{label}</th>
+                <td className="bg-[rgba(224,32,26,0.05)] px-3 py-4 font-semibold text-ink sm:px-5">
+                  <span className="inline-flex items-start gap-2">
                     <Check />
                     {c}
                   </span>
                 </td>
+                <td className="px-3 py-4 text-ink-muted sm:px-5">{a}</td>
+                <td className="px-3 py-4 text-ink-muted sm:px-5">{b}</td>
               </tr>
             ))}
           </tbody>
@@ -547,15 +547,15 @@ function Fit() {
 /* ---------------- 10. FAQ ---------------- */
 
 const FAQ: [string, string][] = [
-  ["How much does it cost?", "Every app is different, so we give you one fixed price after a short call. Once it is agreed, it does not change."],
-  ["What happens on the call?", "We go through your app together: what it does, who it is for and what the first version needs. You get a price range on the call. Within 24 hours you receive a formal quote with the exact scope, a clear development timeline and one fixed price."],
+  ["How much does it cost?", "Every app is different, so we give you a price range during the call. Within 24 hours you receive a formal quote with a clear development timeline and one fixed price. Once you accept it, the price does not change."],
+  ["What happens on the call?", "We go through your app together: what it does, who it is for and what the first version needs. Then we agree on the next steps."],
   ["What exactly do I get in 21 days?", "A first working version of your app: real screens and real features you can use and show people. From there you get a new build every week until launch."],
   ["How long until the full app is live?", "It depends on the size of the app. You get the full timeline, with dates, in your proposal before you commit to anything."],
   ["What does the satisfaction guarantee mean?", "We keep working until the app does everything we agreed, at no extra charge."],
   ["Do I own the code?", "Yes. The code, the design and every account are 100% yours."],
   ["Do you build for iPhone and Android?", "Yes, and web apps too. Tell us which you need when you apply."],
   ["Can I change things during the build?", "Yes. You see a new version every week, so you can react to the real app, not to a document."],
-  ["What happens after launch?", "Any bug in what we delivered is fixed free for 30 days. If you want new features after that, we plan the next phase together."],
+  ["What happens after launch?", "Any bug in what we delivered is fixed free for 30 days. If you want new features after that, they are priced separately."],
   ["I already have designs or a prototype. Can you work from those?", "Yes. That usually makes the build faster."],
   ["Will you sign an NDA?", "Yes."],
 ];

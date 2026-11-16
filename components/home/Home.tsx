@@ -272,27 +272,27 @@ function Compare() {
         </Prose>
       </Reveal>
       <Reveal className="mx-auto mt-10 max-w-[64rem] overflow-x-auto sm:mt-12">
-        <table className="w-full min-w-[450px] table-fixed border-separate border-spacing-0 overflow-hidden rounded-[24px] border border-[#e5e5ea] text-left text-[14px] sm:text-[16px]">
+        <table className="w-full md:min-w-[640px] border-separate border-spacing-0 overflow-hidden rounded-[24px] border border-[#e5e5ea] text-left text-[15px] sm:text-[16px]">
           <thead>
             <tr className="bg-[#f5f5f7]">
-              <th scope="col" className="w-[25%] px-3 py-4 sm:px-5" />
-              <th scope="col" className="w-[25%] bg-red px-3 py-4 font-semibold text-white sm:px-5">Cortexity</th>
-              <th scope="col" className="w-[25%] px-3 py-4 font-semibold text-ink-muted sm:px-5">Typical agency</th>
-              <th scope="col" className="w-[25%] px-3 py-4 font-semibold text-ink-muted sm:px-5">Freelancer or offshore team</th>
+              <th scope="col" className="w-[24%] px-5 py-4" />
+              <th scope="col" className="px-5 py-4 font-semibold text-ink-muted">Typical agency</th>
+              <th scope="col" className="hidden px-5 py-4 font-semibold text-ink-muted md:table-cell">Freelancer or offshore team</th>
+              <th scope="col" className="bg-red px-5 py-4 font-semibold text-white">Cortexity</th>
             </tr>
           </thead>
           <tbody>
             {ROWS.map(([label, a, b, c]) => (
               <tr key={label} className="[&>*]:border-t [&>*]:border-[#e5e5ea]">
-                <th scope="row" className="px-3 py-4 font-semibold text-ink sm:px-5">{label}</th>
-                <td className="bg-[rgba(224,32,26,0.05)] px-3 py-4 font-semibold text-ink sm:px-5">
-                  <span className="inline-flex items-start gap-2">
+                <th scope="row" className="px-5 py-4 font-semibold text-ink">{label}</th>
+                <td className="px-5 py-4 text-ink-muted">{a}</td>
+                <td className="hidden px-5 py-4 text-ink-muted md:table-cell">{b}</td>
+                <td className="bg-[rgba(224,32,26,0.05)] px-5 py-4 font-semibold text-ink">
+                  <span className="inline-flex items-start gap-2.5">
                     <Check />
                     {c}
                   </span>
                 </td>
-                <td className="px-3 py-4 text-ink-muted sm:px-5">{a}</td>
-                <td className="px-3 py-4 text-ink-muted sm:px-5">{b}</td>
               </tr>
             ))}
           </tbody>

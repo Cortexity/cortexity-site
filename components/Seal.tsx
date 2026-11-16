@@ -83,7 +83,7 @@ export function Seal({
         </text>
       </g>
       {/* Stars at 9 and 3 o'clock */}
-      <g fill={RED}>
+      <g fill={ink}>
         <path d={star(33.5, 100, 4.5)} />
         <path d={star(166.5, 100, 4.5)} />
       </g>
@@ -99,7 +99,7 @@ export function Seal({
         fontWeight="700"
         letterSpacing="-1.2"
       >
-        100<tspan fill={RED}>%</tspan>
+        100<tspan fill={ink}>%</tspan>
       </text>
       <line x1="76" y1="121" x2="124" y2="121" stroke={RED} strokeWidth="1.25" />
       <text

@@ -200,20 +200,23 @@ function Work() {
 
 /* ---------------- 3. Benefits (white cards, Process icon discs) ---------------- */
 
-const BENEFITS: { q: string; a: string; icon: LucideIcon }[] = [
+const BENEFITS: { q: string; lead: string; items: string[]; icon: LucideIcon }[] = [
   {
-    q: "How long until I have a working app?",
-    a: "In 21 days you have the first working version, with the core of your app running on a real phone. After that you get a new build every week until the full app is finished and approved on the App Store and Google Play.",
+    q: "First version ready in 21 days.",
+    lead: "The core of your app, running on a real phone.",
+    items: ["A new build every week after that", "You test every build on your own phone", "Finished when it’s approved on the App Store and Google Play"],
     icon: Timer,
   },
   {
-    q: "What will it cost me?",
-    a: "One fixed price, agreed before we start. There is no hourly billing and there are no surprise invoices. When the project is finished, everything is yours: the code, the design and the accounts. And if a bug shows up in what we delivered, we fix it free for 30 days after launch.",
+    q: "One fixed price. 100% satisfaction guaranteed.",
+    lead: "Agreed before we start.",
+    items: ["No hourly billing, no surprise invoices", "You own the code, the design and the accounts", "Free bug fixes for 30 days after launch"],
     icon: Receipt,
   },
   {
-    q: "Who will I be working with?",
-    a: "The founder himself. Joseph designs and builds your app, and he is the one you talk to, from the first call to launch. We take one project at a time, so yours gets our full attention.",
+    q: "Built by the founder himself.",
+    lead: "Joseph designs and builds your app.",
+    items: ["You talk to him directly, from the first call to launch", "One project at a time", "Your app gets our full attention"],
     icon: UserRound,
   },
 ];
@@ -223,7 +226,7 @@ function Benefits() {
     <Section tone="gray" id="benefits" labelledBy="benefits-title" decor={<Blobs spots={[{ n: 1, className: "-left-48 top-24 w-[420px]", back: true, hideOnMobile: true }]} />}>
       <Reveal>
         <Prose>
-          <SectionHead id="benefits-title" eyebrow="Benefits" title="What you get with" accent="Cortexity." sub="Choosing who builds your app comes down to three questions. Here is how we answer each one." />
+          <SectionHead id="benefits-title" eyebrow="Benefits" title="What you get with" accent="Cortexity." />
         </Prose>
       </Reveal>
       <Reveal className="stagger mx-auto mt-10 grid max-w-[72rem] grid-cols-1 gap-5 sm:mt-12 lg:grid-cols-3">
@@ -231,7 +234,15 @@ function Benefits() {
           <div key={b.q} className="group rounded-[24px] border border-[#e5e5ea] bg-white p-7 text-left shadow-[0_8px_24px_rgba(0,0,0,0.05)] sm:p-8">
             <Symbol icon={b.icon} />
             <h3 className="mt-6 text-[21px] font-semibold leading-[1.2] tracking-[-0.02em] text-[#1d1d1f] md:text-[24px]">{b.q}</h3>
-            <p className="mt-3 text-[16px] leading-[1.5] text-[#3a3a3c] md:text-[18px] md:leading-[1.5]">{b.a}</p>
+            <p className="mt-3 text-[16px] leading-[1.5] text-ink-muted md:text-[18px] md:leading-[1.5]">{b.lead}</p>
+            <ul className="mt-6 space-y-3">
+              {b.items.map((it) => (
+                <li key={it} className="flex gap-3 text-[16px] leading-[1.45] text-[#3a3a3c] md:text-[17px]">
+                  <Check />
+                  <span>{it}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         ))}
       </Reveal>
@@ -428,7 +439,7 @@ function Build() {
 
       <Reveal className="mt-12 sm:mt-14">
         <Prose>
-          <Seal id="build" dark className="mx-auto mb-10 w-[132px] sm:w-[148px]" />
+          <Seal id="build" dark className="mx-auto mb-12 w-[160px] sm:w-[222px]" />
           <Stack>
             <P>Before you pay anything, we go through your app on a call.</P>
             <P>Within 24 hours you get a formal quote with the exact scope, a clear development timeline and one fixed price.</P>
@@ -593,13 +604,14 @@ function Closing() {
       >
         <Reveal>
           <Prose>
-            <SectionHead id="closing-title" title="21 days from now, you could be" accent="holding your app." />
+            <Seal id="closing" dark className="mx-auto mb-10 w-[176px] drop-shadow-[0_20px_40px_rgba(0,0,0,0.18)] sm:mb-12 sm:w-[220px]" />
+            <SectionHead id="closing-title" title="Built right," accent="or we keep working." />
             <Stack className="mt-10 sm:mt-12">
-              <P>Tell us what you want to build. If it is a fit, we will talk this week and you will have a fixed price straight after.</P>
+              <P>Every app we build is covered by our 100% satisfaction guarantee.</P>
+              <P>If anything we agreed on isn’t right, we keep working until it is, at no extra charge.</P>
             </Stack>
             <Badges className="mt-10" />
-            <div id="final-cta" className="mt-10 flex flex-col items-center justify-center gap-8 md:flex-row md:gap-10">
-              <Seal id="closing" className="w-[132px] shrink-0 sm:w-[148px]" />
+            <div id="final-cta" className="mt-10 flex justify-center">
               <ApplyButton size="lg" variant="red" note={null}>
                 Apply to build your app
               </ApplyButton>

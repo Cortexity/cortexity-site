@@ -27,8 +27,9 @@ Owner: Joseph (Cortexity). Joseph makes all decisions; confirm before changing c
 
 ## Open, in order
 1. ~~**Seal**~~ DONE (0d354dd): `components/Seal.tsx`, pure SVG, `dark` prop for black bands. Under the cards in "Your build"; beside the final Apply button in Closing (stacked above it on phones). Centre says "100% / CORTEXITY": awaiting Joseph's OK on the "CORTEXITY" line.
-2. **Benefit headings** (proposed, awaiting Joseph's OK): "Working in 21 days." / "One fixed price. 100% satisfaction guaranteed." / "Built by the founder himself." instead of the question headings.
-3. Joseph to confirm new wording not in the doc: Pixelogram line, build-card platform lines, "Fixed price, quoted within 24 hours of our call."
+2. ~~Benefit headings~~ DONE: "First version ready in 21 days." / "One fixed price. 100% satisfaction guaranteed." / "Built by the founder himself.", sub line dropped, cards = grey lead line + 3 ticks.
+3. ~~New wording~~ APPROVED: Pixelogram line, build-card platform lines, quote line, "CORTEXITY" on seal.
+3b. DONE: Closing = trust close: dark seal → "Built right, or we keep working." → 2 guarantee lines → ticks → Apply. Seal % and stars white; build-section seal 222px.
 4. Joseph redeploys the Apps Script (paste file → Deploy → Manage deployments → Edit → New version). Must happen BEFORE go-live, or v3 rows land in the legacy tab.
 5. Test on preview: one qualified + one unqualified application; check sheet rows, both emails, Meta events (Schedule only for qualified).
 6. Go live (merge to master) only on Joseph's OK.

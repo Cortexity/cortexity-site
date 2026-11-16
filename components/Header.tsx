@@ -5,19 +5,29 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Wordmark } from "./Wordmark";
 
-const LINKS = [
+/** Avatar pages (/founders, /fitness, …) share one section set; the home page has its own. */
+const AVATAR_LINKS = [
   { id: "process", label: "Process" },
   { id: "work", label: "Work" },
   { id: "pricing", label: "Pricing" },
   { id: "faq", label: "FAQ" },
 ];
+const HOME_LINKS = [
+  { id: "work", label: "Work" },
+  { id: "benefits", label: "Benefits" },
+  { id: "process", label: "Process" },
+  { id: "faq", label: "FAQ" },
+];
+const AVATAR_PAGES = ["/founders", "/fitness", "/creators", "/tutors", "/salons", "/brands"];
 
 /** Floating pill nav with section links; the active link is tracked while scrolling. */
 export function Header() {
   const [active, setActive] = useState<string | null>(null);
   // Every landing page (/ and the avatar pages) has the same sections, so its links stay on the page.
   const path = usePathname();
-  const home = path === "/" || ["/fitness", "/creators", "/tutors", "/salons", "/brands"].includes(path);
+  const avatarPage = AVATAR_PAGES.includes(path);
+  const home = path === "/" || avatarPage;
+  const LINKS = avatarPage ? AVATAR_LINKS : HOME_LINKS;
 
   useEffect(() => {
     const els = LINKS.map((l) => document.getElementById(l.id)).filter(Boolean) as HTMLElement[];
@@ -41,7 +51,7 @@ export function Header() {
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, []);
+  }, [LINKS]);
 
   return (
     <header className="fixed inset-x-3 top-3 z-50 md:inset-x-6 md:top-6">

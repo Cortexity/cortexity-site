@@ -11,30 +11,40 @@ import { track } from "@/lib/pixel";
 import { reportBooking, submitApplication } from "./actions";
 import {
   bookingEventId,
+  BUDGET,
   CALENDLY_URL,
   CONTACT_EMAIL,
   DETAILS,
   findErrors,
+  FORM_STEPS,
   IDEA,
+  LIST_SEP,
   MESSAGES,
   OCCUPATION,
+  PLATFORMS,
+  SIMILAR,
+  STAGE,
+  START,
   STEP_OF,
   validateField,
   type FieldName,
 } from "./fields";
 
 /**
- * /apply as four screens: 1 idea → 2 occupation → 3 contact (submits: sheet row + Lead) → 4 Calendly
- * (booking: Booked = Yes + Schedule).
+ * /apply, one question per screen: 1 app type → 2 similar apps → 3 stage → 4 platforms → 5 start →
+ * 6 budget → 7 occupation → 8 contact (submits: sheet row + Lead) → 9 Calendly
+ * (booking: Booked = Yes; Schedule to Meta only when qualified).
  *
- * All three form screens are always in the DOM. With JavaScript only the active one is shown
+ * All form screens are always in the DOM. With JavaScript only the active one is shown
  * (`html.js .apply-step:not([data-active])` is hidden in globals.css); without it they stack and
  * the form posts natively to /api/apply, which redirects to /apply?sent=1 with a Calendly link.
+ * Single-choice screens move on as soon as an option is tapped.
  */
 
-const STEPS = 4;
+const CAL = FORM_STEPS + 1;
+const STEPS = CAL;
 const NOTE = "I personally review every application.";
-type Step = 1 | 2 | 3 | 4;
+type Step = number;
 
 /* ---------- primitives ---------- */
 
@@ -88,7 +98,18 @@ function Examples({ lines }: { lines: readonly string[] }) {
   );
 }
 
-/** Back button + "Step n of 4" + a segmented bar. JS only. */
+/** JS-only Continue button under a question screen. */
+function Continue({ onClick }: { onClick: () => void }) {
+  return (
+    <div className="js-only mt-8 flex justify-end">
+      <button type="button" onClick={onClick} className={PRIMARY}>
+        Continue <Arrow />
+      </button>
+    </div>
+  );
+}
+
+/** Back button + "Step n of 9" + a segmented bar. JS only. */
 function Progress({ step, onBack }: { step: Step; onBack?: () => void }) {
   return (
     <div className="js-only mb-5 sm:mb-6">
@@ -111,13 +132,48 @@ function Progress({ step, onBack }: { step: Step; onBack?: () => void }) {
           Step {step} of {STEPS}
         </span>
       </div>
-      <div className="mt-3 grid grid-cols-4 gap-1.5" aria-hidden="true">
+      <div className="mt-3 grid gap-1" style={{ gridTemplateColumns: `repeat(${STEPS}, minmax(0, 1fr))` }} aria-hidden="true">
         {Array.from({ length: STEPS }, (_, i) => (
           <span key={i} className="h-1 overflow-hidden rounded-full bg-[#e5e5ea]">
             <span className={`block h-full rounded-full bg-red transition-[width] duration-500 ease-out ${i < step ? "w-full" : "w-0"}`} />
           </span>
         ))}
       </div>
+    </div>
+  );
+}
+
+/* ---------- choice cards ---------- */
+
+/** Large tappable option cards: radios (single choice) or checkboxes (multi). Native inputs, so they post without JS. */
+function Choices({
+  name,
+  options,
+  multiple = false,
+  onPick,
+}: {
+  name: string;
+  options: readonly string[];
+  multiple?: boolean;
+  onPick?: () => void;
+}) {
+  return (
+    <div className="mt-6 grid grid-cols-1 gap-3" role={multiple ? "group" : "radiogroup"}>
+      {options.map((o) => (
+        <label
+          key={o}
+          className="flex cursor-pointer items-center gap-4 rounded-[16px] border border-[#e5e5ea] bg-[#f5f5f7] px-5 py-4 text-[17px] font-medium text-ink transition-colors hover:border-[#c7c7cc] has-[:checked]:border-red has-[:checked]:bg-[rgba(224,32,26,0.06)]"
+        >
+          <input
+            type={multiple ? "checkbox" : "radio"}
+            name={name}
+            value={o}
+            onChange={onPick}
+            className={`h-5 w-5 shrink-0 accent-[#e0201a] ${multiple ? "rounded" : ""}`}
+          />
+          {o}
+        </label>
+      ))}
     </div>
   );
 }
@@ -224,7 +280,15 @@ export function ApplyForm({
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
   const [phone, setPhone] = useState<string | undefined>();
   const [failed, setFailed] = useState(initialError === "send");
-  const [lead, setLead] = useState<{ eventId: string; bookingToken: string; firstName: string; lastName: string; email: string; whatsapp: string } | null>(null);
+  const [lead, setLead] = useState<{
+    eventId: string;
+    bookingToken: string;
+    qualified: boolean;
+    firstName: string;
+    lastName: string;
+    email: string;
+    whatsapp: string;
+  } | null>(null);
   const [booked, setBooked] = useState(false);
   const [pending, startTransition] = useTransition();
   const country: Country = isSupportedCountry(defaultCountry) ? (defaultCountry as Country) : "US";
@@ -253,7 +317,7 @@ export function ApplyForm({
     const onPop = (e: PopStateEvent) => {
       const s = (e.state?.applyStep ?? 1) as Step;
       // After submitting, the form screens are done: stay on the calendar.
-      setStep((cur) => (cur === 4 ? 4 : s >= 1 && s <= 3 ? s : 1));
+      setStep((cur) => (cur === CAL ? CAL : s >= 1 && s <= FORM_STEPS ? s : 1));
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
@@ -277,7 +341,7 @@ export function ApplyForm({
     // Each screen starts at the top, like a new screen in an app.
     if (window.scrollY > 0) window.scrollTo({ top: 0 });
     const desktop = window.matchMedia("(pointer: fine)").matches;
-    const firstId = step === 2 ? "#occupation" : step === 3 ? "#firstName" : null;
+    const firstId = step === 2 ? "#similar" : step === 7 ? "#occupation" : step === FORM_STEPS ? "#firstName" : null;
     const firstInput = firstId && desktop ? formRef.current?.querySelector<HTMLInputElement>(firstId) : null;
     (firstInput ?? headings.current[step])?.focus({ preventScroll: true });
   }, [step, booked]);
@@ -286,6 +350,7 @@ export function ApplyForm({
     const fd = new FormData(formRef.current ?? undefined);
     const v: Record<string, string> = {};
     fd.forEach((val, k) => (v[k] = String(val)));
+    v.platforms = fd.getAll("platforms").map(String).join(LIST_SEP);
     v.whatsapp = phone ?? "";
     return v;
   };
@@ -304,6 +369,10 @@ export function ApplyForm({
   const onInput = (e: React.FormEvent<HTMLFormElement>) => {
     const t = e.target as HTMLInputElement | HTMLTextAreaElement;
     if (!t?.name || t.name === "whatsapp" || !(t.name in STEP_OF)) return;
+    if (t.type === "radio" || t.type === "checkbox") {
+      revalidate(t.name as FieldName);
+      return;
+    }
     // The idea's "N characters remaining" only shows after Continue; typing clears it.
     if (t.name === "idea")
       setErrors((prev) => {
@@ -316,7 +385,7 @@ export function ApplyForm({
   };
 
   /** Validates one screen; focuses the first bad field. */
-  const check = (s: 1 | 2 | 3) => {
+  const check = (s: number) => {
     const found = findErrors(values(), [s]);
     setErrors((prev) => {
       const next = { ...prev };
@@ -326,24 +395,27 @@ export function ApplyForm({
     const firstBad = Object.keys(found)[0];
     if (firstBad) {
       const el = formRef.current?.querySelector<HTMLElement>(`[data-field="${firstBad}"]`);
-      (el?.querySelector("textarea, input:not([type=hidden])") as HTMLElement | null)?.focus();
+      (el?.querySelector("textarea, input:not([type=hidden])") as HTMLElement | null)?.focus({ preventScroll: true });
       return false;
     }
     return true;
   };
 
-  const next = (s: 1 | 2) => {
-    if (check(s)) goTo((s + 1) as Step);
+  const next = (s: number) => {
+    if (check(s)) goTo(s + 1);
   };
+  /** Single choice: move on right after the tap, so the selection is seen for a moment. */
+  const pickNext = (s: number) => window.setTimeout(() => next(s), 220);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (step === 1 || step === 2) return next(step); // Enter on an earlier screen = Continue
-    if (step !== 3 || submitting.current) return;
-    if (!check(3)) return;
+    if (step < FORM_STEPS) return next(step); // Enter on an earlier screen = Continue
+    if (step !== FORM_STEPS || submitting.current) return;
+    if (!check(FORM_STEPS)) return;
     const form = e.currentTarget;
     const fd = new FormData(form);
     fd.set("whatsapp", phone ?? ""); // the library's state is E.164; the visible input holds the formatted text
+    fd.set("platforms", fd.getAll("platforms").map(String).join(LIST_SEP)); // one joined value
     try {
       // _fbp / _fbc / avatar are read now, at submit time, so a pixel that loaded late is still captured.
       for (const [k, v] of Object.entries(attributionFields())) fd.set(k, v);
@@ -371,20 +443,21 @@ export function ApplyForm({
           setLead({
             eventId: res.eventId,
             bookingToken: res.bookingToken,
+            qualified: res.qualified,
             firstName: String(fd.get("firstName") ?? "").trim(),
             lastName: String(fd.get("lastName") ?? "").trim(),
             email: String(fd.get("email") ?? "").trim(),
             whatsapp: res.whatsapp || phone || "",
           });
           // Replace, so browser Back from the calendar leaves /apply instead of resubmitting.
-          setStep(4);
+          setStep(CAL);
           try {
-            history.replaceState({ ...history.state, applyStep: 4 }, "");
+            history.replaceState({ ...history.state, applyStep: CAL }, "");
           } catch {}
         } else if (res.fields?.length) {
           const errs = Object.fromEntries(res.fields.map((f) => [f, validateField(f, values()) ?? MESSAGES.required]));
           setErrors(errs);
-          goTo(Math.min(...res.fields.map((f) => STEP_OF[f])) as Step);
+          goTo(Math.min(...res.fields.map((f) => STEP_OF[f])));
         } else {
           setFailed(true);
         }
@@ -398,8 +471,8 @@ export function ApplyForm({
 
   const onBooked = useCallback(() => {
     if (!lead) return;
-    const id = bookingEventId(lead.eventId);
-    track("Schedule", {}, id);
+    // Only qualified bookings reach Meta (Pixel here, CAPI on the server), so they alone train the ads.
+    if (lead.qualified) track("Schedule", {}, bookingEventId(lead.eventId));
     setBooked(true);
     let tracking: Record<string, string> = {};
     try {
@@ -408,6 +481,7 @@ export function ApplyForm({
     reportBooking({
       eventId: lead.eventId,
       bookingToken: lead.bookingToken,
+      qualified: lead.qualified,
       email: lead.email,
       whatsapp: lead.whatsapp,
       fbp: tracking.fbp,
@@ -429,8 +503,8 @@ export function ApplyForm({
     );
   }
 
-  /* ---------- 4: booked ---------- */
-  if (step === 4 && booked && lead) {
+  /* ---------- calendar screen: booked ---------- */
+  if (step === CAL && booked && lead) {
     return (
       <div ref={topRef} className="apply-step scroll-mt-28" data-active="">
         <div className={`${CARD} text-center`}>
@@ -439,7 +513,7 @@ export function ApplyForm({
               <path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
-          <h2 ref={(el) => void (headings.current[4] = el)} tabIndex={-1} className={`${TITLE} mt-6`}>
+          <h2 ref={(el) => void (headings.current[CAL] = el)} tabIndex={-1} className={`${TITLE} mt-6`}>
             You’re booked, {lead.firstName}.
           </h2>
           <Help>
@@ -456,13 +530,13 @@ export function ApplyForm({
     );
   }
 
-  /* ---------- 4: calendar ---------- */
-  if (step === 4 && lead) {
+  /* ---------- calendar ---------- */
+  if (step === CAL && lead) {
     return (
       <div ref={topRef} className="apply-step scroll-mt-28" data-active="">
-        <Progress step={4} />
+        <Progress step={CAL} />
         <div className={CARD}>
-          <h2 ref={(el) => void (headings.current[4] = el)} tabIndex={-1} className={TITLE}>
+          <h2 ref={(el) => void (headings.current[CAL] = el)} tabIndex={-1} className={TITLE}>
             Pick a time for a call.
           </h2>
           <Help>Thanks, {lead.firstName}. Your application is in. Choose a time below and we’ll talk through your idea.</Help>
@@ -484,7 +558,7 @@ export function ApplyForm({
           </p>
         ) : null}
 
-        {/* 1. Idea */}
+        {/* 1. App type */}
         <section className="apply-step" data-active={step === 1 ? "" : undefined}>
           <div data-field="idea">
             <h2 ref={(el) => void (headings.current[1] = el)} tabIndex={-1} className={TITLE}>
@@ -497,7 +571,7 @@ export function ApplyForm({
               rows={5}
               aria-invalid={bad("idea") || undefined}
               aria-describedby={bad("idea") ? "idea-error" : undefined}
-              placeholder="An app that…"
+              placeholder={IDEA.placeholder}
               className={`${FIELD} ${border(bad("idea"))} mt-5 resize-y`}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
@@ -508,17 +582,82 @@ export function ApplyForm({
             />
             <ErrorLine id="idea-error" message={errors.idea} />
           </div>
-          <div className="js-only mt-8 flex justify-end">
-            <button type="button" onClick={() => next(1)} className={PRIMARY}>
-              Continue <Arrow />
-            </button>
-          </div>
+          <Continue onClick={() => next(1)} />
         </section>
 
-        {/* 2. Occupation */}
+        {/* 2. Similar apps (optional) */}
         <section className="apply-step" data-active={step === 2 ? "" : undefined}>
-          <div data-field="occupation">
+          <div data-field="similar">
             <h2 ref={(el) => void (headings.current[2] = el)} tabIndex={-1} className={TITLE}>
+              <label htmlFor="similar">{SIMILAR.label}</label>
+            </h2>
+            <Help>{SIMILAR.help}</Help>
+            <input id="similar" name="similar" type="text" autoComplete="off" className={`${FIELD} ${border(false)} mt-6`} />
+          </div>
+          <Continue onClick={() => next(2)} />
+        </section>
+
+        {/* 3. Stage */}
+        <section className="apply-step" data-active={step === 3 ? "" : undefined}>
+          <fieldset data-field="stage">
+            <legend className="w-full">
+              <h2 ref={(el) => void (headings.current[3] = el)} tabIndex={-1} className={TITLE}>
+                {STAGE.label}
+              </h2>
+            </legend>
+            <Choices name="stage" options={STAGE.options} onPick={() => pickNext(3)} />
+            <ErrorLine message={errors.stage} />
+          </fieldset>
+          <Continue onClick={() => next(3)} />
+        </section>
+
+        {/* 4. Platforms (multi) */}
+        <section className="apply-step" data-active={step === 4 ? "" : undefined}>
+          <fieldset data-field="platforms">
+            <legend className="w-full">
+              <h2 ref={(el) => void (headings.current[4] = el)} tabIndex={-1} className={TITLE}>
+                {PLATFORMS.label}
+              </h2>
+            </legend>
+            <Help>{PLATFORMS.help}</Help>
+            <Choices name="platforms" options={PLATFORMS.options} multiple />
+            <ErrorLine message={errors.platforms} />
+          </fieldset>
+          <Continue onClick={() => next(4)} />
+        </section>
+
+        {/* 5. Start */}
+        <section className="apply-step" data-active={step === 5 ? "" : undefined}>
+          <fieldset data-field="start">
+            <legend className="w-full">
+              <h2 ref={(el) => void (headings.current[5] = el)} tabIndex={-1} className={TITLE}>
+                {START.label}
+              </h2>
+            </legend>
+            <Choices name="start" options={START.options} onPick={() => pickNext(5)} />
+            <ErrorLine message={errors.start} />
+          </fieldset>
+          <Continue onClick={() => next(5)} />
+        </section>
+
+        {/* 6. Budget */}
+        <section className="apply-step" data-active={step === 6 ? "" : undefined}>
+          <fieldset data-field="budget">
+            <legend className="w-full">
+              <h2 ref={(el) => void (headings.current[6] = el)} tabIndex={-1} className={TITLE}>
+                {BUDGET.label}
+              </h2>
+            </legend>
+            <Choices name="budget" options={BUDGET.options} onPick={() => pickNext(6)} />
+            <ErrorLine message={errors.budget} />
+          </fieldset>
+          <Continue onClick={() => next(6)} />
+        </section>
+
+        {/* 7. Occupation */}
+        <section className="apply-step" data-active={step === 7 ? "" : undefined}>
+          <div data-field="occupation">
+            <h2 ref={(el) => void (headings.current[7] = el)} tabIndex={-1} className={TITLE}>
               <label htmlFor="occupation">{OCCUPATION.label}</label>
             </h2>
             <input
@@ -531,16 +670,12 @@ export function ApplyForm({
             />
             <ErrorLine message={errors.occupation} />
           </div>
-          <div className="js-only mt-8 flex justify-end">
-            <button type="button" onClick={() => next(2)} className={PRIMARY}>
-              Continue <Arrow />
-            </button>
-          </div>
+          <Continue onClick={() => next(7)} />
         </section>
 
-        {/* 3. Contact */}
-        <section className="apply-step" data-active={step === 3 ? "" : undefined}>
-          <h2 ref={(el) => void (headings.current[3] = el)} tabIndex={-1} className={TITLE}>
+        {/* 8. Contact */}
+        <section className="apply-step" data-active={step === FORM_STEPS ? "" : undefined}>
+          <h2 ref={(el) => void (headings.current[FORM_STEPS] = el)} tabIndex={-1} className={TITLE}>
             Where can I reach you?
           </h2>
           <Help>Last step before you pick a time for a call.</Help>
@@ -625,7 +760,7 @@ export function ApplyForm({
         </div>
       </form>
       {/* Warm the Calendly script while they type their details, so the calendar opens instantly. */}
-      {step === 3 ? <Script src={CALENDLY_JS} strategy="lazyOnload" /> : null}
+      {step === FORM_STEPS ? <Script src={CALENDLY_JS} strategy="lazyOnload" /> : null}
     </div>
   );
 }

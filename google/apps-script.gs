@@ -5,7 +5,9 @@
  * The website's server action POSTs JSON here (server-to-server, so no
  * CORS headers are needed). Three kinds of request, all checked against the shared secret:
  *
- *   version 2 application (current multi-step form) →
+ *   version 3 application (current form: app type, similar apps, stage, platforms, start, budget,
+ *   occupation, contact) → same as version 2 below, on the "Applications v3" tab, plus a Qualified column.
+ *   version 2 application (previous three-question form) →
  *     1. appends one row to the "Applications v2" tab (created, with headers, on first use),
  *     2. emails NOTIFY_EMAIL (Script Property) with every answer, reply-to set to the applicant,
  *     3. sends the applicant a short confirmation with the Calendly link (reply-to NOTIFY_EMAIL).
@@ -63,6 +65,38 @@ var V2_COLUMNS = [
 /** Keys left out of the v2 notification email (tracking noise / not known yet). */
 var V2_EMAIL_SKIP = ["submittedAt", "eventId", "fbp", "fbc", "landingUrl", "bookedAt"];
 
+/* ---------- v3: one question per screen, with screening ---------- */
+
+var V3_TAB = "Applications v3";
+
+var V3_COLUMNS = [
+  ["Timestamp", "submittedAt"],
+  ["First name", "firstName"],
+  ["Last name", "lastName"],
+  ["Email", "email"],
+  ["WhatsApp", "whatsapp"],
+  ["App", "idea"],
+  ["Similar apps", "similar"],
+  ["Stage", "stage"],
+  ["Platforms", "platforms"],
+  ["Start", "start"],
+  ["Budget", "budget"],
+  ["Qualified", "qualified"],
+  ["Occupation", "occupation"],
+  ["Avatar", "avatar"],
+  ["Booked", "booked"],
+  ["Booked at", "bookedAt"],
+  // Tracking (Meta Pixel + Conversions API); sent by lib/apply.ts
+  ["Event ID", "eventId"],
+  ["fbp", "fbp"],
+  ["fbc", "fbc"],
+  ["UTM Source", "utmSource"],
+  ["UTM Campaign", "utmCampaign"],
+  ["UTM Content", "utmContent"],
+  ["Landing URL", "landingUrl"],
+  ["Device", "device"],
+];
+
 /* ---------- legacy: one-page form ---------- */
 
 var COLUMNS = [
@@ -103,6 +137,15 @@ function doPost(e) {
     if (!data.secret || data.secret !== cfg.secret) return json_({ ok: false, error: "unauthorised" });
 
     if (data.action === "booked") return json_(markBooked_(String(data.eventId || ""), data.bookedAt, cfg.notifyEmail));
+
+    if (Number(data.version) === 3) {
+      data.booked = "No";
+      data.bookedAt = "";
+      appendTabRow_(V3_TAB, V3_COLUMNS, data);
+      sendEmailTab_(V3_COLUMNS, data, cfg.notifyEmail);
+      sendConfirmationV2_(data, cfg.notifyEmail);
+      return json_({ ok: true });
+    }
 
     if (Number(data.version) === 2) {
       data.booked = "No";
@@ -163,7 +206,7 @@ function appendRow_(row) {
 /** The original applications tab: the first tab that isn't the v2 one. */
 function legacySheet_() {
   var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
-  for (var i = 0; i < sheets.length; i++) if (sheets[i].getName() !== V2_TAB) return sheets[i];
+  for (var i = 0; i < sheets.length; i++) if (sheets[i].getName() !== V2_TAB && sheets[i].getName() !== V3_TAB) return sheets[i];
   return SpreadsheetApp.getActiveSpreadsheet().insertSheet("Applications", 0);
 }
 
@@ -178,6 +221,46 @@ function v2Sheet_() {
     sheet.setFrozenRows(1);
   }
   return sheet;
+}
+
+/** A tab by name, created at the end with a bold, frozen header row the first time it's needed. */
+function tabSheet_(name, columns) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name, ss.getSheets().length);
+    sheet.appendRow(columns.map(function (c) { return c[0]; }));
+    sheet.getRange(1, 1, 1, columns.length).setFontWeight("bold");
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function appendTabRow_(name, columns, data) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var row = columns.map(function (c) {
+      var v = data[c[1]];
+      if (c[1] === "submittedAt") return v ? new Date(v) : new Date();
+      return asText_(v);
+    });
+    tabSheet_(name, columns).appendRow(row);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function sendEmailTab_(columns, d, notifyEmail) {
+  var lines = columns.filter(function (c) { return V2_EMAIL_SKIP.indexOf(c[1]) === -1; }).map(function (c) {
+    var v = c[1] === "booked" ? "Not yet (you'll get a follow-up email when they book)" : d[c[1]];
+    return c[0].toUpperCase() + "\n" + (v ? String(v) : "(not answered)") + "\n";
+  });
+  var subject = v2Subject_(d);
+  var body = "New application received " + new Date().toLocaleString() + "\n\n" + lines.join("\n");
+  var opts = { name: "Cortexity applications" };
+  if (d.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) opts.replyTo = d.email;
+  GmailApp.sendEmail(notifyEmail, subject, body, opts);
 }
 
 function appendV2Row_(data) {
@@ -195,18 +278,22 @@ function appendV2Row_(data) {
   }
 }
 
-/** Booked = Yes on the row whose Event ID matches. */
+/** Booked = Yes on the row whose Event ID matches (v3 tab first, then v2). */
 function markBooked_(eventId, bookedAt, notifyEmail) {
   if (!eventId) return { ok: false, error: "no-event-id" };
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    var sheet = v2Sheet_();
-    var keys = V2_COLUMNS.map(function (c) { return c[1]; });
-    var idCol = keys.indexOf("eventId") + 1;
-    var last = sheet.getLastRow();
-    if (last < 2) return { ok: false, error: "not-found" };
-    var hit = sheet.getRange(2, idCol, last - 1, 1).createTextFinder(eventId).matchEntireCell(true).findNext();
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var tabs = [[V3_TAB, V3_COLUMNS], [V2_TAB, V2_COLUMNS]];
+    var sheet = null, keys = null, hit = null;
+    for (var t = 0; t < tabs.length && !hit; t++) {
+      var sh = ss.getSheetByName(tabs[t][0]);
+      if (!sh || sh.getLastRow() < 2) continue;
+      var ks = tabs[t][1].map(function (c) { return c[1]; });
+      var found = sh.getRange(2, ks.indexOf("eventId") + 1, sh.getLastRow() - 1, 1).createTextFinder(eventId).matchEntireCell(true).findNext();
+      if (found) { sheet = sh; keys = ks; hit = found; }
+    }
     if (!hit) return { ok: false, error: "not-found" };
     var r = hit.getRow();
     var when = bookedAt ? new Date(bookedAt) : new Date();
@@ -239,7 +326,8 @@ function sendBookedEmail_(d, when, notifyEmail) {
 
 function v2Subject_(d) {
   var name = (String(d.firstName || "") + " " + String(d.lastName || "")).trim() || "Unknown";
-  return "New Cortexity application — " + name + " (" + (d.occupation || "?") + ", " + (d.avatar || "(direct)") + ")";
+  var extra = d.budget ? ", " + d.budget + (String(d.qualified) === "No" ? ", not qualified" : "") : "";
+  return "New Cortexity application — " + name + " (" + (d.occupation || "?") + ", " + (d.avatar || "(direct)") + extra + ")";
 }
 
 function sendEmailV2_(d, notifyEmail) {
@@ -325,6 +413,26 @@ function testV2_() {
     landingUrl: "",
     device: "desktop",
     calendlyUrl: "https://calendly.com/josephselwan/intro-call",
+  };
+  Logger.log(doPost({ postData: { contents: JSON.stringify(fake) } }).getContent());
+  Logger.log(doPost({ postData: { contents: JSON.stringify({ secret: cfg.secret, action: "booked", eventId: eventId }) } }).getContent());
+}
+
+/**
+ * Run from the editor to check the v3 tab + both emails + the booking update.
+ * Adds one test row, marked Booked = Yes.
+ */
+function testV3_() {
+  var cfg = config_();
+  if (!cfg) throw new Error("Not configured: add the Script Properties SECRET and NOTIFY_EMAIL. See google/SETUP.md.");
+  var eventId = "test-" + new Date().getTime();
+  var fake = {
+    secret: cfg.secret, version: 3, submittedAt: new Date().toISOString(),
+    firstName: "Test", lastName: "Person", email: cfg.notifyEmail, whatsapp: "+966500000000",
+    idea: "A test application from the Apps Script editor.", similar: "", stage: "I have designs or wireframes",
+    platforms: "iPhone, Android", start: "Within 30 days", budget: "$20,000 to $50,000", qualified: "Yes",
+    occupation: "Founder", avatar: "/", eventId: eventId, fbp: "", fbc: "", utmSource: "", utmCampaign: "",
+    utmContent: "", landingUrl: "", device: "desktop", calendlyUrl: "https://calendly.com/josephselwan/intro-call",
   };
   Logger.log(doPost({ postData: { contents: JSON.stringify(fake) } }).getContent());
   Logger.log(doPost({ postData: { contents: JSON.stringify({ secret: cfg.secret, action: "booked", eventId: eventId }) } }).getContent());

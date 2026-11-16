@@ -50,7 +50,7 @@ export const AVATARS: Record<AvatarSlug, Avatar> = {
     slug: "founders",
     exampleApp: "",
     who: "founders",
-    path: "/",
+    path: "/founders",
     title: "Cortexity — Your app idea. Built in 21 days.",
     description:
       "You bring the idea. We take care of everything else. Strategy, design, development, testing and App Store submission. One project. One fixed price. $5,000.",

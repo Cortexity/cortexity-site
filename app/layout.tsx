@@ -7,15 +7,14 @@ import { PIXEL_ID, pixelBaseCode } from "@/lib/pixel";
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.cortexity.studio"),
   title: {
-    default: "Cortexity — Your app idea. Built in 21 days.",
+    default: "Cortexity — Your app’s first version, working in 21 days.",
     template: "%s — Cortexity",
   },
   description:
-    "You bring the idea. We take care of everything else. Strategy, design, development, testing and App Store submission. One project. One fixed price. $5,000.",
+    "iPhone, Android and web apps. One fixed price, a new build every week and a 100% satisfaction guarantee.",
   openGraph: {
-    title: "Cortexity — Your app idea. Built in 21 days.",
-    description:
-      "You bring the idea. We take care of everything else. One project. One fixed price. $5,000.",
+    title: "Cortexity — Your app’s first version, working in 21 days.",
+    description: "iPhone, Android and web apps. One fixed price, a new build every week and a 100% satisfaction guarantee.",
     url: "https://www.cortexity.studio",
     siteName: "Cortexity",
     type: "website",

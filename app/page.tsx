@@ -1,8 +1,14 @@
-import { Landing } from "@/components/Landing";
-import { AVATARS } from "@/lib/avatars";
+import type { Metadata } from "next";
+import { Home } from "@/components/home/Home";
 
-/** Home page = A6 first-time founders. The other avatars live in app/[avatar]. */
-export default async function Home({ searchParams }: { searchParams: Promise<{ country?: string | string[] }> }) {
-  const { country } = await searchParams;
-  return <Landing avatar={AVATARS.founders} country={country} />;
+/** Home page: product-aware, no prices. The old founders page lives at /founders. */
+export const metadata: Metadata = {
+  title: { absolute: "Cortexity — Your app’s first version, working in 21 days." },
+  description:
+    "iPhone, Android and web apps. One fixed price, a new build every week and a 100% satisfaction guarantee. First working version in 21 days.",
+  alternates: { canonical: "/" },
+};
+
+export default function Page() {
+  return <Home />;
 }

@@ -2,13 +2,13 @@ import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { after } from "next/server";
-import { bookingEventId, CALENDLY_URL, FIELD_ORDER, findErrors, type FieldName } from "@/app/apply/fields";
+import { bookingEventId, CALENDLY_URL, FIELD_ORDER, findErrors, isQualified, LIST_SEP, type FieldName } from "@/app/apply/fields";
 import { AVATARS } from "@/lib/avatars";
 import { debugLog, forLog } from "@/lib/debug";
 import { sendCapi } from "@/lib/meta";
 
 export type SubmitResult =
-  | { ok: true; eventId: string; bookingToken: string; whatsapp: string }
+  | { ok: true; eventId: string; bookingToken: string; whatsapp: string; qualified: boolean }
   | { ok: false; error: string; fields?: FieldName[] };
 
 export type BookingResult = { ok: boolean };
@@ -26,17 +26,18 @@ const field = (fd: FormData, name: string, max = 1000) => String(fd.get(name) ??
 const TIMEOUT_MS = 10_000;
 
 /** Landing-page paths the Avatar column accepts; anything else (or nothing) is "(direct)". */
-const AVATAR_PATHS = new Set(Object.values(AVATARS).map((a) => a.path));
+const AVATAR_PATHS = new Set(["/", ...Object.values(AVATARS).map((a) => a.path)]);
 export const DIRECT = "(direct)";
 
 /**
  * Ties a booking report to the application it belongs to: the server signs
- * eventId + email + WhatsApp at submit, the browser sends the signature back when
- * Calendly reports a booking. Stops anyone from posting fake bookings / CAPI events.
+ * eventId + email + WhatsApp + qualified at submit, the browser sends the signature back when
+ * Calendly reports a booking. Stops anyone from posting fake bookings / CAPI events, or
+ * turning an unqualified booking into a qualified one.
  */
-function bookingToken(eventId: string, email: string, whatsapp: string) {
+function bookingToken(eventId: string, email: string, whatsapp: string, qualified: boolean) {
   const key = process.env.APPS_SCRIPT_SECRET ?? "";
-  return createHmac("sha256", key).update(`${eventId}|${email.toLowerCase()}|${whatsapp}`).digest("hex");
+  return createHmac("sha256", key).update(`${eventId}|${email.toLowerCase()}|${whatsapp}|${qualified ? "q" : "u"}`).digest("hex");
 }
 
 function sameToken(a: string, b: string) {
@@ -92,11 +93,15 @@ async function postToSheet(body: Record<string, unknown>, label: string): Promis
 export async function processApplication(formData: FormData, ctx: RequestContext = {}): Promise<SubmitResult> {
   // Honeypot: bots fill every field; humans never see this one.
   if (String(formData.get("company") ?? "").trim()) {
-    return { ok: true, eventId: crypto.randomUUID(), bookingToken: "", whatsapp: "" };
+    return { ok: true, eventId: crypto.randomUUID(), bookingToken: "", whatsapp: "", qualified: false };
   }
 
   const values: Record<string, string> = {};
-  for (const name of FIELD_ORDER) values[name] = String(formData.get(name) ?? "").trim().slice(0, name === "idea" ? 5000 : 200);
+  for (const name of FIELD_ORDER) {
+    // Platforms is a multi-select: several form entries (native post) or one joined string (JS).
+    const raw = name === "platforms" ? formData.getAll(name).map(String).join(LIST_SEP) : String(formData.get(name) ?? "");
+    values[name] = raw.trim().slice(0, name === "idea" ? 5000 : 200);
+  }
 
   // Normalise the WhatsApp number to E.164 (+96170123456) before validating; the sheet stores that form.
   const parsed = parsePhoneNumberFromString(values.whatsapp);
@@ -106,16 +111,23 @@ export async function processApplication(formData: FormData, ctx: RequestContext
   if (fields.length) return { ok: false, error: "Please complete the highlighted fields.", fields };
 
   const avatarRaw = field(formData, "avatar", 100);
+  const qualified = isQualified(values);
   const eventId = crypto.randomUUID();
   const eventSourceUrl = field(formData, "event_source_url") || ctx.referer || "";
   const payload = {
-    version: 2,
+    version: 3,
     submittedAt: new Date().toISOString(),
     firstName: values.firstName,
     lastName: values.lastName,
     email: values.email,
     whatsapp: values.whatsapp,
     idea: values.idea,
+    similar: values.similar,
+    stage: values.stage,
+    platforms: values.platforms,
+    start: values.start,
+    budget: values.budget,
+    qualified: qualified ? "Yes" : "No",
     occupation: values.occupation,
     avatar: AVATAR_PATHS.has(avatarRaw) ? avatarRaw : DIRECT,
     eventId,
@@ -146,7 +158,7 @@ export async function processApplication(formData: FormData, ctx: RequestContext
       eventSourceUrl,
     }),
   );
-  return { ok: true, eventId, bookingToken: bookingToken(eventId, values.email, values.whatsapp), whatsapp: values.whatsapp };
+  return { ok: true, eventId, bookingToken: bookingToken(eventId, values.email, values.whatsapp, qualified), whatsapp: values.whatsapp, qualified };
 }
 
 export type BookingInput = {
@@ -154,26 +166,30 @@ export type BookingInput = {
   bookingToken: string;
   email: string;
   whatsapp: string;
+  /** As returned at submit; covered by the booking token. */
+  qualified: boolean;
   fbp?: string;
   fbc?: string;
   eventSourceUrl?: string;
 };
 
 /**
- * Calendly reported a booking in the browser: mark the sheet row Booked = Yes and
- * send Schedule to the Conversions API (Pixel fires the same event
- * in the browser with the same event id).
+ * Calendly reported a booking in the browser: mark the sheet row Booked = Yes and,
+ * for qualified applicants only, send Schedule to the Conversions API (Pixel fires the
+ * same event in the browser with the same event id). Unqualified bookings never reach
+ * Meta, so they don't train the ads.
  */
 export async function processBooking(i: BookingInput, ctx: RequestContext = {}): Promise<BookingResult> {
   const eventId = String(i.eventId ?? "").slice(0, 100);
   const email = String(i.email ?? "").trim().slice(0, 200);
   const whatsapp = String(i.whatsapp ?? "").trim().slice(0, 40);
-  if (!eventId || !i.bookingToken || !sameToken(String(i.bookingToken), bookingToken(eventId, email, whatsapp))) {
+  const qualified = i.qualified === true;
+  if (!eventId || !i.bookingToken || !sameToken(String(i.bookingToken), bookingToken(eventId, email, whatsapp, qualified))) {
     console.error("processBooking: bad token");
     return { ok: false };
   }
 
-  after(() =>
+  if (qualified) after(() =>
     sendCapi(["Schedule"], {
       eventId: bookingEventId(eventId),
       email,

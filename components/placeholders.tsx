@@ -227,16 +227,19 @@ export function PhoneTrio({
    -------------------------------------------------------------------- */
 export function AppMockup({
   name,
+  slug: slugProp,
   screens,
   className = "",
   glow = true,
 }: {
   name: string;
+  /** public/screens/<slug>-1..3.png; defaults to the lower-cased name. */
+  slug?: string;
   screens?: (Screen | undefined)[];
   className?: string;
   glow?: boolean;
 }) {
-  const slug = name.toLowerCase();
+  const slug = slugProp ?? name.toLowerCase();
   const [left, centre, right] = autoScreens(slug, 3, name, screens);
   return (
     <div

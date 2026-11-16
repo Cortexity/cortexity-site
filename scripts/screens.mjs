@@ -26,6 +26,8 @@ const SLOTS = {
   brands: [277.95, 336.89, 277.95],
   slowr: [335.7, 389.84, 335.7], // AppMockup
   reflexflow: [335.7, 389.84, 335.7], // AppMockup
+  pixelogram: [335.7, 389.84, 335.7], // AppMockup
+  iqcalorie: [335.7, 389.84, 335.7], // AppMockup
 };
 const DENSITIES = [2, 3];
 

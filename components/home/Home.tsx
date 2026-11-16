@@ -22,6 +22,7 @@ import { HeroVisual } from "../HeroVisual";
 import { AppMockup } from "../placeholders";
 import { Reveal } from "../Reveal";
 import { Prose, Section, Stack } from "../Section";
+import { Seal } from "../Seal";
 import { SectionHead } from "../SectionHead";
 import { StickyCta } from "../StickyCta";
 import { Lead, Muted, P, Strong } from "../Text";
@@ -427,6 +428,7 @@ function Build() {
 
       <Reveal className="mt-12 sm:mt-14">
         <Prose>
+          <Seal id="build" dark className="mx-auto mb-10 w-[132px] sm:w-[148px]" />
           <Stack>
             <P>Before you pay anything, we go through your app on a call.</P>
             <P>Within 24 hours you get a formal quote with the exact scope, a clear development timeline and one fixed price.</P>
@@ -596,7 +598,8 @@ function Closing() {
               <P>Tell us what you want to build. If it is a fit, we will talk this week and you will have a fixed price straight after.</P>
             </Stack>
             <Badges className="mt-10" />
-            <div id="final-cta" className="mt-10 flex justify-center">
+            <div id="final-cta" className="mt-10 flex flex-col items-center justify-center gap-8 md:flex-row md:gap-10">
+              <Seal id="closing" className="w-[132px] shrink-0 sm:w-[148px]" />
               <ApplyButton size="lg" variant="red" note={null}>
                 Apply to build your app
               </ApplyButton>

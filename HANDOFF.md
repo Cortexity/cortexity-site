@@ -26,7 +26,7 @@ Owner: Joseph (Cortexity). Joseph makes all decisions; confirm before changing c
 - Guarantee = "100% satisfaction guarantee" (we keep working until satisfied, at no extra charge). Never "money back" or "delivery guarantee".
 
 ## Open, in order
-1. **Seal**: add an original "100% Satisfaction Guaranteed" seal in the site's red/black/white (SVG, not the stock gold image). Place in the closing section by the final Apply button, and in the black "Your build" section.
+1. ~~**Seal**~~ DONE (0d354dd): `components/Seal.tsx`, pure SVG, `dark` prop for black bands. Under the cards in "Your build"; beside the final Apply button in Closing (stacked above it on phones). Centre says "100% / CORTEXITY": awaiting Joseph's OK on the "CORTEXITY" line.
 2. **Benefit headings** (proposed, awaiting Joseph's OK): "Working in 21 days." / "One fixed price. 100% satisfaction guaranteed." / "Built by the founder himself." instead of the question headings.
 3. Joseph to confirm new wording not in the doc: Pixelogram line, build-card platform lines, "Fixed price, quoted within 24 hours of our call."
 4. Joseph redeploys the Apps Script (paste file → Deploy → Manage deployments → Edit → New version). Must happen BEFORE go-live, or v3 rows land in the legacy tab.

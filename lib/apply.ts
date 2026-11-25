@@ -2,7 +2,7 @@ import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { after } from "next/server";
-import { bookingEventId, CALENDLY_URL, FIELD_ORDER, findErrors, isQualified, isUnderFloor, LIST_SEP, RAISE_OPTIONS, START, type FieldName } from "@/app/apply/fields";
+import { bookingEventId, CALENDLY_URL, FIELD_ORDER, findErrors, isQualified, isUnderFloor, LIST_SEP, type FieldName } from "@/app/apply/fields";
 import { AVATARS } from "@/lib/avatars";
 import { debugLog, forLog } from "@/lib/debug";
 import { sendCapi } from "@/lib/meta";
@@ -139,7 +139,7 @@ export async function processApplication(formData: FormData, ctx: RequestContext
     utmContent: field(formData, "utm_content", 200),
     landingUrl: field(formData, "landing_url"),
     device: /Mobi|Android|iPhone|iPad|iPod/i.test(ctx.userAgent ?? "") ? "mobile" : "desktop",
-    // The applicant's confirmation email links to it; "Less than $5,000" gets the budget email instead, without the link.
+    // The applicant's confirmation email links to it. "Less than $5,000" gets no confirmation email at all.
     calendlyUrl: underFloor ? "" : CALENDLY_URL,
     underFloor,
   };
@@ -169,43 +169,6 @@ export async function processApplication(formData: FormData, ctx: RequestContext
     qualified,
     underFloor,
   };
-}
-
-export type RaiseInput = {
-  eventId: string;
-  /** The token from submit (issued with qualified = false, as every "Less than $5,000" applicant is). */
-  bookingToken: string;
-  email: string;
-  whatsapp: string;
-  /** Their answer to "When do you want to start?", needed to work out Qualified again. */
-  start: string;
-  /** The new budget, one of RAISE_OPTIONS. */
-  budget: string;
-};
-
-export type RaiseResult = { ok: true; bookingToken: string; qualified: boolean } | { ok: false };
-
-/**
- * "I can stretch my budget": a "Less than $5,000" applicant picks a higher budget. Updates Budget and
- * Qualified on their sheet row (no new row, no second Lead) and returns a fresh booking token, so
- * the booking that follows is reported with the new Qualified value.
- */
-export async function processRaise(i: RaiseInput): Promise<RaiseResult> {
-  const eventId = String(i.eventId ?? "").slice(0, 100);
-  const email = String(i.email ?? "").trim().slice(0, 200);
-  const whatsapp = String(i.whatsapp ?? "").trim().slice(0, 40);
-  const budget = String(i.budget ?? "");
-  const start = String(i.start ?? "");
-  if (!eventId || !i.bookingToken || !sameToken(String(i.bookingToken), bookingToken(eventId, email, whatsapp, false))) {
-    console.error("processRaise: bad token");
-    return { ok: false };
-  }
-  if (!(RAISE_OPTIONS as readonly string[]).includes(budget) || !(START.options as readonly string[]).includes(start)) return { ok: false };
-  const qualified = isQualified({ budget, start });
-  const sent = await postToSheet({ action: "budget", eventId, budget, qualified: qualified ? "Yes" : "No" }, "processRaise");
-  debugLog("raise", { eventId, budget, qualified, sheet: sent.ok });
-  if (!sent.ok) return { ok: false };
-  return { ok: true, bookingToken: bookingToken(eventId, email, whatsapp, qualified), qualified };
 }
 
 export type BookingInput = {

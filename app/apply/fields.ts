@@ -70,9 +70,6 @@ export const BUDGET = {
 /** "Less than $5,000": the application is saved, but the calendar is replaced by a message. */
 export const UNDER_FLOOR = BUDGET.options[3];
 
-/** The budgets a "Less than $5,000" applicant can move up to ("I can stretch my budget"). */
-export const RAISE_OPTIONS = BUDGET.options.slice(0, 3);
-
 export const isUnderFloor = (values: Record<string, string | undefined>) => values.budget === UNDER_FLOOR;
 
 export const OCCUPATION = {

@@ -15,9 +15,8 @@
  *     sets Booked = Yes and Booked at on the row with that Event ID, then (about a minute later,
  *     once Calendly has put the call in the calendar) emails you the call time in your time and
  *     theirs, plus their answer to Calendly's "Anything you'd like me to know" question.
- *   action "budget" (a "Less than $5,000" applicant tapped "I can stretch my budget") →
- *     updates Budget + Qualified on their row, keeps the old answer in "Budget raised from",
- *     and emails you.
+ *   "Less than $5,000" applications are saved and emailed to you like any other, but the
+ *   applicant gets no confirmation email (they see a message on the site instead of the calendar).
  *   legacy application (the old one-page form, no "version") →
  *     same as before: appends to the original tab with the original columns. Kept so the live
  *     site keeps working between redeploying this script and the new form going live.
@@ -151,7 +150,7 @@ function doPost(e) {
     if (!data.secret || data.secret !== cfg.secret) return json_({ ok: false, error: "unauthorised" });
 
     if (data.action === "booked") return json_(markBooked_(String(data.eventId || ""), data.bookedAt, cfg.notifyEmail));
-    if (data.action === "budget") return json_(raiseBudget_(String(data.eventId || ""), String(data.budget || ""), String(data.qualified || ""), cfg.notifyEmail));
+    if (data.action === "budget") return json_({ ok: false, error: "gone" }); // retired "I can stretch my budget"; never falls through to the legacy append
 
     if (Number(data.version) === 3) {
       data.booked = "No";
@@ -307,28 +306,13 @@ function findByEventId_(eventId) {
   return null;
 }
 
-/** The row's values by key, plus budgetFrom ("Budget raised from", a column added at the end when first used). */
+/** The row's values by key. */
 function rowData_(hit) {
   var values = hit.sheet.getRange(hit.row, 1, 1, hit.keys.length).getValues()[0];
   var d = {};
   hit.keys.forEach(function (k, i) { d[k] = values[i]; });
-  var col = extraCol_(hit.sheet, RAISED_HEADER, false);
-  d.budgetFrom = col ? String(hit.sheet.getRange(hit.row, col).getValue() || "") : "";
   return d;
 }
-
-/** Column number of a header added after the fixed columns; created when `create` is true, else 0 if missing. */
-function extraCol_(sheet, header, create) {
-  var head = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  var col = head.indexOf(header) + 1;
-  if (!col && create) {
-    col = sheet.getLastColumn() + 1;
-    sheet.getRange(1, col).setValue(header).setFontWeight("bold");
-  }
-  return col;
-}
-
-var RAISED_HEADER = "Budget raised from";
 
 /** Booked = Yes on the row whose Event ID matches; the email to you follows once the call is in the calendar. */
 function markBooked_(eventId, bookedAt, notifyEmail) {
@@ -414,7 +398,7 @@ function sendBookedEmail_(d, when, call, notifyEmail) {
   var tz = myTz_();
   var digits = String(d.whatsapp || "").replace(/\D/g, "");
   var note = call ? calendlyNote_(call.getDescription()) : "";
-  var budget = d.budget ? String(d.budget) + (d.budgetFrom ? " (raised from " + d.budgetFrom + ")" : "") : "";
+  var budget = d.budget ? String(d.budget) : "";
   var body =
     name + " booked a call.\n\n" +
     "CALL, YOUR TIME\n" + (call ? Utilities.formatDate(call.getStartTime(), tz[0], "EEEE d MMMM, HH:mm") + " (" + tz[1] + ")" : "Not in your calendar yet, check Calendly") + "\n\n" +
@@ -427,48 +411,7 @@ function sendBookedEmail_(d, when, call, notifyEmail) {
     "WHATSAPP\n" + (d.whatsapp || "");
   var opts = { name: "Cortexity applications" };
   if (d.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) opts.replyTo = String(d.email);
-  GmailApp.sendEmail(notifyEmail, "Re: " + v2Subject_(threadView_(d)), body, opts);
-}
-
-/** The row as it was at submit, so replies keep the application email's subject (and thread). */
-function threadView_(d) {
-  if (!d.budgetFrom) return d;
-  var o = {};
-  for (var k in d) o[k] = d[k];
-  o.budget = d.budgetFrom;
-  o.qualified = "No"; // "Less than $5,000" is never qualified
-  return o;
-}
-
-/** "I can stretch my budget": new Budget + Qualified on the v3 row; the first answer goes to "Budget raised from". */
-function raiseBudget_(eventId, budget, qualified, notifyEmail) {
-  if (!eventId || !budget) return { ok: false, error: "missing" };
-  var lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-  var d;
-  try {
-    var hit = findByEventId_(eventId);
-    if (!hit || hit.sheet.getName() !== V3_TAB) return { ok: false, error: "not-found" };
-    var bCol = hit.keys.indexOf("budget") + 1;
-    var old = String(hit.sheet.getRange(hit.row, bCol).getValue() || "");
-    var rCol = extraCol_(hit.sheet, RAISED_HEADER, true);
-    if (!hit.sheet.getRange(hit.row, rCol).getValue()) hit.sheet.getRange(hit.row, rCol).setValue(asText_(old));
-    hit.sheet.getRange(hit.row, bCol).setValue(asText_(budget));
-    hit.sheet.getRange(hit.row, hit.keys.indexOf("qualified") + 1).setValue(qualified === "Yes" ? "Yes" : "No");
-    d = rowData_(hit);
-  } finally {
-    lock.releaseLock();
-  }
-  var name = (String(d.firstName || "") + " " + String(d.lastName || "")).trim() || "Unknown";
-  var body =
-    name + " raised their budget on the website.\n\n" +
-    "BUDGET\n" + budget + " (was " + d.budgetFrom + ")\n\n" +
-    "QUALIFIED\n" + (qualified === "Yes" ? "Yes" : "No") + "\n\n" +
-    "They can book a call now. You'll get the booking email if they do.";
-  var opts = { name: "Cortexity applications" };
-  if (d.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) opts.replyTo = String(d.email);
-  GmailApp.sendEmail(notifyEmail, "Re: " + v2Subject_(threadView_(d)), body, opts);
-  return { ok: true };
+  GmailApp.sendEmail(notifyEmail, "Re: " + v2Subject_(d), body, opts);
 }
 
 function v2Subject_(d) {
@@ -493,17 +436,7 @@ function sendEmailV2_(d, notifyEmail) {
 function sendConfirmationV2_(d, notifyEmail) {
   if (!d.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) return;
   var first = String(d.firstName || "").trim() || "there";
-  if (d.underFloor === true) {
-    // "Less than $5,000": no calendar link; a reply is how they come back.
-    GmailApp.sendEmail(d.email, "Got your application — Cortexity",
-      "Hi " + first + ",\n\n" +
-      "Thanks for telling me about your app.\n\n" +
-      "I'll be straight with you: a first version done properly (designed, built, tested and live on the App Store) costs $10,000 to $12,000 with me. Under $5,000, I can't build it to a standard you'd be proud to launch.\n\n" +
-      "Many of my clients started with a smaller budget in mind, then decided their app was worth doing properly. If your budget changes, just reply to this email and I'll send you a time.\n\n" +
-      "Joseph\nCortexity",
-      { name: "Joseph at Cortexity", replyTo: notifyEmail });
-    return;
-  }
+  if (d.underFloor === true) return; // "Less than $5,000": no email to the applicant
   var link = String(d.calendlyUrl || "").trim();
   var body =
     "Hi " + first + ",\n\n" +

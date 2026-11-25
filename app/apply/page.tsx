@@ -30,7 +30,7 @@ export default async function ApplyPage({
       <Header />
       <main id="main" className="tone-gray mx-auto w-full max-w-[40rem] px-4 pb-20 pt-28 sm:px-8 sm:pt-36">
         <h1 className="sr-only">Apply to Build Your App</h1>
-        <ApplyForm initialDone={sent === "1"} initialError={error} defaultCountry={defaultCountry} />
+        <ApplyForm initialDone={sent === "1" || sent === "under"} initialUnderFloor={sent === "under"} initialError={error} defaultCountry={defaultCountry} />
       </main>
       <Footer />
     </>

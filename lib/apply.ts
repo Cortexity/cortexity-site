@@ -2,13 +2,13 @@ import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { after } from "next/server";
-import { bookingEventId, CALENDLY_URL, FIELD_ORDER, findErrors, isQualified, LIST_SEP, type FieldName } from "@/app/apply/fields";
+import { bookingEventId, CALENDLY_URL, FIELD_ORDER, findErrors, isQualified, isUnderFloor, LIST_SEP, RAISE_OPTIONS, START, type FieldName } from "@/app/apply/fields";
 import { AVATARS } from "@/lib/avatars";
 import { debugLog, forLog } from "@/lib/debug";
 import { sendCapi } from "@/lib/meta";
 
 export type SubmitResult =
-  | { ok: true; eventId: string; bookingToken: string; whatsapp: string; qualified: boolean }
+  | { ok: true; eventId: string; bookingToken: string; whatsapp: string; qualified: boolean; underFloor: boolean }
   | { ok: false; error: string; fields?: FieldName[] };
 
 export type BookingResult = { ok: boolean };
@@ -93,7 +93,7 @@ async function postToSheet(body: Record<string, unknown>, label: string): Promis
 export async function processApplication(formData: FormData, ctx: RequestContext = {}): Promise<SubmitResult> {
   // Honeypot: bots fill every field; humans never see this one.
   if (String(formData.get("company") ?? "").trim()) {
-    return { ok: true, eventId: crypto.randomUUID(), bookingToken: "", whatsapp: "", qualified: false };
+    return { ok: true, eventId: crypto.randomUUID(), bookingToken: "", whatsapp: "", qualified: false, underFloor: false };
   }
 
   const values: Record<string, string> = {};
@@ -112,6 +112,7 @@ export async function processApplication(formData: FormData, ctx: RequestContext
 
   const avatarRaw = field(formData, "avatar", 100);
   const qualified = isQualified(values);
+  const underFloor = isUnderFloor(values);
   const eventId = crypto.randomUUID();
   const eventSourceUrl = field(formData, "event_source_url") || ctx.referer || "";
   const payload = {
@@ -138,7 +139,9 @@ export async function processApplication(formData: FormData, ctx: RequestContext
     utmContent: field(formData, "utm_content", 200),
     landingUrl: field(formData, "landing_url"),
     device: /Mobi|Android|iPhone|iPad|iPod/i.test(ctx.userAgent ?? "") ? "mobile" : "desktop",
-    calendlyUrl: CALENDLY_URL, // the applicant's confirmation email links to it
+    // The applicant's confirmation email links to it; "Less than $5,000" gets the budget email instead, without the link.
+    calendlyUrl: underFloor ? "" : CALENDLY_URL,
+    underFloor,
   };
   debugLog("server payload", forLog({ ...payload, utmMedium: field(formData, "utm_medium", 200), eventSourceUrl }));
 
@@ -158,7 +161,51 @@ export async function processApplication(formData: FormData, ctx: RequestContext
       eventSourceUrl,
     }),
   );
-  return { ok: true, eventId, bookingToken: bookingToken(eventId, values.email, values.whatsapp, qualified), whatsapp: values.whatsapp, qualified };
+  return {
+    ok: true,
+    eventId,
+    bookingToken: bookingToken(eventId, values.email, values.whatsapp, qualified),
+    whatsapp: values.whatsapp,
+    qualified,
+    underFloor,
+  };
+}
+
+export type RaiseInput = {
+  eventId: string;
+  /** The token from submit (issued with qualified = false, as every "Less than $5,000" applicant is). */
+  bookingToken: string;
+  email: string;
+  whatsapp: string;
+  /** Their answer to "When do you want to start?", needed to work out Qualified again. */
+  start: string;
+  /** The new budget, one of RAISE_OPTIONS. */
+  budget: string;
+};
+
+export type RaiseResult = { ok: true; bookingToken: string; qualified: boolean } | { ok: false };
+
+/**
+ * "I can stretch my budget": a "Less than $5,000" applicant picks a higher budget. Updates Budget and
+ * Qualified on their sheet row (no new row, no second Lead) and returns a fresh booking token, so
+ * the booking that follows is reported with the new Qualified value.
+ */
+export async function processRaise(i: RaiseInput): Promise<RaiseResult> {
+  const eventId = String(i.eventId ?? "").slice(0, 100);
+  const email = String(i.email ?? "").trim().slice(0, 200);
+  const whatsapp = String(i.whatsapp ?? "").trim().slice(0, 40);
+  const budget = String(i.budget ?? "");
+  const start = String(i.start ?? "");
+  if (!eventId || !i.bookingToken || !sameToken(String(i.bookingToken), bookingToken(eventId, email, whatsapp, false))) {
+    console.error("processRaise: bad token");
+    return { ok: false };
+  }
+  if (!(RAISE_OPTIONS as readonly string[]).includes(budget) || !(START.options as readonly string[]).includes(start)) return { ok: false };
+  const qualified = isQualified({ budget, start });
+  const sent = await postToSheet({ action: "budget", eventId, budget, qualified: qualified ? "Yes" : "No" }, "processRaise");
+  debugLog("raise", { eventId, budget, qualified, sheet: sent.ok });
+  if (!sent.ok) return { ok: false };
+  return { ok: true, bookingToken: bookingToken(eventId, email, whatsapp, qualified), qualified };
 }
 
 export type BookingInput = {

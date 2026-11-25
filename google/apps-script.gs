@@ -12,7 +12,12 @@
  *     2. emails NOTIFY_EMAIL (Script Property) with every answer, reply-to set to the applicant,
  *     3. sends the applicant a short confirmation with the Calendly link (reply-to NOTIFY_EMAIL).
  *   action "booked" (the applicant booked in the embedded Calendly) →
- *     sets Booked = Yes and Booked at on the row with that Event ID.
+ *     sets Booked = Yes and Booked at on the row with that Event ID, then (about a minute later,
+ *     once Calendly has put the call in the calendar) emails you the call time in your time and
+ *     theirs, plus their answer to Calendly's "Anything you'd like me to know" question.
+ *   action "budget" (a "Less than $5,000" applicant tapped "I can stretch my budget") →
+ *     updates Budget + Qualified on their row, keeps the old answer in "Budget raised from",
+ *     and emails you.
  *   legacy application (the old one-page form, no "version") →
  *     same as before: appends to the original tab with the original columns. Kept so the live
  *     site keeps working between redeploying this script and the new form going live.
@@ -26,6 +31,15 @@
 // not in this file, so re-pasting the script never overwrites them. See google/SETUP.md.
 //   SECRET        same value as APPS_SCRIPT_SECRET on the website
 //   NOTIFY_EMAIL  where new applications are sent
+
+/**
+ * "Your time" in the emails to you: London until 14 December 2026, 06:00 Beirut time
+ * (04:00 UTC), Beirut from then on. Returns [IANA time zone, label].
+ */
+var MY_TZ_SWITCH_AT = Date.UTC(2026, 11, 14, 4, 0);
+function myTz_() {
+  return Date.now() < MY_TZ_SWITCH_AT ? ["Europe/London", "London time"] : ["Asia/Beirut", "Beirut time"];
+}
 
 /** Reads SECRET and NOTIFY_EMAIL from Script Properties; null if either is missing. */
 function config_() {
@@ -137,6 +151,7 @@ function doPost(e) {
     if (!data.secret || data.secret !== cfg.secret) return json_({ ok: false, error: "unauthorised" });
 
     if (data.action === "booked") return json_(markBooked_(String(data.eventId || ""), data.bookedAt, cfg.notifyEmail));
+    if (data.action === "budget") return json_(raiseBudget_(String(data.eventId || ""), String(data.budget || ""), String(data.qualified || ""), cfg.notifyEmail));
 
     if (Number(data.version) === 3) {
       data.booked = "No";
@@ -278,50 +293,182 @@ function appendV2Row_(data) {
   }
 }
 
-/** Booked = Yes on the row whose Event ID matches (v3 tab first, then v2). */
+/** The row whose Event ID matches (v3 tab first, then v2): { sheet, keys, row } or null. */
+function findByEventId_(eventId) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var tabs = [[V3_TAB, V3_COLUMNS], [V2_TAB, V2_COLUMNS]];
+  for (var t = 0; t < tabs.length; t++) {
+    var sh = ss.getSheetByName(tabs[t][0]);
+    if (!sh || sh.getLastRow() < 2) continue;
+    var ks = tabs[t][1].map(function (c) { return c[1]; });
+    var found = sh.getRange(2, ks.indexOf("eventId") + 1, sh.getLastRow() - 1, 1).createTextFinder(eventId).matchEntireCell(true).findNext();
+    if (found) return { sheet: sh, keys: ks, row: found.getRow() };
+  }
+  return null;
+}
+
+/** The row's values by key, plus budgetFrom ("Budget raised from", a column added at the end when first used). */
+function rowData_(hit) {
+  var values = hit.sheet.getRange(hit.row, 1, 1, hit.keys.length).getValues()[0];
+  var d = {};
+  hit.keys.forEach(function (k, i) { d[k] = values[i]; });
+  var col = extraCol_(hit.sheet, RAISED_HEADER, false);
+  d.budgetFrom = col ? String(hit.sheet.getRange(hit.row, col).getValue() || "") : "";
+  return d;
+}
+
+/** Column number of a header added after the fixed columns; created when `create` is true, else 0 if missing. */
+function extraCol_(sheet, header, create) {
+  var head = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var col = head.indexOf(header) + 1;
+  if (!col && create) {
+    col = sheet.getLastColumn() + 1;
+    sheet.getRange(1, col).setValue(header).setFontWeight("bold");
+  }
+  return col;
+}
+
+var RAISED_HEADER = "Budget raised from";
+
+/** Booked = Yes on the row whose Event ID matches; the email to you follows once the call is in the calendar. */
 function markBooked_(eventId, bookedAt, notifyEmail) {
   if (!eventId) return { ok: false, error: "no-event-id" };
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var tabs = [[V3_TAB, V3_COLUMNS], [V2_TAB, V2_COLUMNS]];
-    var sheet = null, keys = null, hit = null;
-    for (var t = 0; t < tabs.length && !hit; t++) {
-      var sh = ss.getSheetByName(tabs[t][0]);
-      if (!sh || sh.getLastRow() < 2) continue;
-      var ks = tabs[t][1].map(function (c) { return c[1]; });
-      var found = sh.getRange(2, ks.indexOf("eventId") + 1, sh.getLastRow() - 1, 1).createTextFinder(eventId).matchEntireCell(true).findNext();
-      if (found) { sheet = sh; keys = ks; hit = found; }
-    }
+    var hit = findByEventId_(eventId);
     if (!hit) return { ok: false, error: "not-found" };
-    var r = hit.getRow();
     var when = bookedAt ? new Date(bookedAt) : new Date();
-    sheet.getRange(r, keys.indexOf("booked") + 1).setValue("Yes");
-    sheet.getRange(r, keys.indexOf("bookedAt") + 1).setValue(when);
-    var values = sheet.getRange(r, 1, 1, keys.length).getValues()[0];
-    var d = {};
-    keys.forEach(function (k, i) { d[k] = values[i]; });
+    hit.sheet.getRange(hit.row, hit.keys.indexOf("booked") + 1).setValue("Yes");
+    hit.sheet.getRange(hit.row, hit.keys.indexOf("bookedAt") + 1).setValue(when);
+    queueBooked_(eventId, when);
   } finally {
     lock.releaseLock();
   }
-  sendBookedEmail_(d, when, notifyEmail);
   return { ok: true };
 }
 
+/* ---------- booking email: waits for Calendly to put the call in the calendar ---------- */
+
+var PENDING_KEY = "pendingBookedEmails";
+var PENDING_HANDLER = "sendPendingBookedEmails";
+var PENDING_GIVE_UP_MS = 10 * 60 * 1000; // after 10 minutes, send without the call time
+
+function pending_() {
+  try { return JSON.parse(PropertiesService.getScriptProperties().getProperty(PENDING_KEY) || "[]"); } catch (e) { return []; }
+}
+function savePending_(list) {
+  PropertiesService.getScriptProperties().setProperty(PENDING_KEY, JSON.stringify(list));
+}
+
+/** Call with the script lock held. */
+function queueBooked_(eventId, when) {
+  var list = pending_();
+  list.push({ eventId: eventId, when: when.toISOString(), queuedAt: Date.now() });
+  savePending_(list);
+  armPendingTrigger_();
+}
+
+/** One-off trigger ~30 seconds from now, unless one is already waiting. */
+function armPendingTrigger_() {
+  var armed = ScriptApp.getProjectTriggers().some(function (t) { return t.getHandlerFunction() === PENDING_HANDLER; });
+  if (!armed) ScriptApp.newTrigger(PENDING_HANDLER).timeBased().after(30 * 1000).create();
+}
+
+/** Runs from the one-off trigger: sends each queued booking email once its call is in the calendar. */
+function sendPendingBookedEmails() {
+  var cfg = config_();
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  var list, ready = [], keep = [];
+  try {
+    ScriptApp.getProjectTriggers().forEach(function (t) {
+      if (t.getHandlerFunction() === PENDING_HANDLER) ScriptApp.deleteTrigger(t);
+    });
+    list = pending_();
+    list.forEach(function (p) {
+      var hit = findByEventId_(p.eventId);
+      if (!hit) return; // row gone: drop it
+      var d = rowData_(hit);
+      var call = findCall_(String(d.email || "").trim().toLowerCase(), String(d.whatsapp || "").replace(/\D/g, ""));
+      if (call || Date.now() - p.queuedAt > PENDING_GIVE_UP_MS) ready.push({ d: d, when: new Date(p.when), call: call });
+      else keep.push(p);
+    });
+    savePending_(keep);
+    if (keep.length) armPendingTrigger_();
+  } finally {
+    lock.releaseLock();
+  }
+  if (cfg) ready.forEach(function (r) { sendBookedEmail_(r.d, r.when, r.call, cfg.notifyEmail); });
+}
+
+/** Their answer to Calendly's "Anything you'd like me to know before the call?" (in the event description). */
+function calendlyNote_(desc) {
+  var m = /Anything you.{0,2}d like me to know before the call\??[ \t]*:?\s*([\s\S]*?)\n\s*\n(?:Need to make changes|Powered by Calendly)/i.exec(desc || "");
+  return m ? m[1].trim() : "";
+}
+
 /** "Re: <same subject>" so it threads under the application email in Gmail / Outlook. */
-function sendBookedEmail_(d, when, notifyEmail) {
+function sendBookedEmail_(d, when, call, notifyEmail) {
   var name = (String(d.firstName || "") + " " + String(d.lastName || "")).trim() || "Unknown";
+  var tz = myTz_();
+  var digits = String(d.whatsapp || "").replace(/\D/g, "");
+  var note = call ? calendlyNote_(call.getDescription()) : "";
+  var budget = d.budget ? String(d.budget) + (d.budgetFrom ? " (raised from " + d.budgetFrom + ")" : "") : "";
   var body =
     name + " booked a call.\n\n" +
+    "CALL, YOUR TIME\n" + (call ? Utilities.formatDate(call.getStartTime(), tz[0], "EEEE d MMMM, HH:mm") + " (" + tz[1] + ")" : "Not in your calendar yet, check Calendly") + "\n\n" +
+    (call ? "CALL, THEIR TIME\n" + leadTime_(call.getStartTime(), digits) + "\n\n" : "") +
+    "ANYTHING THEY WANT YOU TO KNOW\n" + (call ? note || "(not answered)" : "(see Calendly)") + "\n\n" +
     "BOOKED\nYes\n\n" +
-    "BOOKED AT\n" + when.toLocaleString() + "\n\n" +
+    "BOOKED AT\n" + Utilities.formatDate(when, tz[0], "EEE d MMM, HH:mm") + " (" + tz[1] + ")\n\n" +
+    (budget ? "BUDGET\n" + budget + "\n\n" : "") +
     "EMAIL\n" + (d.email || "") + "\n\n" +
-    "WHATSAPP\n" + (d.whatsapp || "") + "\n\n" +
-    "Calendly has the call time and invite.";
+    "WHATSAPP\n" + (d.whatsapp || "");
   var opts = { name: "Cortexity applications" };
   if (d.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) opts.replyTo = String(d.email);
-  GmailApp.sendEmail(notifyEmail, "Re: " + v2Subject_(d), body, opts);
+  GmailApp.sendEmail(notifyEmail, "Re: " + v2Subject_(threadView_(d)), body, opts);
+}
+
+/** The row as it was at submit, so replies keep the application email's subject (and thread). */
+function threadView_(d) {
+  if (!d.budgetFrom) return d;
+  var o = {};
+  for (var k in d) o[k] = d[k];
+  o.budget = d.budgetFrom;
+  o.qualified = "No"; // "Less than $5,000" is never qualified
+  return o;
+}
+
+/** "I can stretch my budget": new Budget + Qualified on the v3 row; the first answer goes to "Budget raised from". */
+function raiseBudget_(eventId, budget, qualified, notifyEmail) {
+  if (!eventId || !budget) return { ok: false, error: "missing" };
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  var d;
+  try {
+    var hit = findByEventId_(eventId);
+    if (!hit || hit.sheet.getName() !== V3_TAB) return { ok: false, error: "not-found" };
+    var bCol = hit.keys.indexOf("budget") + 1;
+    var old = String(hit.sheet.getRange(hit.row, bCol).getValue() || "");
+    var rCol = extraCol_(hit.sheet, RAISED_HEADER, true);
+    if (!hit.sheet.getRange(hit.row, rCol).getValue()) hit.sheet.getRange(hit.row, rCol).setValue(asText_(old));
+    hit.sheet.getRange(hit.row, bCol).setValue(asText_(budget));
+    hit.sheet.getRange(hit.row, hit.keys.indexOf("qualified") + 1).setValue(qualified === "Yes" ? "Yes" : "No");
+    d = rowData_(hit);
+  } finally {
+    lock.releaseLock();
+  }
+  var name = (String(d.firstName || "") + " " + String(d.lastName || "")).trim() || "Unknown";
+  var body =
+    name + " raised their budget on the website.\n\n" +
+    "BUDGET\n" + budget + " (was " + d.budgetFrom + ")\n\n" +
+    "QUALIFIED\n" + (qualified === "Yes" ? "Yes" : "No") + "\n\n" +
+    "They can book a call now. You'll get the booking email if they do.";
+  var opts = { name: "Cortexity applications" };
+  if (d.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) opts.replyTo = String(d.email);
+  GmailApp.sendEmail(notifyEmail, "Re: " + v2Subject_(threadView_(d)), body, opts);
+  return { ok: true };
 }
 
 function v2Subject_(d) {
@@ -346,6 +493,17 @@ function sendEmailV2_(d, notifyEmail) {
 function sendConfirmationV2_(d, notifyEmail) {
   if (!d.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) return;
   var first = String(d.firstName || "").trim() || "there";
+  if (d.underFloor === true) {
+    // "Less than $5,000": no calendar link; a reply is how they come back.
+    GmailApp.sendEmail(d.email, "Got your application — Cortexity",
+      "Hi " + first + ",\n\n" +
+      "Thanks for telling me about your app.\n\n" +
+      "I'll be straight with you: a first version done properly (designed, built, tested and live on the App Store) costs $10,000 to $12,000 with me. Under $5,000, I can't build it to a standard you'd be proud to launch.\n\n" +
+      "Many of my clients started with a smaller budget in mind, then decided their app was worth doing properly. If your budget changes, just reply to this email and I'll send you a time.\n\n" +
+      "Joseph\nCortexity",
+      { name: "Joseph at Cortexity", replyTo: notifyEmail });
+    return;
+  }
   var link = String(d.calendlyUrl || "").trim();
   var body =
     "Hi " + first + ",\n\n" +

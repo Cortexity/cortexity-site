@@ -8,7 +8,7 @@ import "react-phone-number-input/style.css";
 import { ATTRIBUTION_FIELDS, attributionFields } from "@/lib/attribution";
 import { debugLog, forLog } from "@/lib/debug";
 import { track } from "@/lib/pixel";
-import { reportBooking, submitApplication } from "./actions";
+import { raiseBudget, reportBooking, submitApplication } from "./actions";
 import {
   bookingEventId,
   BUDGET,
@@ -22,6 +22,7 @@ import {
   MESSAGES,
   OCCUPATION,
   PLATFORMS,
+  RAISE_OPTIONS,
   SIMILAR,
   STAGE,
   START,
@@ -157,7 +158,7 @@ function Choices({
   name: string;
   options: readonly string[];
   multiple?: boolean;
-  onPick?: () => void;
+  onPick?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
     <div className="mt-6 grid grid-cols-1 gap-3" role={multiple ? "group" : "radiogroup"}>
@@ -261,14 +262,35 @@ function CalendlyEmbed({
   );
 }
 
+/* ---------- "Less than $5,000" ---------- */
+
+/** The budget message, shared by the JS and no-JS screens (the confirmation email says the same). */
+function UnderFloorCopy({ next = "tap below and we’ll book a call." }: { next?: string }) {
+  return (
+    <div className="mx-auto max-w-prose">
+      <Help>
+        I’ll be straight with you: a first version done properly (designed, built, tested and live on the App Store) costs
+        $10,000 to $12,000 with me. Under $5,000, I can’t build it to a standard you’d be proud to launch.
+      </Help>
+      <Help>
+        Many of my clients started with a smaller budget in mind, then decided their app was worth doing properly. If that’s
+        you, {next}
+      </Help>
+    </div>
+  );
+}
+
 /* ---------- the form ---------- */
 
 export function ApplyForm({
   initialDone = false,
+  initialUnderFloor = false,
   initialError,
   defaultCountry = "US",
 }: {
   initialDone?: boolean;
+  /** No-JS post with "Less than $5,000": the budget message instead of the Calendly link. */
+  initialUnderFloor?: boolean;
   initialError?: string;
   defaultCountry?: string;
 }) {
@@ -286,12 +308,19 @@ export function ApplyForm({
     eventId: string;
     bookingToken: string;
     qualified: boolean;
+    /** "Less than $5,000": show the budget message instead of the calendar. */
+    underFloor: boolean;
+    start: string;
     firstName: string;
     lastName: string;
     email: string;
     whatsapp: string;
   } | null>(null);
   const [booked, setBooked] = useState(false);
+  /** Under-floor screen: "I can stretch my budget" opens the higher budgets; failed = the update didn't go through. */
+  const [raising, setRaising] = useState(false);
+  const [raiseFailed, setRaiseFailed] = useState(false);
+  const [raisePending, startRaise] = useTransition();
   const [pending, startTransition] = useTransition();
   const country: Country = isSupportedCountry(defaultCountry) ? (defaultCountry as Country) : "US";
 
@@ -346,7 +375,7 @@ export function ApplyForm({
     const firstId = step === 2 ? "#similar" : step === 7 ? "#occupation" : step === FORM_STEPS ? "#firstName" : null;
     const firstInput = firstId && desktop ? formRef.current?.querySelector<HTMLInputElement>(firstId) : null;
     (firstInput ?? headings.current[step])?.focus({ preventScroll: true });
-  }, [step, booked]);
+  }, [step, booked, lead?.underFloor]);
 
   const values = () => {
     const fd = new FormData(formRef.current ?? undefined);
@@ -446,6 +475,8 @@ export function ApplyForm({
             eventId: res.eventId,
             bookingToken: res.bookingToken,
             qualified: res.qualified,
+            underFloor: res.underFloor,
+            start: String(fd.get("start") ?? ""),
             firstName: String(fd.get("firstName") ?? "").trim(),
             lastName: String(fd.get("lastName") ?? "").trim(),
             email: String(fd.get("email") ?? "").trim(),
@@ -492,6 +523,39 @@ export function ApplyForm({
     }).catch(() => {});
   }, [lead]);
 
+  /** Under-floor applicant picked a higher budget: update their row, then show the calendar. */
+  const onRaise = (budget: string) => {
+    if (!lead || raisePending) return;
+    setRaiseFailed(false);
+    startRaise(async () => {
+      try {
+        const res = await raiseBudget({
+          eventId: lead.eventId,
+          bookingToken: lead.bookingToken,
+          email: lead.email,
+          whatsapp: lead.whatsapp,
+          start: lead.start,
+          budget,
+        });
+        if (res.ok) setLead({ ...lead, bookingToken: res.bookingToken, qualified: res.qualified, underFloor: false });
+        else setRaiseFailed(true);
+      } catch {
+        setRaiseFailed(true);
+      }
+    });
+  };
+
+  /* ---------- no-JS thank-you, "Less than $5,000" ---------- */
+  if (initialDone && initialUnderFloor) {
+    return (
+      <div className={`${CARD} text-center`}>
+        <h2 className={TITLE}>Thanks. Your application is in.</h2>
+        <UnderFloorCopy next="reply to the email I’ve just sent you and I’ll send you a time." />
+        <Help>If it’s not in your inbox, check your junk folder.</Help>
+      </div>
+    );
+  }
+
   /* ---------- no-JS thank-you (redirect from /api/apply) ---------- */
   if (initialDone) {
     return (
@@ -518,15 +582,53 @@ export function ApplyForm({
           <h2 ref={(el) => void (headings.current[CAL] = el)} tabIndex={-1} className={`${TITLE} mt-6`}>
             You’re booked, {lead.firstName}.
           </h2>
-          <Help>
-            The invite is on its way to {lead.email}. I’ll read your idea before we talk.
-          </Help>
+          <Help>The invite is on its way to {lead.email}. I’ll read your idea before we talk.</Help>
+          <Help>Can’t see it in a few minutes? Check your junk folder and mark it “Not junk”, so my next emails reach you.</Help>
           <Link
             href="/"
             className="mt-8 inline-flex min-h-12 items-center justify-center rounded-pill bg-[#1d1d1f] px-7 text-[1rem] font-medium text-white transition-transform duration-200 hover:-translate-y-0.5"
           >
             Back to Cortexity
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  /* ---------- "Less than $5,000": no calendar, unless they stretch the budget ---------- */
+  if (step === CAL && lead?.underFloor) {
+    return (
+      <div ref={topRef} className="apply-step scroll-mt-28" data-active="">
+        <div className={`${CARD} text-center`}>
+          <h2 ref={(el) => void (headings.current[CAL] = el)} tabIndex={-1} className={TITLE}>
+            Thanks, {lead.firstName}. Your application is in.
+          </h2>
+          <UnderFloorCopy />
+          {raising ? (
+            <fieldset className="mt-8 text-left" disabled={raisePending}>
+              <legend className="w-full text-center text-[1.25rem] font-semibold tracking-[-0.015em] text-ink">
+                What budget can you set aside?
+              </legend>
+              <Choices name="raise" options={RAISE_OPTIONS} onPick={(e) => onRaise(e.currentTarget.value)} />
+              {raisePending ? <p className="mt-4 text-center text-small text-ink-muted">One moment…</p> : null}
+            </fieldset>
+          ) : (
+            <button type="button" onClick={() => setRaising(true)} className={`${PRIMARY} mt-8`}>
+              I can stretch my budget <Arrow />
+            </button>
+          )}
+          {raiseFailed ? (
+            <p role="alert" className="mt-4 text-small font-medium text-red">
+              Something went wrong. Please email me at{" "}
+              <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-4">
+                {CONTACT_EMAIL}
+              </a>
+              .
+            </p>
+          ) : null}
+          <p className="mt-8 text-small text-ink-muted">
+            I’ve also sent this to {lead.email}. If it’s not in your inbox, check your junk folder.
+          </p>
         </div>
       </div>
     );
@@ -542,6 +644,7 @@ export function ApplyForm({
             Pick a time for a call.
           </h2>
           <Help>Thanks, {lead.firstName}. Your application is in. Choose a time below and we’ll talk through your idea.</Help>
+          <Help>You’ll get a confirmation email. If it’s not in your inbox, check your junk folder.</Help>
           <CalendlyEmbed prefill={lead} eventId={lead.eventId} onBooked={onBooked} />
         </div>
       </div>
@@ -650,6 +753,7 @@ export function ApplyForm({
                 {BUDGET.label}
               </h2>
             </legend>
+            <Help>{BUDGET.help}</Help>
             <Choices name="budget" options={BUDGET.options} onPick={() => pickNext(6)} />
             <ErrorLine message={errors.budget} />
           </fieldset>

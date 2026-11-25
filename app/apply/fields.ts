@@ -61,9 +61,19 @@ export const START = {
 
 export const BUDGET = {
   name: "budget",
-  label: "What budget do you have in mind?",
-  options: ["Under $10,000", "$10,000 to $20,000", "$20,000 to $50,000", "$50,000+"],
+  label: "What budget have you set aside for your app?",
+  help: "Most first versions I build cost between $10,000 and $12,000. Fixed price, agreed before we start.",
+  // Highest first. Qualified = the first two (see isQualified). The last one skips the calendar.
+  options: ["$15,000+", "$10,000 to $15,000", "$5,000 to $10,000", "Less than $5,000"],
 } as const;
+
+/** "Less than $5,000": the application is saved, but the calendar is replaced by a message. */
+export const UNDER_FLOOR = BUDGET.options[3];
+
+/** The budgets a "Less than $5,000" applicant can move up to ("I can stretch my budget"). */
+export const RAISE_OPTIONS = BUDGET.options.slice(0, 3);
+
+export const isUnderFloor = (values: Record<string, string | undefined>) => values.budget === UNDER_FLOOR;
 
 export const OCCUPATION = {
   name: "occupation",
@@ -105,11 +115,13 @@ export const STEP_OF: Record<FieldName, number> = {
 export const LIST_SEP = ", ";
 
 /**
- * Qualified = worth optimising Meta for. Everyone still books a call; only qualified
- * bookings are sent to Meta as Schedule. Not qualified: budget under $10,000 or just exploring.
+ * Qualified = worth optimising Meta for: budget $10,000 or more, and not "Just exploring for now".
+ * Only qualified bookings are sent to Meta as Schedule. "$5,000 to $10,000" still books a call;
+ * "Less than $5,000" doesn't see the calendar at all.
  */
 export function isQualified(values: Record<string, string | undefined>): boolean {
-  return values.budget !== BUDGET.options[0] && values.start !== START.options[3];
+  const budget = values.budget ?? "";
+  return (budget === BUDGET.options[0] || budget === BUDGET.options[1]) && values.start !== START.options[3];
 }
 
 export const MESSAGES = {

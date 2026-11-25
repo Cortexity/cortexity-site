@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
   const proto = req.headers.get("x-forwarded-proto") ?? (req.url.startsWith("https") ? "https" : "http");
   const to = new URL("/apply", host ? `${proto}://${host}` : req.url);
-  if (result.ok) to.searchParams.set("sent", "1");
+  if (result.ok) to.searchParams.set("sent", result.underFloor ? "under" : "1");
   else to.searchParams.set("error", result.fields?.length ? "fields" : "send");
   return NextResponse.redirect(to, 303);
 }

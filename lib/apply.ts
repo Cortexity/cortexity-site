@@ -92,7 +92,7 @@ async function postToSheet(body: Record<string, unknown>, label: string): Promis
  */
 export async function processApplication(formData: FormData, ctx: RequestContext = {}): Promise<SubmitResult> {
   // Honeypot: bots fill every field; humans never see this one.
-  if (String(formData.get("company") ?? "").trim()) {
+  if (String(formData.get("cx_hp") ?? "").trim()) {
     return { ok: true, eventId: crypto.randomUUID(), bookingToken: "", whatsapp: "", qualified: false, underFloor: false };
   }
 

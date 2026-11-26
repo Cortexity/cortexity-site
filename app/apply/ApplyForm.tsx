@@ -809,10 +809,11 @@ export function ApplyForm({
           <input key={k} type="hidden" name={k} defaultValue="" />
         ))}
 
-        {/* Honeypot: hidden from people, filled by bots. */}
+        {/* Honeypot: hidden from people, filled by bots. Deliberately meaningless name and label:
+            a field called "company" was filled by Chrome autofill, so real applications were dropped. */}
         <div className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
-          <label htmlFor="company">Company</label>
-          <input id="company" name="company" type="text" tabIndex={-1} autoComplete="off" />
+          <label htmlFor="cx_hp">Leave this empty</label>
+          <input id="cx_hp" name="cx_hp" type="text" tabIndex={-1} autoComplete="off" data-lpignore="true" data-1p-ignore />
         </div>
       </form>
       {/* Warm the Calendly script while they type their details, so the calendar opens instantly. */}
